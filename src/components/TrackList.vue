@@ -10,7 +10,6 @@ defineProps<{
 
 const currentPage = defineModel<number>({ default: 1 });
 </script>
-
 <template>
   <div v-if="tracks?.length && !loading" class="flex flex-col gap-4 h-full">
     <ul class="flex-1 flex flex-col">

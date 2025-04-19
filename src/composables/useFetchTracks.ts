@@ -1,3 +1,4 @@
+import { ofetch } from "ofetch";
 import type { TracksAPI } from "@/types";
 import { ref, toValue, watchEffect, type Ref } from "vue";
 
@@ -10,7 +11,12 @@ export function useFetchTracks({ page }: { page?: Ref<number> | number }) {
     try {
       loading.value = true;
 
-      console.log(1);
+      // const data = await ofetch(`api/tracks?page=${toValue(page)}`).catch(
+      //   (err) => (error.value = err.data),
+      // );
+
+      // data.value = data;
+      // console.log(data.value);
       const response = await fetch(`api/tracks?page=${toValue(page)}`);
 
       if (response.status !== 200) {
@@ -20,7 +26,7 @@ export function useFetchTracks({ page }: { page?: Ref<number> | number }) {
       data.value = await response.json();
     } catch (e) {
       console.error(e);
-      error.value = e;
+      // error.value = e;
     } finally {
       loading.value = false;
     }

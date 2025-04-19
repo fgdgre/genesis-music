@@ -22,7 +22,9 @@ const handleAddNewTrack = (track: NewTrack) => {
       class="flex flex-col gap-4 justify-center items-center h-full"
     >
       <p class="text-red-400">{{ error }}</p>
-      <button class="bg-black rounded-md text-white px-4 py-2">Refetch</button>
+      <button class="bg-black rounded-md text-white px-4 py-2" @click="">
+        Refetch
+      </button>
     </div>
 
     <template v-else>
@@ -35,6 +37,7 @@ const handleAddNewTrack = (track: NewTrack) => {
       />
     </template>
   </main>
+
   <TrackForm
     v-if="modalOpen"
     @close="modalOpen = false"
