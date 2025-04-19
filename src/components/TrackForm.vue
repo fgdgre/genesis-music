@@ -1,13 +1,5 @@
 <script setup lang="ts">
-import type { Track } from "@/types";
-
-type NewTrack = {
-  title: "string";
-  artist: "string";
-  album: "string";
-  genres: ["string"];
-  coverImage: "string";
-};
+import type { NewTrack, Track } from "@/types";
 
 defineProps<{
   initialData?: Track;
@@ -36,8 +28,14 @@ const handleSubmit = () => {};
         <input class="px-4 py-2 border rounded-md" />
 
         <div class="col-span-2 w-full flex gap-2">
-          <button class="flex-1" type="button">Cancel</button>
-          <button class="bg-black text-white flex-1" type="submit">
+          <button class="flex-1" type="button" @click="$emit('close')">
+            Cancel
+          </button>
+          <button
+            class="bg-black text-white flex-1"
+            type="submit"
+            @click="handleSubmit"
+          >
             Submit
           </button>
         </div>
