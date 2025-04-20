@@ -61,7 +61,7 @@ const handleEditTrack = (id: string) => {
   <main class="flex flex-col h-full w-full p-6">
     <!-- error page -------------------------------------------------------------------- -->
     <div
-      v-if="isError"
+      v-if="isError && !isLoading"
       class="flex flex-col gap-4 justify-center items-center h-full"
     >
       <p class="text-red-400">{{ isError }}</p>
