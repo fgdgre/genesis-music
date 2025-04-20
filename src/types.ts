@@ -7,8 +7,8 @@ export type Track = {
   slug: string;
   coverImage: string;
   audioFile: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type TracksMeta = {

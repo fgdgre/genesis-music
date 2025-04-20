@@ -30,21 +30,31 @@ const formData = ref<NewTrack>({
   genres: [],
   coverImage: "",
 });
-
+const modalErrorMessage = ref("");
 const handleSubmit = async () => {
   const { newTrack, isError } = await usePostTracks(formData.value);
-  console.log(newTrack.value);
-  console.log(isError.value);
 
-  if (!isError.value) {
-    if (newTrack.value) {
-      tracks.value?.unshift(newTrack.value);
-      console.log(tracks.value);
-    }
+  if (isError) {
+    modalErrorMessage.value = isError.value;
+  }
+
+  if (!isError.value && newTrack.value) {
+    tracks.value?.unshift(newTrack.value);
+
     isFormModalOpen.value = false;
   }
 };
 // --------------------------------------------------------------------------------------
+
+// delete track ---------------------------------------------------------------------------
+const handleDeleteTrack = (id: string) => {
+  console.log("deleting", id);
+};
+
+// Edit track ---------------------------------------------------------------------------
+const handleEditTrack = (id: string) => {
+  console.log("editting", id);
+};
 </script>
 
 <template>
@@ -82,7 +92,24 @@ const handleSubmit = async () => {
           </button>
 
           <ul class="flex-1 flex flex-col">
-            <li v-for="track in tracks">{{ track }}</li>
+            <li v-for="track in tracks">
+              <div>{{ track }}</div>
+
+              <div class="flex gap-2">
+                <button
+                  @click="handleDeleteTrack(track.id)"
+                  class="bg-red-400 text-black px-4 py-3 rounded-md w-fit text-sm"
+                >
+                  Delete
+                </button>
+                <button
+                  @click="handleEditTrack(track.id)"
+                  class="bg-yellow-400 text-black px-4 py-3 rounded-md w-fit text-sm"
+                >
+                  Edit
+                </button>
+              </div>
+            </li>
           </ul>
 
           <div v-if="tracksMeta?.totalPages" class="grid grid-cols-2 gap-4">
@@ -127,6 +154,9 @@ const handleSubmit = async () => {
       class="fixed top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] w-full h-full flex items-center justify-center z-30"
     >
       <div class="max-w-[400px] max-h-[500px] bg-white rounded-md">
+        <p v-if="modalErrorMessage" class="text-red-400">
+          {{ modalErrorMessage }}
+        </p>
         <form @submit.prevent="handleSubmit" class="grid grid-cols-2 gap-4 p-6">
           <label class="flex flex-col gap-1">
             Title
