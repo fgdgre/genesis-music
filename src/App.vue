@@ -30,19 +30,54 @@ const formData = ref<NewTrack>({
   genres: [],
   coverImage: "",
 });
-const modalErrorMessage = ref("");
-const handleSubmit = async () => {
-  const { newTrack, isError } = await usePostTracks(formData.value);
 
-  if (isError) {
-    modalErrorMessage.value = isError.value;
+const clearFormData = () => {
+  formData.value = {
+    title: "",
+    artist: "",
+    album: "",
+    genres: [],
+    coverImage: "",
+  };
+};
+
+const modalErrorMessage = ref("");
+
+const {
+  newTrack,
+  isError: isSubmittingError,
+  isLoading: isSubmittingProcess,
+  handlePostTrack,
+  cleanUpState,
+} = usePostTracks(formData.value);
+
+const cleanUpModalState = () => {
+  console.log(1);
+  clearFormData();
+  cleanUpState();
+  modalErrorMessage.value = "";
+};
+
+const handleSubmit = async () => {
+  await handlePostTrack(formData.value);
+
+  if (isSubmittingError.value) {
+    modalErrorMessage.value = isSubmittingError.value;
   }
 
-  if (!isError.value && newTrack.value) {
+  if (!isSubmittingError.value && newTrack.value) {
     tracks.value?.unshift(newTrack.value);
 
     isFormModalOpen.value = false;
+
+    cleanUpModalState();
   }
+};
+
+const handleDiscardSubmit = () => {
+  isFormModalOpen.value = false;
+
+  cleanUpModalState();
 };
 // --------------------------------------------------------------------------------------
 
@@ -200,15 +235,11 @@ const handleEditTrack = (id: string) => {
           </label>
 
           <div class="col-span-2 w-full flex gap-2">
-            <button
-              class="flex-1"
-              type="button"
-              @click="isFormModalOpen = false"
-            >
+            <button class="flex-1" type="button" @click="handleDiscardSubmit">
               Cancel
             </button>
             <button class="bg-black text-white flex-1" type="submit">
-              Submit
+              {{ isSubmittingProcess ? "Submitting..." : "Submit" }}
             </button>
           </div>
         </form>

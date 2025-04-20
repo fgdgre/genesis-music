@@ -2,30 +2,36 @@ import { postTrack } from "@/api/postTrack";
 import type { NewTrack, Track } from "@/types";
 import { ref } from "vue";
 
-export const usePostTracks = async (track: NewTrack) => {
+export const usePostTracks = () => {
   const newTrack = ref<Track | null>(null);
   const isLoading = ref(false);
   const isError = ref<any>(null);
 
-  try {
-    isLoading.value = true;
+  const handlePostTrack = async (track: NewTrack) => {
+    try {
+      isLoading.value = true;
 
-    const { data, error } = await postTrack(track);
+      cleanUpState();
 
-    if (error) {
-      throw new Error(error);
+      const { data, error } = await postTrack(track);
+
+      if (error) {
+        throw new Error(error);
+      } else {
+        newTrack.value = await data;
+      }
+    } catch (e) {
+      console.log(e);
+      isError.value = e;
+    } finally {
+      isLoading.value = false;
     }
+  };
 
-    if (!error && data) {
-      console.log(3, data, error);
-      newTrack.value = data;
-    }
-  } catch (e) {
-    console.log(e);
-    isError.value = e;
-  } finally {
-    isLoading.value = false;
-  }
+  const cleanUpState = () => {
+    isError.value = null;
+    newTrack.value = null;
+  };
 
-  return { newTrack, isLoading, isError };
+  return { newTrack, isLoading, isError, handlePostTrack, cleanUpState };
 };

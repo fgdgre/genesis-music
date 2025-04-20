@@ -1,4 +1,4 @@
-export const getTrackGenres = async () => {
+export const fetchTrackGenres = async () => {
   try {
     const response = await fetch("api/genres");
 

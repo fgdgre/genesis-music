@@ -1,36 +1,34 @@
-import { onMounted, ref, toValue, watchEffect, type Ref } from "vue";
-import { getTrackGenres } from "@/api/getTrackGenres";
+import { onMounted, ref } from "vue";
+import { fetchTrackGenres } from "@/api/fetchTrackGenres";
 
 export const useFetchGenres = () => {
-  const genres = ref();
+  const genres = ref<string[] | null>(null);
   const isError = ref<any>(null);
   const isLoading = ref(false);
 
-  const fetchGenres = async () => {
+  const handleFetchTrackGenres = async () => {
     try {
       isLoading.value = true;
 
-      const { data, error } = await getTrackGenres();
+      isError.value = null;
+
+      const { data, error } = await fetchTrackGenres();
 
       if (error) {
+        genres.value = null;
         isError.value = error;
+      } else {
+        genres.value = data;
+        isError.value = null;
       }
-
-      genres.value = data;
-    } catch (e) {
-      console.error(e);
     } finally {
       isLoading.value = false;
     }
   };
 
   onMounted(() => {
-    fetchGenres();
+    handleFetchTrackGenres();
   });
 
-  const refetchGenres = () => {
-    fetchGenres();
-  };
-
-  return { genres, isError, isLoading, refetchGenres };
+  return { genres, isError, isLoading };
 };
