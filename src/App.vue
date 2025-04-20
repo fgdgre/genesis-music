@@ -91,7 +91,7 @@ const handleEditTrack = (id: string) => {
             Add track
           </button>
 
-          <ul class="flex-1 flex flex-col">
+          <ul class="flex-1 flex flex-col overflow-auto">
             <li v-for="track in tracks">
               <div>{{ track }}</div>
 
