@@ -1,36 +1,39 @@
-import { ofetch } from "ofetch";
-import type { TracksAPI } from "@/types";
+import type { Track, TracksMeta } from "@/types";
 import { ref, toValue, watchEffect, type Ref } from "vue";
+import { getTracks } from "@/api/getTracks";
 
-export function useFetchTracks({ page }: { page?: Ref<number> | number }) {
-  const data = ref<TracksAPI | null>(null);
-  const error = ref<any>(null);
-  const loading = ref(false);
+export const useFetchTracks = ({ page }: { page?: Ref<number> | number }) => {
+  const tracks = ref<Track[]>();
+  const tracksMeta = ref<TracksMeta>();
+  const isError = ref<any>(null);
+  const isLoading = ref(false);
 
-  watchEffect(async () => {
+  const fetchTracks = async () => {
     try {
-      loading.value = true;
+      isLoading.value = true;
 
-      // const data = await ofetch(`api/tracks?page=${toValue(page)}`).catch(
-      //   (err) => (error.value = err.data),
-      // );
+      const { data, error } = await getTracks({ page: toValue(page) || 1 });
 
-      // data.value = data;
-      // console.log(data.value);
-      const response = await fetch(`api/tracks?page=${toValue(page)}`);
-
-      if (response.status !== 200) {
-        throw new Error("Something vent wrong");
+      if (error) {
+        isError.value = error;
       }
 
-      data.value = await response.json();
+      tracks.value = data.data;
+      tracksMeta.value = data.meta;
     } catch (e) {
       console.error(e);
-      // error.value = e;
     } finally {
-      loading.value = false;
+      isLoading.value = false;
     }
+  };
+
+  watchEffect(() => {
+    fetchTracks();
   });
 
-  return { data, error, loading };
-}
+  const refetchTracks = () => {
+    fetchTracks();
+  };
+
+  return { tracks, tracksMeta, isError, isLoading, refetchTracks };
+};

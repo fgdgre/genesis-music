@@ -38,5 +38,5 @@ const currentPage = defineModel<number>({ default: 1 });
     <p>Loading...</p>
   </div>
 
-  <div v-else></div>
+  <div v-else>Tracks list are empty</div>
 </template>

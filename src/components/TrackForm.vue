@@ -1,16 +1,27 @@
 <script setup lang="ts">
 import type { NewTrack, Track } from "@/types";
+import { ref } from "vue";
 
 defineProps<{
   initialData?: Track;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   submit: [NewTrack];
   close: [];
 }>();
 
-const handleSubmit = () => {};
+const formData = ref<NewTrack>({
+  title: "",
+  artist: "",
+  album: "",
+  genres: ["Blues"],
+  coverImage: "",
+});
+
+const handleSubmit = () => {
+  emit("submit", formData.value);
+};
 </script>
 
 <template>
@@ -21,11 +32,31 @@ const handleSubmit = () => {};
   >
     <div class="max-w-[400px] max-h-[500px] bg-white rounded-md">
       <form @submit.prevent="handleSubmit" class="grid grid-cols-2 gap-4 p-6">
-        <input class="px-4 py-2 border rounded-md" />
-        <input class="px-4 py-2 border rounded-md" />
-        <input class="px-4 py-2 border rounded-md" />
-        <select class="px-4 py-2 border rounded-md"></select>
-        <input class="px-4 py-2 border rounded-md" />
+        <input
+          class="px-4 py-2 border rounded-md"
+          label="Title"
+          v-model="formData.title"
+        />
+        <input
+          class="px-4 py-2 border rounded-md"
+          label="Artist"
+          v-model="formData.artist"
+        />
+        <input
+          class="px-4 py-2 border rounded-md"
+          label="Album"
+          v-model="formData.album"
+        />
+        <select
+          class="px-4 py-2 border rounded-md"
+          label="Genres"
+          v-model="formData.genres"
+        ></select>
+        <input
+          class="px-4 py-2 border rounded-md"
+          label="Cover image"
+          v-model="formData.coverImage"
+        />
 
         <div class="col-span-2 w-full flex gap-2">
           <button class="flex-1" type="button" @click="$emit('close')">
