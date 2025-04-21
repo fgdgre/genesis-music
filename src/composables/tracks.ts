@@ -9,32 +9,20 @@ export const useTrackManager = defineStore("tracksStore", () => {
   const isLoading = ref(false);
   const error = ref(false);
 
-  const fetchTracks = async ({
-    page,
-    filters,
-  }: {
-    page: number;
-    filters: {};
-  }) => {
-    const {
-      tracks: data,
-      isLoading: fetchTrackLoading,
-      isError,
-      tracksMeta,
-      refetchTracks,
-    } = useFetchTracks({ page });
-    isLoading.value = fetchTrackLoading.value;
+  const fetchTracks = async () => {};
 
-    if (isError.value) {
-      error.value = isError.value;
-    } else {
-      tracks.value = data.value as Track[];
-    }
+  const createTrack = async (trackData: Track) => {
+    tracks.value?.unshift(trackData);
   };
 
-  const createTrack = async (trackData: Track) => {};
-  const editTrack = async (trackData: Track) => {};
-  const deleteTrack = async (id: Track) => {};
+  const updateTrack = (id: string, newTrack: Track) => {
+    tracks.value = tracks.value?.map((t) =>
+      t.id === id ? { ...t, ...newTrack } : t,
+    ) as Track[];
+  };
+  const deleteTrack = async (id: string) => {
+    tracks.value = tracks.value?.filter((t) => t.id !== id);
+  };
 
-  return { fetchTracks, createTrack };
+  return { fetchTracks, createTrack, updateTrack, deleteTrack };
 });

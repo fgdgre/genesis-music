@@ -7,10 +7,6 @@ import { useFetchGenres } from "./composables/useFetchGenres";
 import { useDeleteTrack } from "./composables/useDeleteTrack";
 import { useEditTrack } from "./composables/useEditTrack";
 
-// pagination -----------------------------------------------------------------------
-const currentPage = ref(1);
-// --------------------------------------------------------------------------------------
-
 // /filtering/search ----------------------------------------------------------------
 const queryParams = ref<QueryParams>({
   search: "",
@@ -19,6 +15,18 @@ const queryParams = ref<QueryParams>({
   order: "",
   sort: "",
 });
+// --------------------------------------------------------------------------------------
+
+// pagination -----------------------------------------------------------------------
+const currentPage = ref(1);
+
+watch(
+  queryParams,
+  () => {
+    currentPage.value = 1;
+  },
+  { deep: true },
+);
 // --------------------------------------------------------------------------------------
 
 // get tracks --------------------------------------------------------------------------
@@ -45,8 +53,6 @@ const formData = ref<Track>({
   coverImage: "",
 });
 
-const oldFormDataValue = ref();
-
 const clearFormData = () => {
   formData.value = {
     id: "",
@@ -55,10 +61,6 @@ const clearFormData = () => {
     artist: "",
     genres: [],
     coverImage: "",
-    createdAt: undefined,
-    updatedAt: undefined,
-    slug: undefined,
-    audioFile: undefined,
   };
 };
 
@@ -72,8 +74,6 @@ const {
 } = usePostTracks();
 
 const cleanupModalState = () => {
-  oldFormDataValue.value = { ...formData.value };
-
   clearFormData();
 
   modalErrorMessage.value = "";
@@ -89,6 +89,8 @@ const handleSubmit = () => {
 };
 
 const addNewTrack = async (track: Track) => {
+  const oldId = formData.value.id;
+
   tracks.value?.unshift(track as Track);
 
   isFormModalOpen.value = false;
@@ -98,12 +100,12 @@ const addNewTrack = async (track: Track) => {
   await postTrack(track);
 
   if (isSubmittingError.value) {
-    deleteTrackFromList(oldFormDataValue.value.id);
+    deleteTrackFromList(oldId);
     alert(isSubmittingError.value);
   }
 
   if (newTrack.value) {
-    updateOldTrack(newTrack.value);
+    updateTrack(oldId, newTrack.value);
   }
 };
 
@@ -169,9 +171,9 @@ const handleDeleteTrack = async (id: string) => {
 
 // Edit track ---------------------------------------------------------------------------
 
-const updateOldTrack = (newTrack: Track) => {
+const updateTrack = (id: string, newTrack: Track) => {
   tracks.value = tracks.value?.map((t) =>
-    t.id === oldFormDataValue.value.id ? { ...t, ...newTrack } : t,
+    t.id === id ? { ...t, ...newTrack } : t,
   ) as Track[];
 };
 
@@ -182,10 +184,6 @@ const prefillModalData = (track: Track) => {
   formData.value.artist = track.artist;
   formData.value.genres = track.genres;
   formData.value.coverImage = track.coverImage;
-  formData.value.createdAt = track.createdAt;
-  formData.value.updatedAt = track.updatedAt;
-  formData.value.slug = track.slug;
-  formData.value.audioFile = track.audioFile;
 };
 
 const handleOpenEditTrackModal = (trackToEdit: Track) => {
@@ -201,11 +199,12 @@ const {
 } = useEditTrack();
 
 const handleEditTrack = async (track: Track) => {
-  cleanupModalState();
-
-  updateOldTrack(track);
+  const oldId = formData.value.id;
+  updateTrack(oldId, track);
 
   isFormModalOpen.value = false;
+
+  cleanupModalState();
 
   await editTrack(track);
 
@@ -214,7 +213,7 @@ const handleEditTrack = async (track: Track) => {
   }
 
   if (editedTrack.value) {
-    updateOldTrack(editedTrack.value);
+    updateTrack(oldId, editedTrack.value);
   }
 };
 
