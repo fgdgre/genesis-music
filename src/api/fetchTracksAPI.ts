@@ -13,11 +13,7 @@ export const buildTrackQuery = (
     if (filters.artist) params.set("artist", filters.artist);
     if (filters.order) params.set("order", filters.order);
     if (filters.sort) params.set("sort", filters.sort);
-    if (filters.genres?.length) {
-      for (const genre of filters.genres) {
-        params.append("genres", genre);
-      }
-    }
+    if (filters.genre) params.set("genre", filters.genre);
   }
 
   return params.toString(); // only query string

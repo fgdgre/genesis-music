@@ -14,7 +14,7 @@ const currentPage = ref(1);
 // /filtering/search ----------------------------------------------------------------
 const queryParams = ref<QueryParams>({
   search: "",
-  genres: [],
+  genre: "",
   artist: "",
   order: "",
   sort: "createdAt",
@@ -249,138 +249,157 @@ watch([editedTrack, isErrorWhileEditing], () => {
     </div>
 
     <!-- tracks list ------------------------------------------------------------------ -->
-    <template v-else>
-      <div
-        v-if="isLoading"
-        class="flex flex-col gap-4 justify-center items-center h-full"
-      >
-        <p>Loading...</p>
-      </div>
+    <!-- <template v-else> -->
+    <div
+      v-if="isLoading && !initialize"
+      class="flex flex-col gap-4 justify-center items-center h-full"
+    >
+      <p>Loading...</p>
+    </div>
 
-      <div v-else class="flex flex-col gap-4 h-full">
-        <template v-if="tracks?.length && initialize">
-          <div class="flex gap-4 justify-between items-end">
-            <div class="flex gap-4 items-end">
-              <label class="flex flex-col gap-1">
-                Search
-                <input
-                  class="px-4 py-2 border rounded-md"
-                  placeholder="Title, Artist, Album, Date"
-                  v-model="queryParams.search"
-                />
-              </label>
+    <div v-else class="flex flex-col gap-4 h-full">
+      <template v-if="tracks && initialize">
+        <div class="flex gap-4 justify-between items-end">
+          <div class="flex gap-4 items-end">
+            <label class="flex flex-col gap-1">
+              Search
+              <input
+                class="px-4 py-2 border rounded-md"
+                placeholder="Title, Artist, Album, Date"
+                v-model="queryParams.search"
+              />
+            </label>
 
-              <!-- <genresSelect> -->
-              <label class="flex flex-col gap-1">
-                Genres
-                <select
-                  class="px-4 py-2 border rounded-md"
-                  v-model="queryParams.genres"
-                  multiple
-                >
-                  <option v-for="genre in genres" :value="genre">
-                    {{ genre }}
-                  </option>
-                </select>
-              </label>
-              <!-- </genresSelect> -->
-              <label class="flex flex-col gap-1">
-                Artist
-                <input
-                  class="px-4 py-2 border rounded-md"
-                  placeholder="Artist name"
-                  v-model="queryParams.artist"
-                />
-              </label>
+            <!-- <genresSelect> -->
+            <label class="flex flex-col gap-1">
+              Genres
+              <select
+                class="px-4 py-2 border rounded-md"
+                v-model="queryParams.genre"
+              >
+                <option v-for="genre in genres" :value="genre">
+                  {{ genre }}
+                </option>
+              </select>
+            </label>
+            <!-- </genresSelect> -->
+            <label class="flex flex-col gap-1">
+              Artist
+              <input
+                class="px-4 py-2 border rounded-md"
+                placeholder="Artist name"
+                v-model="queryParams.artist"
+              />
+            </label>
 
-              <label class="flex flex-col gap-1">
-                Sort
-                <select
-                  class="px-4 py-2 border rounded-md"
-                  placeholder="Title, Artist, Album, Date"
-                  v-model="queryParams.sort"
-                >
-                  <option value="title">Title</option>
-                  <option value="artist">Artist</option>
-                  <option value="album">Album</option>
-                  <option value="createdAt">Created At</option>
-                </select>
-              </label>
+            <label class="flex flex-col gap-1">
+              Sort
+              <select
+                class="px-4 py-2 border rounded-md"
+                placeholder="Title, Artist, Album, Date"
+                v-model="queryParams.sort"
+              >
+                <option value="title">Title</option>
+                <option value="artist">Artist</option>
+                <option value="album">Album</option>
+                <option value="createdAt">Created At</option>
+              </select>
+            </label>
 
-              <label class="flex flex-col gap-1">
-                Order
-                <select
-                  class="px-4 py-2 border rounded-md"
-                  placeholder="Title, Artist, Album, Date"
-                  v-model="queryParams.order"
-                >
-                  <option value="asc">Ascending</option>
-                  <option value="desc">Descending</option>
-                </select>
-              </label>
-            </div>
-
-            <button
-              @click="isFormModalOpen = true"
-              class="bg-black text-white px-4 py-3 rounded-md w-fit text-sm h-min"
-            >
-              Add track
-            </button>
+            <label class="flex flex-col gap-1">
+              Order
+              <select
+                class="px-4 py-2 border rounded-md"
+                placeholder="Title, Artist, Album, Date"
+                v-model="queryParams.order"
+              >
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+            </label>
           </div>
 
-          <ul class="flex-1 flex flex-col overflow-auto">
-            <li v-for="track in tracks">
-              <div>{{ track }}</div>
-
-              <div class="flex gap-2">
-                <button
-                  @click="handleDeleteTrack(track.id)"
-                  class="bg-red-400 text-black px-4 py-3 rounded-md w-fit text-sm"
-                >
-                  Delete
-                </button>
-                <button
-                  @click="handleOpenEditTrackModal(track)"
-                  class="bg-yellow-400 text-black px-4 py-3 rounded-md w-fit text-sm"
-                >
-                  Edit
-                </button>
-              </div>
-            </li>
-          </ul>
-
-          <div v-if="tracksMeta?.totalPages" class="grid grid-cols-2 gap-4">
-            <button
-              v-if="currentPage !== 1"
-              class="col-start-1 bg-gray-500"
-              @click="currentPage--"
-            >
-              -
-            </button>
-            <button
-              v-if="currentPage < tracksMeta?.totalPages"
-              class="col-start-2 bg-gray-500"
-              @click="currentPage++"
-            >
-              +
-            </button>
-          </div>
-        </template>
-
-        <div
-          v-else
-          class="flex flex-col gap-4 justify-center items-center h-full"
-        >
-          <p>looks like you dont have tracks</p>
           <button
             @click="isFormModalOpen = true"
-            class="bg-black text-white px-4 py-3 rounded-md w-fit text-sm"
+            class="bg-black text-white px-4 py-3 rounded-md w-fit text-sm h-min"
           >
             Add track
           </button>
         </div>
+
+        <div
+          v-if="isLoading"
+          class="flex flex-col gap-4 justify-center items-center h-full"
+        >
+          <p>Loading...</p>
+        </div>
+
+        <ul
+          v-if="!isLoading && tracks.length"
+          class="flex-1 flex flex-col overflow-auto"
+        >
+          <li v-for="track in tracks">
+            <div>{{ track }}</div>
+
+            <div class="flex gap-2">
+              <button
+                @click="handleDeleteTrack(track.id)"
+                class="bg-red-400 text-black px-4 py-3 rounded-md w-fit text-sm"
+              >
+                Delete
+              </button>
+              <button
+                @click="handleOpenEditTrackModal(track)"
+                class="bg-yellow-400 text-black px-4 py-3 rounded-md w-fit text-sm"
+              >
+                Edit
+              </button>
+            </div>
+          </li>
+        </ul>
+
+        <div
+          v-if="!isLoading && !tracks.length && initialize"
+          class="flex flex-col gap-4 justify-center items-center h-full"
+        >
+          nothing is found
+        </div>
+
+        <div
+          v-if="tracksMeta?.totalPages && tracks.length"
+          class="grid grid-cols-2 gap-4"
+        >
+          <button
+            v-if="currentPage !== 1"
+            class="col-start-1 bg-gray-500"
+            @click="currentPage--"
+          >
+            -
+          </button>
+          <button
+            v-if="currentPage < tracksMeta?.totalPages"
+            class="col-start-2 bg-gray-500"
+            @click="currentPage++"
+          >
+            +
+          </button>
+        </div>
+      </template>
+
+      <div
+        v-else
+        class="flex flex-col gap-4 justify-center items-center h-full"
+      >
+        <p>looks like you dont have tracks</p>
+        <button
+          @click="isFormModalOpen = true"
+          class="bg-black text-white px-4 py-3 rounded-md w-fit text-sm"
+        >
+          Add track
+        </button>
       </div>
-    </template>
+    </div>
+    <!-- </template> -->
     <!-- ------------------------------------------------------------------ -->
   </main>
 

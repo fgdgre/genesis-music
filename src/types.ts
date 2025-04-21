@@ -29,7 +29,7 @@ export type NewTrack = {
 
 export type QueryParams = {
   search: string;
-  genres: string[];
+  genre: string;
   artist: string;
   order: "asc" | "desc" | "";
   sort: "title" | "artist" | "album" | "createdAt";
