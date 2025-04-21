@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch, watchEffect } from "vue";
 import { useFetchTracks } from "./composables/useFetchTracks";
-import type { NewTrack } from "./types";
+import type { NewTrack, Track } from "./types";
 import { usePostTracks } from "./composables/usePostTrack";
 import { useFetchGenres } from "./composables/useFetchGenres";
 
@@ -49,7 +49,7 @@ const {
   isLoading: isSubmittingProcess,
   handlePostTrack,
   cleanUpState,
-} = usePostTracks(formData.value);
+} = usePostTracks();
 
 const cleanupModalState = () => {
   clearFormData();
@@ -58,20 +58,39 @@ const cleanupModalState = () => {
 };
 
 const handleSubmit = async () => {
+  tracks.value?.unshift(formData.value as Track);
+
+  isFormModalOpen.value = false;
+
   await handlePostTrack(formData.value);
-
-  if (isSubmittingError.value) {
-    modalErrorMessage.value = isSubmittingError.value;
-  }
-
-  if (!isSubmittingError.value && newTrack.value) {
-    tracks.value?.unshift(newTrack.value);
-
-    isFormModalOpen.value = false;
-
-    cleanupModalState();
-  }
 };
+
+watch([newTrack, isSubmittingError], () => {
+  console.log(1);
+
+  if (tracks.value) {
+    const oldTrackIndex = tracks.value?.findIndex(
+      (t) => t.title === formData.value.title,
+    );
+
+    if (isSubmittingError.value) {
+      if (oldTrackIndex !== -1) {
+        tracks.value?.splice(oldTrackIndex, 1);
+      }
+
+      alert(isSubmittingError.value);
+      cleanupModalState();
+    }
+
+    if (newTrack.value) {
+      console.log(oldTrackIndex);
+      if (oldTrackIndex !== -1) {
+        tracks.value?.splice(oldTrackIndex, 1, newTrack.value);
+        cleanupModalState();
+      }
+    }
+  }
+});
 
 const handleDiscardSubmit = () => {
   isFormModalOpen.value = false;
