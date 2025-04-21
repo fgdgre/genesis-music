@@ -26,3 +26,11 @@ export type NewTrack = {
   genres: string[];
   coverImage: string;
 };
+
+export type QueryParams = {
+  search: string;
+  genres: string[];
+  artist: string;
+  order: "asc" | "desc" | "";
+  sort: "title" | "artist" | "album" | "createdAt";
+};

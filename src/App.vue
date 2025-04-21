@@ -1,15 +1,24 @@
 <script setup lang="ts">
-import { ref, watch, watchEffect } from "vue";
+import { ref, watch } from "vue";
 import { useFetchTracks } from "./composables/useFetchTracks";
-import type { NewTrack, Track } from "./types";
+import type { NewTrack, QueryParams, Track } from "./types";
 import { usePostTracks } from "./composables/usePostTrack";
 import { useFetchGenres } from "./composables/useFetchGenres";
 import { useDeleteTrack } from "./composables/useDeleteTrack";
-import { useFetchTrackByTitle } from "./composables/useFetchTrackByTitle";
 import { useEditTrack } from "./composables/useEditTrack";
 
-// pagination/filtering ----------------------------------------------------------------
+// pagination -----------------------------------------------------------------------
 const currentPage = ref(1);
+// --------------------------------------------------------------------------------------
+
+// /filtering/search ----------------------------------------------------------------
+const queryParams = ref<QueryParams>({
+  search: "",
+  genres: [],
+  artist: "",
+  order: "",
+  sort: "createdAt",
+});
 // --------------------------------------------------------------------------------------
 
 // get tracks --------------------------------------------------------------------------
@@ -127,12 +136,7 @@ const deleteTrackFromList = (id: string) => {
 
 const deletedTrack = ref();
 
-const {
-  deletedTrackId,
-  isLoading: isDeletingProcessing,
-  isError: isErrorWhileDeleting,
-  deleteTrack,
-} = useDeleteTrack();
+const { isError: isErrorWhileDeleting, deleteTrack } = useDeleteTrack();
 
 const handleDeleteTrack = (id: string) => {
   console.log("deleting", id);
@@ -151,12 +155,26 @@ watch([isErrorWhileDeleting], () => {
 });
 
 // Edit track ---------------------------------------------------------------------------
-const {
-  trackToEdit,
-  isLoading: isFetchingTrackProcessing,
-  isError: isErrorWhileEdit,
-  getTrack,
-} = useFetchTrackByTitle();
+// get track from bd -------------------------------------------------
+// const {
+//   trackToEdit,
+//   isError: isErrorWhileEdit,
+//   getTrack,
+// } = useFetchTrackByTitle();
+
+// watch([trackToEdit, isErrorWhileEdit], () => {
+//   if (isErrorWhileEdit.value) {
+//     alert(isErrorWhileEdit.value);
+//   }
+
+//   if (trackToEdit.value) {
+//     prefillModalData(trackToEdit.value);
+//     console.log(formData.value);
+
+//     isFormModalOpen.value = true;
+//   }
+// });
+// get track from bd -------------------------------------------------
 
 const replaceOldTrack = (newTrack: NewTrack) => {
   if (tracks.value) {
@@ -177,22 +195,13 @@ const prefillModalData = (track: Track) => {
   formData.value.coverImage = track.coverImage;
 };
 
-const handleOpenEditTrackModal = (title: string) => {
-  getTrack(title);
-};
-
-watch([trackToEdit, isErrorWhileEdit], () => {
-  if (isErrorWhileEdit.value) {
-    alert(isErrorWhileEdit.value);
-  }
-
-  if (trackToEdit.value) {
-    prefillModalData(trackToEdit.value);
-    console.log(formData.value);
-
+const handleOpenEditTrackModal = (id: string) => {
+  const trackToEdit = tracks.value?.find((t) => t.id === id);
+  if (trackToEdit) {
+    prefillModalData(trackToEdit);
     isFormModalOpen.value = true;
   }
-});
+};
 
 const {
   editedTrack,
@@ -257,8 +266,57 @@ watch([editedTrack, isErrorWhileEditing], () => {
                 <input
                   class="px-4 py-2 border rounded-md"
                   placeholder="Title, Artist, Album, Date"
-                  v-model="formData.artist"
+                  v-model="queryParams.search"
                 />
+              </label>
+
+              <!-- <genresSelect> -->
+              <label class="flex flex-col gap-1">
+                Genres
+                <select
+                  class="px-4 py-2 border rounded-md"
+                  v-model="queryParams.genres"
+                  multiple
+                >
+                  <option v-for="genre in genres" :value="genre">
+                    {{ genre }}
+                  </option>
+                </select>
+              </label>
+              <!-- </genresSelect> -->
+              <label class="flex flex-col gap-1">
+                Artist
+                <input
+                  class="px-4 py-2 border rounded-md"
+                  placeholder="Artist name"
+                  v-model="queryParams.artist"
+                />
+              </label>
+
+              <label class="flex flex-col gap-1">
+                Sort
+                <select
+                  class="px-4 py-2 border rounded-md"
+                  placeholder="Title, Artist, Album, Date"
+                  v-model="queryParams.sort"
+                >
+                  <option value="title">Title</option>
+                  <option value="artist">Artist</option>
+                  <option value="album">Album</option>
+                  <option value="createdAt">Created At</option>
+                </select>
+              </label>
+
+              <label class="flex flex-col gap-1">
+                Order
+                <select
+                  class="px-4 py-2 border rounded-md"
+                  placeholder="Title, Artist, Album, Date"
+                  v-model="queryParams.order"
+                >
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
+                </select>
               </label>
             </div>
 
@@ -282,7 +340,7 @@ watch([editedTrack, isErrorWhileEditing], () => {
                   Delete
                 </button>
                 <button
-                  @click="handleOpenEditTrackModal(track.slug)"
+                  @click="handleOpenEditTrackModal(track.id)"
                   class="bg-yellow-400 text-black px-4 py-3 rounded-md w-fit text-sm"
                 >
                   Edit
@@ -359,6 +417,7 @@ watch([editedTrack, isErrorWhileEditing], () => {
               v-model="formData.album"
             />
           </label>
+          <!-- <genresSelect> -->
           <label class="flex flex-col gap-1">
             Genres
             <select
@@ -371,6 +430,7 @@ watch([editedTrack, isErrorWhileEditing], () => {
               </option>
             </select>
           </label>
+          <!-- </genresSelect> -->
           <label class="flex flex-col gap-1">
             Cover image
             <input
