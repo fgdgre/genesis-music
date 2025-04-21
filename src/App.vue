@@ -5,6 +5,7 @@ import type { NewTrack, Track } from "./types";
 import { usePostTracks } from "./composables/usePostTrack";
 import { useFetchGenres } from "./composables/useFetchGenres";
 import { useDeleteTrack } from "./composables/useDeleteTrack";
+import { useFetchTrackByTitle } from "./composables/useFetchTrackByTitle";
 
 // pagination/filtering ----------------------------------------------------------------
 const currentPage = ref(1);
@@ -135,9 +136,39 @@ watch([deletedTrackId, isErrorWhileDeleting], () => {
 });
 
 // Edit track ---------------------------------------------------------------------------
-const handleEditTrack = (id: string) => {
-  console.log("editting", id);
+const {
+  editedTrack,
+  isLoading: isEditingProcessing,
+  isError: isErrorWhileEdit,
+  getTrack,
+} = useFetchTrackByTitle();
+
+const replaceOldTrack = (newTrack: Track) => {
+  if (tracks.value) {
+    const oldTrackIndex = tracks.value.findIndex((t) => t.id === newTrack.id);
+
+    if (oldTrackIndex !== -1) {
+      tracks.value?.splice(oldTrackIndex, 1, newTrack);
+    }
+  }
 };
+
+const handleEditTrack = (title: string) => {
+  console.log("editting", title);
+
+  getTrack(title);
+};
+
+watch([editedTrack, isErrorWhileEdit], () => {
+  if (isErrorWhileEdit.value) {
+    alert(isErrorWhileEdit.value);
+  }
+  console.log(editedTrack.value);
+
+  // if (editedTrack.value) {
+  //   replaceOldTrack(editedTrack.value);
+  // }
+});
 </script>
 
 <template>
@@ -186,7 +217,7 @@ const handleEditTrack = (id: string) => {
                   Delete
                 </button>
                 <button
-                  @click="handleEditTrack(track.id)"
+                  @click="handleEditTrack(track.title)"
                   class="bg-yellow-400 text-black px-4 py-3 rounded-md w-fit text-sm"
                 >
                   Edit
