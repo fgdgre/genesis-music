@@ -11,7 +11,7 @@ export const usePostTracks = () => {
     try {
       isLoading.value = true;
 
-      cleanUpState();
+      cleanupUsePostState();
 
       const { data, error } = await postTrack(track);
 
@@ -25,10 +25,10 @@ export const usePostTracks = () => {
     }
   };
 
-  const cleanUpState = () => {
+  const cleanupUsePostState = () => {
     isError.value = null;
     newTrack.value = null;
   };
 
-  return { newTrack, isLoading, isError, handlePostTrack, cleanUpState };
+  return { newTrack, isLoading, isError, handlePostTrack, cleanupUsePostState };
 };

@@ -31,6 +31,8 @@ const formData = ref<NewTrack>({
   coverImage: "",
 });
 
+const oldFormDataValue = ref();
+
 const clearFormData = () => {
   formData.value = {
     title: "",
@@ -48,49 +50,50 @@ const {
   isError: isSubmittingError,
   isLoading: isSubmittingProcess,
   handlePostTrack,
-  cleanUpState,
+  cleanupUsePostState,
 } = usePostTracks();
 
 const cleanupModalState = () => {
+  oldFormDataValue.value = { ...formData.value };
+
   clearFormData();
-  cleanUpState();
+
   modalErrorMessage.value = "";
 };
 
-const handleSubmit = async () => {
+const handleSubmit = () => {
   tracks.value?.unshift(formData.value as Track);
+
+  handlePostTrack(formData.value);
 
   isFormModalOpen.value = false;
 
-  await handlePostTrack(formData.value);
+  cleanupModalState();
 };
 
+// optimistic update --------------------------
+// TODO refactor or rewrite at all
 watch([newTrack, isSubmittingError], () => {
-  console.log(1);
-
   if (tracks.value) {
-    const oldTrackIndex = tracks.value?.findIndex(
-      (t) => t.title === formData.value.title,
+    const oldTrackIndex = tracks.value.findIndex(
+      (t) => t.title === oldFormDataValue.value.title,
     );
 
     if (isSubmittingError.value) {
       if (oldTrackIndex !== -1) {
-        tracks.value?.splice(oldTrackIndex, 1);
+        tracks.value.splice(oldTrackIndex, 1);
       }
-
       alert(isSubmittingError.value);
-      cleanupModalState();
     }
 
     if (newTrack.value) {
-      console.log(oldTrackIndex);
       if (oldTrackIndex !== -1) {
-        tracks.value?.splice(oldTrackIndex, 1, newTrack.value);
-        cleanupModalState();
+        tracks.value.splice(oldTrackIndex, 1, newTrack.value);
       }
     }
   }
 });
+// ------------------------------------------
 
 const handleDiscardSubmit = () => {
   isFormModalOpen.value = false;
