@@ -1,8 +1,15 @@
-import type { Track, TracksMeta } from "@/types";
+import type { QueryParams, Track, TracksMeta } from "@/types";
 import { ref, toValue, watchEffect, type Ref } from "vue";
 import { fetchTracksAPI } from "@/api/fetchTracksAPI";
 
-export const useFetchTracks = ({ page }: { page?: Ref<number> | number }) => {
+export const useFetchTracks = ({
+  page,
+  filters,
+}: {
+  page: Ref<number>;
+  filters: Ref<QueryParams>;
+}) => {
+  const initialize = ref(false);
   const tracks = ref<Track[] | null>(null);
   const tracksMeta = ref<TracksMeta | null>(null);
   const isError = ref<any>(null);
@@ -15,7 +22,8 @@ export const useFetchTracks = ({ page }: { page?: Ref<number> | number }) => {
       isError.value = null;
 
       const { data, error } = await fetchTracksAPI({
-        page: toValue(page) || 1,
+        page: page.value || 1,
+        filters: filters.value,
       });
 
       if (error) {
@@ -23,6 +31,7 @@ export const useFetchTracks = ({ page }: { page?: Ref<number> | number }) => {
       } else {
         tracks.value = data.data;
         tracksMeta.value = data.meta;
+        initialize.value = true;
       }
     } finally {
       isLoading.value = false;
@@ -37,5 +46,12 @@ export const useFetchTracks = ({ page }: { page?: Ref<number> | number }) => {
     fetchTracks();
   };
 
-  return { tracks, tracksMeta, isError, isLoading, refetchTracks };
+  return {
+    tracks,
+    tracksMeta,
+    isError,
+    isLoading,
+    initialize,
+    refetchTracks,
+  };
 };

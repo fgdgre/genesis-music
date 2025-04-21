@@ -22,9 +22,10 @@ const queryParams = ref<QueryParams>({
 // --------------------------------------------------------------------------------------
 
 // get tracks --------------------------------------------------------------------------
-const { tracks, tracksMeta, isLoading, isError, refetchTracks } =
+const { tracks, tracksMeta, isLoading, isError, refetchTracks, initialize } =
   useFetchTracks({
     page: currentPage,
+    filters: queryParams,
   });
 // --------------------------------------------------------------------------------------
 
@@ -257,7 +258,7 @@ watch([editedTrack, isErrorWhileEditing], () => {
       </div>
 
       <div v-else class="flex flex-col gap-4 h-full">
-        <template v-if="tracks?.length">
+        <template v-if="tracks?.length && initialize">
           <div class="flex gap-4 justify-between items-end">
             <div class="flex gap-4 items-end">
               <label class="flex flex-col gap-1">
