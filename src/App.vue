@@ -6,6 +6,7 @@ import { usePostTracks } from "./composables/usePostTrack";
 import { useFetchGenres } from "./composables/useFetchGenres";
 import { useDeleteTrack } from "./composables/useDeleteTrack";
 import { useEditTrack } from "./composables/useEditTrack";
+import { usePostMusicFile } from "./composables/usePostMusicFile";
 
 // /filtering/search ----------------------------------------------------------------
 const queryParams = ref<QueryParams>({
@@ -227,6 +228,32 @@ const handleEditTrack = async (track: Track) => {
 //   }
 // });
 // ----------------------------------------------------------------------------------------------------------------------------------
+
+// UploadTrackFile -----------------------------------------------------------------------------------------
+const isUploadFileModalOpen = ref(false);
+
+const { data, postMusicFile } = usePostMusicFile();
+
+const handleOpenUploadFileModal = (id: string) => {
+  isUploadFileModalOpen.value = true;
+  formData.value.id = id;
+};
+
+const uploadedFile = ref();
+
+function onFileChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (file) {
+    uploadedFile.value = file;
+    console.log(uploadedFile.value);
+  }
+}
+
+const handleUploadTrackFile = async () => {
+  isUploadFileModalOpen.value = false;
+
+  await postMusicFile(formData.value.id, uploadedFile.value);
+};
 </script>
 
 <template>
@@ -354,7 +381,7 @@ const handleEditTrack = async (track: Track) => {
                 Edit
               </button>
               <button
-                @click="handleOpenEditTrackModal(track)"
+                @click="handleOpenUploadFileModal(track.id)"
                 class="bg-green-400 text-black px-4 py-3 rounded-md w-fit text-sm"
               >
                 Upload track file
@@ -480,4 +507,43 @@ const handleEditTrack = async (track: Track) => {
     </div>
   </template>
   <!-- modal-------------------------------------------------------------------- -->
+
+  <!-- upload file modal -->
+  <template v-if="isUploadFileModalOpen">
+    <div class="fixed top-0 left-0 w-full h-full bg-black/50 z-30"></div>
+
+    <div
+      class="fixed top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] w-full h-full flex items-center justify-center z-30"
+    >
+      <div
+        class="max-w-[400px] max-h-[500px] bg-white rounded-md flex flex-col gap-5 p-6"
+      >
+        <p>Upload your file with music for this track</p>
+        <label>
+          file
+          <input type="file" accept="audio/*" @change="onFileChange" />
+        </label>
+        <div class="col-span-2 w-full flex gap-2">
+          <button
+            class="flex-1"
+            type="button"
+            @click="isUploadFileModalOpen = false"
+          >
+            Cancel
+          </button>
+          <button
+            class="bg-black text-white flex-1"
+            type="submit"
+            @click="handleUploadTrackFile"
+          >
+            {{
+              isSubmittingProcess || isEditingProcessing
+                ? "Submitting..."
+                : "Submit"
+            }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </template>
 </template>
