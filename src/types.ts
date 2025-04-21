@@ -32,5 +32,5 @@ export type QueryParams = {
   genre: string;
   artist: string;
   order: "asc" | "desc" | "";
-  sort: "title" | "artist" | "album" | "createdAt";
+  sort: "title" | "artist" | "album" | "createdAt" | "";
 };

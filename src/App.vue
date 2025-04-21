@@ -16,8 +16,8 @@ const queryParams = ref<QueryParams>({
   search: "",
   genre: "",
   artist: "",
-  order: "desc",
-  sort: "createdAt",
+  order: "",
+  sort: "",
 });
 // --------------------------------------------------------------------------------------
 
@@ -31,10 +31,8 @@ const { tracks, tracksMeta, isLoading, isError, refetchTracks, initialize } =
 
 // genres -------------------------------------------------------------------------------
 const { genres } = useFetchGenres();
-// -------------------------------------------------------------------------------------
 
-// modal logix ------------------------------------------------------------------------------------------------------------
-
+// modal logic ------------------------------------------------------------------------------------------------------------
 // add new track ----------------------------------------------------------------------
 const isFormModalOpen = ref(false);
 
@@ -90,19 +88,15 @@ const handleSubmit = () => {
   }
 };
 
-const addNewTrack = (track: Track) => {
+const addNewTrack = async (track: Track) => {
   tracks.value?.unshift(track as Track);
-
-  postTrack(track);
 
   isFormModalOpen.value = false;
 
   cleanupModalState();
-};
 
-// optimistic update --------------------------
-// TODO refactor or rewrite at all
-watch([newTrack, isSubmittingError], () => {
+  await postTrack(track);
+
   if (isSubmittingError.value) {
     deleteTrackFromList(oldFormDataValue.value.id);
     alert(isSubmittingError.value);
@@ -111,7 +105,20 @@ watch([newTrack, isSubmittingError], () => {
   if (newTrack.value) {
     updateOldTrack(newTrack.value);
   }
-});
+};
+
+// optimistic update --------------------------
+// TODO refactor or rewrite at all
+// watch([newTrack, isSubmittingError], () => {
+//   if (isSubmittingError.value) {
+//     deleteTrackFromList(oldFormDataValue.value.id);
+//     alert(isSubmittingError.value);
+//   }
+
+//   if (newTrack.value) {
+//     updateOldTrack(newTrack.value);
+//   }
+// });
 // ------------------------------------------
 
 const handleDiscardSubmit = () => {
@@ -125,7 +132,7 @@ const handleDiscardSubmit = () => {
 const deleteTrackFromList = (id: string) => {
   if (tracks.value) {
     let removedTrack;
-    console.log(1);
+
     tracks.value = tracks.value.filter((t) => {
       if (t.id === id) {
         removedTrack = t;
@@ -142,40 +149,25 @@ const deletedTrack = ref();
 
 const { isError: isErrorWhileDeleting, deleteTrack } = useDeleteTrack();
 
-const handleDeleteTrack = (id: string) => {
-  deleteTrack(id);
-
+const handleDeleteTrack = async (id: string) => {
   deletedTrack.value = deleteTrackFromList(id);
-};
 
-watch([isErrorWhileDeleting], () => {
+  await deleteTrack(id);
+
   if (isErrorWhileDeleting.value) {
     alert(isErrorWhileDeleting.value);
     tracks.value?.unshift(deletedTrack.value);
   }
-});
+};
 
-// Edit track ---------------------------------------------------------------------------
-// get track from bd -------------------------------------------------
-// const {
-//   trackToEdit,
-//   isError: isErrorWhileEdit,
-//   getTrack,
-// } = useFetchTrackByTitle();
-
-// watch([trackToEdit, isErrorWhileEdit], () => {
-//   if (isErrorWhileEdit.value) {
-//     alert(isErrorWhileEdit.value);
-//   }
-
-//   if (trackToEdit.value) {
-//     prefillModalData(trackToEdit.value);
-//     console.log(formData.value);
-
-//     isFormModalOpen.value = true;
+// watch([isErrorWhileDeleting], () => {
+//   if (isErrorWhileDeleting.value) {
+//     alert(isErrorWhileDeleting.value);
+//     tracks.value?.unshift(deletedTrack.value);
 //   }
 // });
-// ------------------------------------------------------------------------------------------------------
+
+// Edit track ---------------------------------------------------------------------------
 
 const updateOldTrack = (newTrack: Track) => {
   tracks.value = tracks.value?.map((t) =>
@@ -208,17 +200,15 @@ const {
   isLoading: isEditingProcessing,
 } = useEditTrack();
 
-const handleEditTrack = (track: Track) => {
-  updateOldTrack(track);
+const handleEditTrack = async (track: Track) => {
+  cleanupModalState();
 
-  editTrack(track);
+  updateOldTrack(track);
 
   isFormModalOpen.value = false;
 
-  cleanupModalState();
-};
+  await editTrack(track);
 
-watch([editedTrack, isErrorWhileEditing], () => {
   if (isErrorWhileEditing.value) {
     alert(isErrorWhileEditing.value);
   }
@@ -226,7 +216,17 @@ watch([editedTrack, isErrorWhileEditing], () => {
   if (editedTrack.value) {
     updateOldTrack(editedTrack.value);
   }
-});
+};
+
+// watch([editedTrack, isErrorWhileEditing], () => {
+//   if (isErrorWhileEditing.value) {
+//     alert(isErrorWhileEditing.value);
+//   }
+
+//   if (editedTrack.value) {
+//     updateOldTrack(editedTrack.value);
+//   }
+// });
 // ----------------------------------------------------------------------------------------------------------------------------------
 </script>
 
@@ -275,6 +275,7 @@ watch([editedTrack, isErrorWhileEditing], () => {
                 class="px-4 py-2 border rounded-md"
                 v-model="queryParams.genre"
               >
+                <option value=""></option>
                 <option v-for="genre in genres" :value="genre">
                   {{ genre }}
                 </option>
@@ -297,6 +298,7 @@ watch([editedTrack, isErrorWhileEditing], () => {
                 placeholder="Title, Artist, Album, Date"
                 v-model="queryParams.sort"
               >
+                <option value=""></option>
                 <option value="title">Title</option>
                 <option value="artist">Artist</option>
                 <option value="album">Album</option>
@@ -351,6 +353,12 @@ watch([editedTrack, isErrorWhileEditing], () => {
                 class="bg-yellow-400 text-black px-4 py-3 rounded-md w-fit text-sm"
               >
                 Edit
+              </button>
+              <button
+                @click="handleOpenEditTrackModal(track)"
+                class="bg-green-400 text-black px-4 py-3 rounded-md w-fit text-sm"
+              >
+                Upload track file
               </button>
             </div>
           </li>
