@@ -1,6 +1,6 @@
 import type { NewTrack } from "@/types";
 
-export const postTrack = async (track: NewTrack) => {
+export const postTrackAPI = async (track: NewTrack) => {
   try {
     const response = await fetch("api/tracks", {
       method: "POST",

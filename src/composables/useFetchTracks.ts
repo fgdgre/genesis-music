@@ -1,6 +1,6 @@
 import type { Track, TracksMeta } from "@/types";
 import { ref, toValue, watchEffect, type Ref } from "vue";
-import { fetchTracks } from "@/api/fetchTracks";
+import { fetchTracksAPI } from "@/api/fetchTracksAPI";
 
 export const useFetchTracks = ({ page }: { page?: Ref<number> | number }) => {
   const tracks = ref<Track[] | null>(null);
@@ -8,13 +8,15 @@ export const useFetchTracks = ({ page }: { page?: Ref<number> | number }) => {
   const isError = ref<any>(null);
   const isLoading = ref(false);
 
-  const handleFetchTracks = async () => {
+  const fetchTracks = async () => {
     try {
       isLoading.value = true;
 
       isError.value = null;
 
-      const { data, error } = await fetchTracks({ page: toValue(page) || 1 });
+      const { data, error } = await fetchTracksAPI({
+        page: toValue(page) || 1,
+      });
 
       if (error) {
         isError.value = error;
@@ -28,11 +30,11 @@ export const useFetchTracks = ({ page }: { page?: Ref<number> | number }) => {
   };
 
   watchEffect(() => {
-    handleFetchTracks();
+    fetchTracks();
   });
 
   const refetchTracks = () => {
-    handleFetchTracks();
+    fetchTracks();
   };
 
   return { tracks, tracksMeta, isError, isLoading, refetchTracks };

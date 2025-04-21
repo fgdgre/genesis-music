@@ -1,4 +1,4 @@
-export const fetchTracks = async ({ page }: { page: number }) => {
+export const fetchTracksAPI = async ({ page }: { page: number }) => {
   try {
     const response = await fetch(`api/tracks?page=${page}`);
 

@@ -4,6 +4,7 @@ import { useFetchTracks } from "./composables/useFetchTracks";
 import type { NewTrack, Track } from "./types";
 import { usePostTracks } from "./composables/usePostTrack";
 import { useFetchGenres } from "./composables/useFetchGenres";
+import { useDeleteTrack } from "./composables/useDeleteTrack";
 
 // pagination/filtering ----------------------------------------------------------------
 const currentPage = ref(1);
@@ -49,7 +50,7 @@ const {
   newTrack,
   isError: isSubmittingError,
   isLoading: isSubmittingProcess,
-  handlePostTrack,
+  postTrack,
   cleanupUsePostState,
 } = usePostTracks();
 
@@ -64,7 +65,7 @@ const cleanupModalState = () => {
 const handleSubmit = () => {
   tracks.value?.unshift(formData.value as Track);
 
-  handlePostTrack(formData.value);
+  postTrack(formData.value);
 
   isFormModalOpen.value = false;
 
@@ -103,9 +104,35 @@ const handleDiscardSubmit = () => {
 // --------------------------------------------------------------------------------------
 
 // delete track ---------------------------------------------------------------------------
+
+const deleteTrackFromList = (id: string) => {
+  if (tracks.value) {
+    tracks.value = tracks.value.filter((t) => t.id !== id);
+  }
+};
+
+const {
+  deletedTrackId,
+  isLoading: isDeletingProcessing,
+  isError: isErrorWhileDeleting,
+  deleteTrack,
+} = useDeleteTrack();
+
 const handleDeleteTrack = (id: string) => {
   console.log("deleting", id);
+
+  deleteTrack(id);
 };
+
+watch([deletedTrackId, isErrorWhileDeleting], () => {
+  if (isErrorWhileDeleting.value) {
+    alert(isErrorWhileDeleting.value);
+  }
+
+  if (deletedTrackId.value) {
+    deleteTrackFromList(deletedTrackId.value);
+  }
+});
 
 // Edit track ---------------------------------------------------------------------------
 const handleEditTrack = (id: string) => {

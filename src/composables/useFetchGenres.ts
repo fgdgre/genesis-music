@@ -1,18 +1,18 @@
 import { onMounted, ref } from "vue";
-import { fetchTrackGenres } from "@/api/fetchTrackGenres";
+import { fetchTrackGenresAPI } from "@/api/fetchTrackGenresAPI";
 
 export const useFetchGenres = () => {
   const genres = ref<string[] | null>(null);
   const isError = ref<any>(null);
   const isLoading = ref(false);
 
-  const handleFetchTrackGenres = async () => {
+  const fetchTrackGenres = async () => {
     try {
       isLoading.value = true;
 
       isError.value = null;
 
-      const { data, error } = await fetchTrackGenres();
+      const { data, error } = await fetchTrackGenresAPI();
 
       if (error) {
         genres.value = null;
@@ -27,7 +27,7 @@ export const useFetchGenres = () => {
   };
 
   onMounted(() => {
-    handleFetchTrackGenres();
+    fetchTrackGenres();
   });
 
   return { genres, isError, isLoading };
