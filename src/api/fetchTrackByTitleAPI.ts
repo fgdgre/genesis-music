@@ -1,10 +1,6 @@
-function replaceAllSpaces(str: string): string {
-  return str.toLowerCase().replace(/ /g, "-");
-}
-
-export const fetchTrackByTitleAPI = async (title: string) => {
+export const fetchTrackByTitleAPI = async (slug: string) => {
   try {
-    const response = await fetch(`api/tracks/${replaceAllSpaces(title)}`);
+    const response = await fetch(`api/tracks/${slug}`);
 
     if (!response.ok) {
       const errorMessage = await response.text();

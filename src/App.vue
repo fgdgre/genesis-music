@@ -22,10 +22,13 @@ const { tracks, tracksMeta, isLoading, isError, refetchTracks } =
 const { genres } = useFetchGenres();
 // -------------------------------------------------------------------------------------
 
+// modal logix ------------------------------------------------------------------------------------------------------------
+
 // add new track ----------------------------------------------------------------------
 const isFormModalOpen = ref(false);
 
 const formData = ref<NewTrack>({
+  id: "",
   title: "",
   artist: "",
   album: "",
@@ -37,6 +40,7 @@ const oldFormDataValue = ref();
 
 const clearFormData = () => {
   formData.value = {
+    id: "",
     title: "",
     artist: "",
     album: "",
@@ -64,9 +68,17 @@ const cleanupModalState = () => {
 };
 
 const handleSubmit = () => {
-  tracks.value?.unshift(formData.value as Track);
+  if (formData.value.id) {
+    editTrack();
+  } else {
+    addNewTrack(formData.value);
+  }
+};
 
-  postTrack(formData.value);
+const addNewTrack = (track: NewTrack) => {
+  tracks.value?.unshift(track as Track);
+
+  postTrack(track);
 
   isFormModalOpen.value = false;
 
@@ -105,7 +117,6 @@ const handleDiscardSubmit = () => {
 // --------------------------------------------------------------------------------------
 
 // delete track ---------------------------------------------------------------------------
-
 const deleteTrackFromList = (id: string) => {
   if (tracks.value) {
     tracks.value = tracks.value.filter((t) => t.id !== id);
@@ -137,7 +148,7 @@ watch([deletedTrackId, isErrorWhileDeleting], () => {
 
 // Edit track ---------------------------------------------------------------------------
 const {
-  editedTrack,
+  trackToEdit,
   isLoading: isEditingProcessing,
   isError: isErrorWhileEdit,
   getTrack,
@@ -153,22 +164,32 @@ const replaceOldTrack = (newTrack: Track) => {
   }
 };
 
-const handleEditTrack = (title: string) => {
-  console.log("editting", title);
+const prefillModalData = (track: Track) => {
+  formData.value.title = track.title;
+  formData.value.album = track.album;
+  formData.value.artist = track.artist;
+  formData.value.genres = track.genres;
+  formData.value.coverImage = track.coverImage;
+};
 
+const handleOpenEditTrackModal = (title: string) => {
   getTrack(title);
 };
 
-watch([editedTrack, isErrorWhileEdit], () => {
+watch([trackToEdit, isErrorWhileEdit], () => {
   if (isErrorWhileEdit.value) {
     alert(isErrorWhileEdit.value);
   }
-  console.log(editedTrack.value);
 
-  // if (editedTrack.value) {
-  //   replaceOldTrack(editedTrack.value);
-  // }
+  if (trackToEdit.value) {
+    prefillModalData(trackToEdit.value);
+
+    isFormModalOpen.value = true;
+  }
 });
+
+const handleEditTrack = (track: Track) => {};
+// modal logic ------------------------------------------------------------------------------------------------------------------------
 </script>
 
 <template>
@@ -217,7 +238,7 @@ watch([editedTrack, isErrorWhileEdit], () => {
                   Delete
                 </button>
                 <button
-                  @click="handleEditTrack(track.title)"
+                  @click="handleOpenEditTrackModal(track.slug)"
                   class="bg-yellow-400 text-black px-4 py-3 rounded-md w-fit text-sm"
                 >
                   Edit

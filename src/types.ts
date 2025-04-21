@@ -19,6 +19,7 @@ export type TracksMeta = {
 };
 
 export type NewTrack = {
+  id?: string;
   title: string;
   artist: string;
   album: string;

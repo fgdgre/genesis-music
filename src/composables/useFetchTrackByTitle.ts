@@ -3,7 +3,7 @@ import type { Track } from "@/types";
 import { ref } from "vue";
 
 export const useFetchTrackByTitle = () => {
-  const editedTrack = ref<Track | null>(null);
+  const trackToEdit = ref<Track | null>(null);
   const isError = ref<any>();
   const isLoading = ref<boolean>(false);
 
@@ -20,7 +20,7 @@ export const useFetchTrackByTitle = () => {
       } else {
         const res = await data;
 
-        editedTrack.value = res;
+        trackToEdit.value = res;
       }
     } finally {
       isLoading.value = false;
@@ -29,11 +29,11 @@ export const useFetchTrackByTitle = () => {
 
   const cleanupUseEditState = () => {
     isError.value = null;
-    editedTrack.value = null;
+    trackToEdit.value = null;
   };
 
   return {
-    editedTrack,
+    trackToEdit,
     isLoading,
     isError,
     getTrack,
