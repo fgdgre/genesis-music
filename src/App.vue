@@ -119,9 +119,12 @@ const handleDiscardSubmit = () => {
 // delete track ---------------------------------------------------------------------------
 const deleteTrackFromList = (id: string) => {
   if (tracks.value) {
-    tracks.value = tracks.value.filter((t) => t.id !== id);
+    const index = tracks.value.findIndex((t) => t.id === id);
+    return tracks.value.splice(index, 1)[0];
   }
 };
+
+const deletedTrack = ref();
 
 const {
   deletedTrackId,
@@ -134,16 +137,20 @@ const handleDeleteTrack = (id: string) => {
   console.log("deleting", id);
 
   deleteTrack(id);
+
+  deletedTrack.value = deleteTrackFromList(id);
+  console.log(deletedTrack.value);
 };
 
 watch([deletedTrackId, isErrorWhileDeleting], () => {
   if (isErrorWhileDeleting.value) {
     alert(isErrorWhileDeleting.value);
+    tracks.value?.unshift(deletedTrack.value);
   }
 
-  if (deletedTrackId.value) {
-    deleteTrackFromList(deletedTrackId.value);
-  }
+  // if (deletedTrackId.value) {
+  //   deleteTrackFromList(deletedTrackId.value);
+  // }
 });
 
 // Edit track ---------------------------------------------------------------------------
@@ -367,7 +374,11 @@ watch([editedTrack, isErrorWhileEditing], () => {
               Cancel
             </button>
             <button class="bg-black text-white flex-1" type="submit">
-              {{ isSubmittingProcess ? "Submitting..." : "Submit" }}
+              {{
+                isSubmittingProcess || isEditingProcessing
+                  ? "Submitting..."
+                  : "Submit"
+              }}
             </button>
           </div>
         </form>

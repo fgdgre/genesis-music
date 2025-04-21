@@ -16,10 +16,8 @@ export const useDeleteTrack = () => {
 
       if (error) {
         isError.value = error;
-        console.log(isError.value);
       } else {
         deletedTrackId.value = data;
-        console.log(deletedTrackId.value);
       }
     } finally {
       isLoading.value = false;
