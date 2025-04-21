@@ -3,8 +3,8 @@ import { ref, toValue, watchEffect, type Ref } from "vue";
 import { fetchTracks } from "@/api/fetchTracks";
 
 export const useFetchTracks = ({ page }: { page?: Ref<number> | number }) => {
-  const tracks = ref<Track[]>();
-  const tracksMeta = ref<TracksMeta>();
+  const tracks = ref<Track[] | null>(null);
+  const tracksMeta = ref<TracksMeta | null>(null);
   const isError = ref<any>(null);
   const isLoading = ref(false);
 
@@ -18,12 +18,10 @@ export const useFetchTracks = ({ page }: { page?: Ref<number> | number }) => {
 
       if (error) {
         isError.value = error;
+      } else {
+        tracks.value = data.data;
+        tracksMeta.value = data.meta;
       }
-
-      tracks.value = data.data;
-      tracksMeta.value = data.meta;
-    } catch (e) {
-      console.error(e);
     } finally {
       isLoading.value = false;
     }

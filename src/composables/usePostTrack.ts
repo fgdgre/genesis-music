@@ -16,13 +16,10 @@ export const usePostTracks = () => {
       const { data, error } = await postTrack(track);
 
       if (error) {
-        throw new Error(error);
+        isError.value = error;
       } else {
         newTrack.value = await data;
       }
-    } catch (e) {
-      console.log(e);
-      isError.value = e;
     } finally {
       isLoading.value = false;
     }

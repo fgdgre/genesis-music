@@ -51,8 +51,7 @@ const {
   cleanUpState,
 } = usePostTracks(formData.value);
 
-const cleanUpModalState = () => {
-  console.log(1);
+const cleanupModalState = () => {
   clearFormData();
   cleanUpState();
   modalErrorMessage.value = "";
@@ -70,14 +69,14 @@ const handleSubmit = async () => {
 
     isFormModalOpen.value = false;
 
-    cleanUpModalState();
+    cleanupModalState();
   }
 };
 
 const handleDiscardSubmit = () => {
   isFormModalOpen.value = false;
 
-  cleanUpModalState();
+  cleanupModalState();
 };
 // --------------------------------------------------------------------------------------
 
@@ -164,6 +163,7 @@ const handleEditTrack = (id: string) => {
             </button>
           </div>
         </template>
+
         <div
           v-else
           class="flex flex-col gap-4 justify-center items-center h-full"
