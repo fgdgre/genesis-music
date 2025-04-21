@@ -6,7 +6,6 @@ export const deleteTrackAPI = async (id: string) => {
       throw new Error(`Server error: ${response.status} - ${response}`);
     }
 
-    // const data = await response.json();
     return { data: id, error: null };
   } catch (e) {
     console.error(e);

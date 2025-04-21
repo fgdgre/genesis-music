@@ -5,10 +5,10 @@ export const fetchTrackByTitleAPI = async (slug: string) => {
     if (!response.ok) {
       const errorMessage = await response.text();
       throw new Error(`Error while editing: ${errorMessage}`);
+    } else {
+      const data = response.json();
+      return { data, error: null };
     }
-    const res = response.json();
-
-    return { data: res, error: null };
   } catch (e) {
     return { data: null, error: e };
   }

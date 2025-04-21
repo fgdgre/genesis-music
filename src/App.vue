@@ -6,6 +6,7 @@ import { usePostTracks } from "./composables/usePostTrack";
 import { useFetchGenres } from "./composables/useFetchGenres";
 import { useDeleteTrack } from "./composables/useDeleteTrack";
 import { useFetchTrackByTitle } from "./composables/useFetchTrackByTitle";
+import { useEditTrack } from "./composables/useEditTrack";
 
 // pagination/filtering ----------------------------------------------------------------
 const currentPage = ref(1);
@@ -56,7 +57,6 @@ const {
   isError: isSubmittingError,
   isLoading: isSubmittingProcess,
   postTrack,
-  cleanupUsePostState,
 } = usePostTracks();
 
 const cleanupModalState = () => {
@@ -69,7 +69,7 @@ const cleanupModalState = () => {
 
 const handleSubmit = () => {
   if (formData.value.id) {
-    editTrack();
+    handleEditTrack(formData.value);
   } else {
     addNewTrack(formData.value);
   }
@@ -149,22 +149,23 @@ watch([deletedTrackId, isErrorWhileDeleting], () => {
 // Edit track ---------------------------------------------------------------------------
 const {
   trackToEdit,
-  isLoading: isEditingProcessing,
+  isLoading: isFetchingTrackProcessing,
   isError: isErrorWhileEdit,
   getTrack,
 } = useFetchTrackByTitle();
 
-const replaceOldTrack = (newTrack: Track) => {
+const replaceOldTrack = (newTrack: NewTrack) => {
   if (tracks.value) {
     const oldTrackIndex = tracks.value.findIndex((t) => t.id === newTrack.id);
 
     if (oldTrackIndex !== -1) {
-      tracks.value?.splice(oldTrackIndex, 1, newTrack);
+      tracks.value?.splice(oldTrackIndex, 1, newTrack as Track);
     }
   }
 };
 
 const prefillModalData = (track: Track) => {
+  formData.value.id = track.id;
   formData.value.title = track.title;
   formData.value.album = track.album;
   formData.value.artist = track.artist;
@@ -183,12 +184,38 @@ watch([trackToEdit, isErrorWhileEdit], () => {
 
   if (trackToEdit.value) {
     prefillModalData(trackToEdit.value);
+    console.log(formData.value);
 
     isFormModalOpen.value = true;
   }
 });
 
-const handleEditTrack = (track: Track) => {};
+const {
+  editedTrack,
+  editTrack,
+  isError: isErrorWhileEditing,
+  isLoading: isEditingProcessing,
+} = useEditTrack();
+
+const handleEditTrack = (track: NewTrack) => {
+  replaceOldTrack(track);
+
+  editTrack(track);
+
+  isFormModalOpen.value = false;
+
+  cleanupModalState();
+};
+
+watch([editedTrack, isErrorWhileEditing], () => {
+  if (isErrorWhileEditing.value) {
+    alert(isErrorWhileEditing.value);
+  }
+
+  if (editedTrack.value) {
+    replaceOldTrack(editedTrack.value);
+  }
+});
 // modal logic ------------------------------------------------------------------------------------------------------------------------
 </script>
 
