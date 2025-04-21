@@ -98,23 +98,13 @@ const addNewTrack = (track: Track) => {
 // optimistic update --------------------------
 // TODO refactor or rewrite at all
 watch([newTrack, isSubmittingError], () => {
-  if (tracks.value) {
-    const oldTrackIndex = tracks.value.findIndex(
-      (t) => t.id === oldFormDataValue.value.id,
-    );
+  if (isSubmittingError.value) {
+    deleteTrackFromList(oldFormDataValue.value.id);
+    alert(isSubmittingError.value);
+  }
 
-    if (isSubmittingError.value) {
-      if (oldTrackIndex !== -1) {
-        tracks.value.splice(oldTrackIndex, 1);
-      }
-      alert(isSubmittingError.value);
-    }
-
-    if (newTrack.value) {
-      if (oldTrackIndex !== -1) {
-        tracks.value.splice(oldTrackIndex, 1, newTrack.value);
-      }
-    }
+  if (newTrack.value) {
+    updateOldTrack(newTrack.value);
   }
 });
 // ------------------------------------------
@@ -129,8 +119,17 @@ const handleDiscardSubmit = () => {
 // delete track ---------------------------------------------------------------------------
 const deleteTrackFromList = (id: string) => {
   if (tracks.value) {
-    const index = tracks.value.findIndex((t) => t.id === id);
-    return tracks.value.splice(index, 1)[0];
+    let removedTrack;
+    console.log(1);
+    tracks.value = tracks.value.filter((t) => {
+      if (t.id === id) {
+        removedTrack = t;
+        return;
+      }
+      return t;
+    });
+
+    return removedTrack;
   }
 };
 
@@ -174,19 +173,12 @@ watch([isErrorWhileDeleting], () => {
 //     isFormModalOpen.value = true;
 //   }
 // });
-// get track from bd -------------------------------------------------
+// ------------------------------------------------------------------------------------------------------
 
 const updateOldTrack = (newTrack: Track) => {
   tracks.value = tracks.value?.map((t) =>
-    t.id === newTrack.id ? { ...t, updatedAt: newTrack.updatedAt } : t,
+    t.id === newTrack.id ? { ...t, ...newTrack } : t,
   ) as Track[];
-  // if (tracks.value) {
-  //   const oldTrackIndex = tracks.value.findIndex((t) => t.id === newTrack.id);
-
-  //   if (oldTrackIndex !== -1) {
-  //     tracks.value?.splice(oldTrackIndex, 1, newTrack as Track);
-  //   }
-  // }
 };
 
 const prefillModalData = (track: Track) => {
