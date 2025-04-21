@@ -110,20 +110,6 @@ const addNewTrack = async (track: Track) => {
   }
 };
 
-// optimistic update --------------------------
-// TODO refactor or rewrite at all
-// watch([newTrack, isSubmittingError], () => {
-//   if (isSubmittingError.value) {
-//     deleteTrackFromList(oldFormDataValue.value.id);
-//     alert(isSubmittingError.value);
-//   }
-
-//   if (newTrack.value) {
-//     updateOldTrack(newTrack.value);
-//   }
-// });
-// ------------------------------------------
-
 const handleDiscardSubmit = () => {
   isFormModalOpen.value = false;
 
@@ -162,14 +148,6 @@ const handleDeleteTrack = async (id: string) => {
     tracks.value?.unshift(deletedTrack.value);
   }
 };
-
-// watch([isErrorWhileDeleting], () => {
-//   if (isErrorWhileDeleting.value) {
-//     alert(isErrorWhileDeleting.value);
-//     tracks.value?.unshift(deletedTrack.value);
-//   }
-// });
-
 // Edit track ---------------------------------------------------------------------------
 
 const updateTrack = (id: string, newTrack: Track) => {
@@ -217,16 +195,6 @@ const handleEditTrack = async (track: Track) => {
     updateTrack(oldId, editedTrack.value);
   }
 };
-
-// watch([editedTrack, isErrorWhileEditing], () => {
-//   if (isErrorWhileEditing.value) {
-//     alert(isErrorWhileEditing.value);
-//   }
-
-//   if (editedTrack.value) {
-//     updateOldTrack(editedTrack.value);
-//   }
-// });
 // ----------------------------------------------------------------------------------------------------------------------------------
 
 // UploadTrackFile -----------------------------------------------------------------------------------------
