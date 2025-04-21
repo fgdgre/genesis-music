@@ -71,6 +71,7 @@ const handleSubmit = () => {
   if (formData.value.id) {
     handleEditTrack(formData.value);
   } else {
+    formData.value.id = self.crypto.randomUUID();
     addNewTrack(formData.value);
   }
 };
@@ -90,7 +91,7 @@ const addNewTrack = (track: NewTrack) => {
 watch([newTrack, isSubmittingError], () => {
   if (tracks.value) {
     const oldTrackIndex = tracks.value.findIndex(
-      (t) => t.title === oldFormDataValue.value.title,
+      (t) => t.id === oldFormDataValue.value.id,
     );
 
     if (isSubmittingError.value) {
@@ -142,15 +143,11 @@ const handleDeleteTrack = (id: string) => {
   console.log(deletedTrack.value);
 };
 
-watch([deletedTrackId, isErrorWhileDeleting], () => {
+watch([isErrorWhileDeleting], () => {
   if (isErrorWhileDeleting.value) {
     alert(isErrorWhileDeleting.value);
     tracks.value?.unshift(deletedTrack.value);
   }
-
-  // if (deletedTrackId.value) {
-  //   deleteTrackFromList(deletedTrackId.value);
-  // }
 });
 
 // Edit track ---------------------------------------------------------------------------
@@ -253,12 +250,25 @@ watch([editedTrack, isErrorWhileEditing], () => {
 
       <div v-else class="flex flex-col gap-4 h-full">
         <template v-if="tracks?.length">
-          <button
-            @click="isFormModalOpen = true"
-            class="bg-black text-white px-4 py-3 rounded-md w-fit text-sm"
-          >
-            Add track
-          </button>
+          <div class="flex gap-4 justify-between items-end">
+            <div class="flex gap-4 items-end">
+              <label class="flex flex-col gap-1">
+                Search
+                <input
+                  class="px-4 py-2 border rounded-md"
+                  placeholder="Title, Artist, Album, Date"
+                  v-model="formData.artist"
+                />
+              </label>
+            </div>
+
+            <button
+              @click="isFormModalOpen = true"
+              class="bg-black text-white px-4 py-3 rounded-md w-fit text-sm h-min"
+            >
+              Add track
+            </button>
+          </div>
 
           <ul class="flex-1 flex flex-col overflow-auto">
             <li v-for="track in tracks">
