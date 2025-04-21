@@ -16,7 +16,7 @@ const queryParams = ref<QueryParams>({
   search: "",
   genre: "",
   artist: "",
-  order: "",
+  order: "desc",
   sort: "createdAt",
 });
 // --------------------------------------------------------------------------------------
@@ -53,10 +53,14 @@ const clearFormData = () => {
   formData.value = {
     id: "",
     title: "",
-    artist: "",
     album: "",
+    artist: "",
     genres: [],
     coverImage: "",
+    createdAt: undefined,
+    updatedAt: undefined,
+    slug: undefined,
+    audioFile: undefined,
   };
 };
 
@@ -139,12 +143,9 @@ const deletedTrack = ref();
 const { isError: isErrorWhileDeleting, deleteTrack } = useDeleteTrack();
 
 const handleDeleteTrack = (id: string) => {
-  console.log("deleting", id);
-
   deleteTrack(id);
 
   deletedTrack.value = deleteTrackFromList(id);
-  console.log(deletedTrack.value);
 };
 
 watch([isErrorWhileDeleting], () => {
@@ -178,7 +179,7 @@ watch([isErrorWhileDeleting], () => {
 
 const updateOldTrack = (newTrack: Track) => {
   tracks.value = tracks.value?.map((t) =>
-    t.id === newTrack.id ? { ...t, ...newTrack } : t,
+    t.id === oldFormDataValue.value.id ? { ...t, ...newTrack } : t,
   ) as Track[];
 };
 
@@ -196,11 +197,8 @@ const prefillModalData = (track: Track) => {
 };
 
 const handleOpenEditTrackModal = (trackToEdit: Track) => {
-  // const trackToEdit = tracks.value?.find((t) => t.id === id);
-  // if (trackToEdit) {
   prefillModalData(trackToEdit);
   isFormModalOpen.value = true;
-  // }
 };
 
 const {
@@ -229,7 +227,7 @@ watch([editedTrack, isErrorWhileEditing], () => {
     updateOldTrack(editedTrack.value);
   }
 });
-// modal logic ------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------------------------
 </script>
 
 <template>
