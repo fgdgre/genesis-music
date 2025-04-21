@@ -42,7 +42,6 @@ export const useTrackManager = (tracks: Ref<Track[]>) => {
     }
   };
   // -----------------------------------------------------------------------------------------------
-  const getTrack = async (slug: NewTrack) => {};
   const editTrack = async (trackData: NewTrack) => {};
   const deleteTrack = async (id: NewTrack) => {};
 

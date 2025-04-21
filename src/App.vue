@@ -37,7 +37,7 @@ const { genres } = useFetchGenres();
 // add new track ----------------------------------------------------------------------
 const isFormModalOpen = ref(false);
 
-const formData = ref<NewTrack>({
+const formData = ref<Track>({
   id: "",
   title: "",
   artist: "",
@@ -85,7 +85,7 @@ const handleSubmit = () => {
   }
 };
 
-const addNewTrack = (track: NewTrack) => {
+const addNewTrack = (track: Track) => {
   tracks.value?.unshift(track as Track);
 
   postTrack(track);
@@ -176,14 +176,17 @@ watch([isErrorWhileDeleting], () => {
 // });
 // get track from bd -------------------------------------------------
 
-const replaceOldTrack = (newTrack: NewTrack) => {
-  if (tracks.value) {
-    const oldTrackIndex = tracks.value.findIndex((t) => t.id === newTrack.id);
+const updateOldTrack = (newTrack: Track) => {
+  tracks.value = tracks.value?.map((t) =>
+    t.id === newTrack.id ? { ...t, updatedAt: newTrack.updatedAt } : t,
+  ) as Track[];
+  // if (tracks.value) {
+  //   const oldTrackIndex = tracks.value.findIndex((t) => t.id === newTrack.id);
 
-    if (oldTrackIndex !== -1) {
-      tracks.value?.splice(oldTrackIndex, 1, newTrack as Track);
-    }
-  }
+  //   if (oldTrackIndex !== -1) {
+  //     tracks.value?.splice(oldTrackIndex, 1, newTrack as Track);
+  //   }
+  // }
 };
 
 const prefillModalData = (track: Track) => {
@@ -193,14 +196,18 @@ const prefillModalData = (track: Track) => {
   formData.value.artist = track.artist;
   formData.value.genres = track.genres;
   formData.value.coverImage = track.coverImage;
+  formData.value.createdAt = track.createdAt;
+  formData.value.updatedAt = track.updatedAt;
+  formData.value.slug = track.slug;
+  formData.value.audioFile = track.audioFile;
 };
 
-const handleOpenEditTrackModal = (id: string) => {
-  const trackToEdit = tracks.value?.find((t) => t.id === id);
-  if (trackToEdit) {
-    prefillModalData(trackToEdit);
-    isFormModalOpen.value = true;
-  }
+const handleOpenEditTrackModal = (trackToEdit: Track) => {
+  // const trackToEdit = tracks.value?.find((t) => t.id === id);
+  // if (trackToEdit) {
+  prefillModalData(trackToEdit);
+  isFormModalOpen.value = true;
+  // }
 };
 
 const {
@@ -210,8 +217,8 @@ const {
   isLoading: isEditingProcessing,
 } = useEditTrack();
 
-const handleEditTrack = (track: NewTrack) => {
-  replaceOldTrack(track);
+const handleEditTrack = (track: Track) => {
+  updateOldTrack(track);
 
   editTrack(track);
 
@@ -226,7 +233,7 @@ watch([editedTrack, isErrorWhileEditing], () => {
   }
 
   if (editedTrack.value) {
-    replaceOldTrack(editedTrack.value);
+    updateOldTrack(editedTrack.value);
   }
 });
 // modal logic ------------------------------------------------------------------------------------------------------------------------
@@ -340,7 +347,7 @@ watch([editedTrack, isErrorWhileEditing], () => {
                   Delete
                 </button>
                 <button
-                  @click="handleOpenEditTrackModal(track.id)"
+                  @click="handleOpenEditTrackModal(track)"
                   class="bg-yellow-400 text-black px-4 py-3 rounded-md w-fit text-sm"
                 >
                   Edit
