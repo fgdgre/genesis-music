@@ -82,16 +82,18 @@ const cleanupModalState = () => {
 };
 
 // validation -----------------------------------------------------------------------------------------------------------
-
 const schema = z.object({
-  title: z.string().nonempty({ message: "Title is required field" }),
-  artist: z.string().nonempty({ message: "Artist is required field" }),
-  album: z.string().nonempty({ message: "Album is required field" }),
+  title: z.string().trim().nonempty({ message: "Title is required field" }),
+  artist: z.string().trim().nonempty({ message: "Artist is required field" }),
+  album: z.string().trim().nonempty({ message: "Album is required field" }),
   genres: z.array(z.string()).nonempty({ message: "Genres is required field" }),
   coverImage: z
     .string()
-    .nonempty({ message: "Cover Image is required field" })
-    .url(),
+    .trim()
+    .refine((val) => val === "" || z.string().url().safeParse(val).success, {
+      message: "Invalid URL",
+    })
+    .optional(),
 });
 
 const validateForm = (formData: Track, schema: z.Schema<Partial<Track>>) => {
@@ -137,14 +139,13 @@ const handleSubmit = () => {
     setErrors(error);
     return;
   }
-  return;
 
-  // if (formData.value.id) {
-  //   handleEditTrack(formData.value);
-  // } else {
-  //   formData.value.id = self.crypto.randomUUID();
-  //   addNewTrack(formData.value);
-  // }
+  if (formData.value.id) {
+    handleEditTrack(formData.value);
+  } else {
+    formData.value.id = self.crypto.randomUUID();
+    addNewTrack(formData.value);
+  }
 };
 
 const addNewTrack = async (track: Track) => {
@@ -387,30 +388,39 @@ const handleUploadTrackFile = async () => {
 
         <ul
           v-if="!isLoading && tracks.length"
-          class="flex-1 flex flex-col overflow-auto"
+          class="flex-1 flex flex-col overflow-auto gap-4"
         >
           <li v-for="track in tracks">
-            <div>{{ track }}</div>
+            <div class="flex gap-4 items-center">
+              <img
+                :src="
+                  track.coverImage ||
+                  'https://community.spotify.com/t5/image/serverpage/image-id/55829iC2AD64ADB887E2A5/image-dimensions/2500?v=v2&px=-1'
+                "
+                class="size-20 shrink-0 rounded-md"
+              />
+              <p>{{ track }}</p>
 
-            <div class="flex gap-2">
-              <button
-                @click="handleDeleteTrack(track.id)"
-                class="bg-red-400 text-black px-4 py-3 rounded-md w-fit text-sm"
-              >
-                Delete
-              </button>
-              <button
-                @click="handleOpenEditTrackModal(track)"
-                class="bg-yellow-400 text-black px-4 py-3 rounded-md w-fit text-sm"
-              >
-                Edit
-              </button>
-              <button
-                @click="handleOpenUploadFileModal(track.id)"
-                class="bg-green-400 text-black px-4 py-3 rounded-md w-fit text-sm"
-              >
-                Upload track file
-              </button>
+              <div class="flex gap-2">
+                <button
+                  @click="handleDeleteTrack(track.id)"
+                  class="bg-red-400 text-black px-4 py-3 rounded-md w-fit text-sm"
+                >
+                  Delete
+                </button>
+                <button
+                  @click="handleOpenEditTrackModal(track)"
+                  class="bg-yellow-400 text-black px-4 py-3 rounded-md w-fit text-sm"
+                >
+                  Edit
+                </button>
+                <button
+                  @click="handleOpenUploadFileModal(track.id)"
+                  class="bg-green-400 text-black px-4 py-3 rounded-md w-fit text-sm"
+                >
+                  Upload track file
+                </button>
+              </div>
             </div>
           </li>
         </ul>
@@ -476,28 +486,41 @@ const handleUploadTrackFile = async () => {
             Title
             <input
               class="px-4 py-2 border rounded-md"
+              :class="[errorMessages.coverImage && 'border-red-400']"
               v-model="formData.title"
             />
+            <p v-if="errorMessages.title" class="text-red-400">
+              {{ errorMessages.title }}
+            </p>
           </label>
           <label class="flex flex-col gap-1">
             Artist
             <input
               class="px-4 py-2 border rounded-md"
+              :class="[errorMessages.coverImage && 'border-red-400']"
               v-model="formData.artist"
             />
+            <p v-if="errorMessages.artist" class="text-red-400">
+              {{ errorMessages.artist }}
+            </p>
           </label>
           <label class="flex flex-col gap-1">
             Album
             <input
               class="px-4 py-2 border rounded-md"
+              :class="[errorMessages.coverImage && 'border-red-400']"
               v-model="formData.album"
             />
+            <p v-if="errorMessages.album" class="text-red-400">
+              {{ errorMessages.album }}
+            </p>
           </label>
           <!-- <genresSelect> -->
           <label class="flex flex-col gap-1">
             Genres
             <select
               class="px-4 py-2 border rounded-md"
+              :class="[errorMessages.coverImage && 'border-red-400']"
               v-model="formData.genres"
               multiple
             >
@@ -505,14 +528,21 @@ const handleUploadTrackFile = async () => {
                 {{ genre }}
               </option>
             </select>
+            <p v-if="errorMessages.genres" class="text-red-400">
+              {{ errorMessages.genres }}
+            </p>
           </label>
           <!-- </genresSelect> -->
           <label class="flex flex-col gap-1">
             Cover image
             <input
               class="px-4 py-2 border rounded-md"
+              :class="[errorMessages.coverImage && 'border-red-400']"
               v-model="formData.coverImage"
             />
+            <p v-if="errorMessages.coverImage" class="text-red-400">
+              {{ errorMessages.coverImage }}
+            </p>
           </label>
 
           <div class="col-span-2 w-full flex gap-2">
