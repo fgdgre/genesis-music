@@ -9,6 +9,7 @@ const search = defineModel<string>("search");
 const genre = defineModel<string>("genre");
 const sort = defineModel<string>("sort");
 const order = defineModel<string>("order");
+const artist = defineModel<string>("artist");
 
 const { genres } = useFetchGenres();
 </script>
@@ -41,7 +42,7 @@ const { genres } = useFetchGenres();
         <input
           class="px-4 py-2 border rounded-md"
           placeholder="Artist name"
-          v-model="artst"
+          v-model="artist"
         />
       </label>
 

@@ -76,6 +76,7 @@ watch(
             v-model:sort="queryParams.sort"
             v-model:genre="queryParams.genre"
             v-model:artist="queryParams.artist"
+            v-model:order="queryParams.order"
           />
           <button
             @click="isFormModalOpen = true"
