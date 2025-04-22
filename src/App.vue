@@ -78,6 +78,8 @@ const {
 const cleanupModalState = () => {
   clearFormData();
 
+  clearErrorMessages();
+
   modalErrorMessage.value = "";
 };
 
