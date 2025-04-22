@@ -11,6 +11,7 @@ import AppErrorPage from "./app/AppErrorPage.vue";
 import CreateTrackModal from "./CreateTrackModal.vue";
 import BaseBaseButton from "./base/BaseButton.vue";
 import BaseButton from "./base/BaseButton.vue";
+import AppEmptyScreen from "./app/AppEmptyScreen.vue";
 
 // /filtering/search ----------------------------------------------------------------
 const queryParams = ref<QueryParams>({
@@ -109,18 +110,11 @@ const isCreateTrackModalOpen = ref(false);
       </template>
 
       <!-- initial empty screen -->
-      <div
+
+      <AppEmptyScreen
         v-if="!tracks && initialize"
-        class="flex flex-col gap-4 justify-center items-center h-full"
-      >
-        <p>looks like you dont have tracks</p>
-        <BaseButton
-          @click="isCreateTrackModalOpen = true"
-          class="bg-black text-white px-4 py-3 rounded-md w-fit text-sm"
-        >
-          Add track
-        </BaseButton>
-      </div>
+        @create-track="isCreateTrackModalOpen = true"
+      />
     </div>
   </main>
 
