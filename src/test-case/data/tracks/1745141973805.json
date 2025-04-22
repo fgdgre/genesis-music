@@ -1,0 +1,14 @@
+{
+  "title": "title",
+  "artist": "name",
+  "album": "artist",
+  "genres": [
+    "Country",
+    "Folk"
+  ],
+  "coverImage": "asd",
+  "slug": "title",
+  "id": "1745141973805",
+  "createdAt": "2025-04-20T09:39:33.805Z",
+  "updatedAt": "2025-04-20T09:39:33.805Z"
+}

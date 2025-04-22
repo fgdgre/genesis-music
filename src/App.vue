@@ -304,7 +304,7 @@ const handleUploadTrackFile = async () => {
     <!-- tracks list ------------------------------------------------------------------ -->
     <!-- <template v-else> -->
     <div
-      v-if="isLoading && !initialize"
+      v-else-if="isLoading && !initialize"
       class="flex flex-col gap-4 justify-center items-center h-full"
     >
       <p>Loading...</p>
