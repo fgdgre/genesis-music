@@ -9,6 +9,7 @@ export const useTrackStore = defineStore("tracksStore", () => {
   const initialize = ref(false);
   const tracks = ref<Track[]>();
   const tracksMeta = ref<TracksMeta | null>(null);
+  // TODO fix
   const { genres: tracksGenres } = useFetchGenres();
   const isLoading = ref(false);
   const isError = ref(false);
@@ -26,7 +27,7 @@ export const useTrackStore = defineStore("tracksStore", () => {
       isError.value = false;
 
       const { data, error } = await api.fetchTracksAPI({
-        page: page.value || 1,
+        page: page.value,
         filters: filters.value,
       });
 

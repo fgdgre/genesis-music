@@ -3,6 +3,7 @@ import type { Track } from "@/types";
 import EditTrackModal from "./EditTrackModal.vue";
 import { ref } from "vue";
 import DeleteTrackModal from "./DeleteTrackModal.vue";
+import BaseButton from "./BaseButton.vue";
 
 defineProps<{
   track: Track;
@@ -24,26 +25,13 @@ const isDeleteTrackModalOpen = ref(false);
     <p>{{ track }}</p>
 
     <div class="flex gap-2">
-      <!-- @click="handleDeleteTrack(track.id)" -->
-      <button
-        class="bg-red-400 text-black px-4 py-3 rounded-md w-fit text-sm"
-        @click="isDeleteTrackModalOpen = true"
-      >
+      <BaseButton color="red" @click="isDeleteTrackModalOpen = true">
         Delete
-      </button>
-      <!-- @click="handleOpenEditTrackModal(track)" -->
-      <button
-        class="bg-yellow-400 text-black px-4 py-3 rounded-md w-fit text-sm"
-        @click="isEditTrackModalOpen = true"
-      >
+      </BaseButton>
+      <BaseButton color="yellow" @click="isEditTrackModalOpen = true">
         Edit
-      </button>
-      <!-- @click="handleOpenUploadFileModal(track.id)" -->
-      <button
-        class="bg-green-400 text-black px-4 py-3 rounded-md w-fit text-sm"
-      >
-        Upload track file
-      </button>
+      </BaseButton>
+      <BaseButton color="green"> Upload track file </BaseButton>
     </div>
 
     <EditTrackModal

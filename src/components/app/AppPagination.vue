@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BaseButton from "../BaseButton.vue";
+
 defineProps<{
   totalPages: number;
 }>();
@@ -8,19 +10,19 @@ const currentPage = defineModel<number>({ default: 1 });
 
 <template>
   <div class="grid grid-cols-2 gap-4">
-    <button
+    <BaseButton
       v-if="currentPage !== 1"
-      class="col-start-1 bg-gray-500"
+      class="w-full col-start-1"
       @click="currentPage--"
     >
       -
-    </button>
-    <button
+    </BaseButton>
+    <BaseButton
       v-if="currentPage < totalPages"
-      class="col-start-2 bg-gray-500"
+      class="w-full col-start-2"
       @click="currentPage++"
     >
       +
-    </button>
+    </BaseButton>
   </div>
 </template>

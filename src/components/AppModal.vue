@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BaseButton from "./BaseButton.vue";
+
 defineProps<{
   title?: string;
 }>();
@@ -25,12 +27,7 @@ defineEmits<{
           {{ title }}
         </p>
 
-        <button
-          @click="$emit('close')"
-          class="flex flex-col items-center justify-center absolute top-0 right-0 size-10 cursor-pointer"
-        >
-          x
-        </button>
+        <BaseButton transparent @click="$emit('close')"> x </BaseButton>
       </div>
 
       <div>

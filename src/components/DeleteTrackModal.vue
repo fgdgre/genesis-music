@@ -5,6 +5,7 @@ import TrackForm from "./TrackForm.vue";
 import { useTrackStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 import { deleteTrackAPI } from "@/api";
+import BaseButton from "./BaseButton.vue";
 
 const props = defineProps<{
   track: Track;
@@ -33,7 +34,6 @@ const handleDeleteTrack = async () => {
 
   if (data) {
     alert("Track successfully deleted");
-    // tracksStore.updateTrack(track.id, data);
   }
 };
 </script>
@@ -44,12 +44,17 @@ const handleDeleteTrack = async () => {
 
     <template #actions>
       <div class="col-span-2 w-full flex gap-2">
-        <button class="flex-1" type="button" @click="$emit('close')">
+        <BaseButton class="w-full" type="button" @click="$emit('close')">
           Cancel
-        </button>
-        <button class="bg-red-400 text-black flex-1" @click="handleDeleteTrack">
+        </BaseButton>
+        <BaseButton
+          color="red"
+          class="w-full"
+          type="submit"
+          @click="handleDeleteTrack"
+        >
           Delete
-        </button>
+        </BaseButton>
       </div>
     </template>
   </AppModal>

@@ -1,3 +1,37 @@
+<script setup lang="ts">
+defineOptions({
+  inheritAttrs: false,
+});
+
+defineProps<{
+  placeholder?: string;
+  label?: string;
+  disabled?: boolean;
+  loading?: boolean;
+  errorMessage?: string;
+  modelValue?: string | number;
+}>();
+
+const emit = defineEmits<{
+  focus: [Event];
+  blur: [Event];
+  click: [Event];
+  "update:modelValue": [string];
+}>();
+
+let debounceTimeout: any;
+
+const updateModelValue = (value: string) => {
+  clearTimeout(debounceTimeout);
+
+  debounceTimeout = setTimeout(() => {
+    emit("update:modelValue", value);
+  }, 300);
+};
+
+const id = self.crypto.randomUUID();
+</script>
+
 <template>
   <div
     class="[flex flex-col relative w-full"
@@ -36,31 +70,3 @@
     </p>
   </div>
 </template>
-
-<script setup lang="ts">
-defineOptions({
-  inheritAttrs: false,
-});
-
-defineProps<{
-  placeholder?: string;
-  label?: string;
-  disabled?: boolean;
-  loading?: boolean;
-  errorMessage?: string;
-  modelValue?: string | number;
-}>();
-
-const emit = defineEmits<{
-  focus: [Event];
-  blur: [Event];
-  click: [Event];
-  "update:modelValue": [string];
-}>();
-
-const updateModelValue = (value: string) => {
-  return emit("update:modelValue", value);
-};
-
-const id = self.crypto.randomUUID();
-</script>

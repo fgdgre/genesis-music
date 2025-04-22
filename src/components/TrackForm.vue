@@ -4,6 +4,7 @@ import type { Track } from "@/types";
 import { ref } from "vue";
 import * as z from "zod";
 import BaseInput from "./BaseInput.vue";
+import BaseButton from "./BaseButton.vue";
 
 const props = defineProps<{
   initialData?: Track;
@@ -135,10 +136,15 @@ const handleSubmit = () => {
       />
 
       <div class="col-span-2 w-full flex gap-2">
-        <button class="flex-1" type="button" @click="$emit('discard')">
+        <BaseButton
+          transparent
+          class="w-full"
+          type="button"
+          @click="$emit('discard')"
+        >
           Cancel
-        </button>
-        <button class="bg-black text-white flex-1" type="submit">Submit</button>
+        </BaseButton>
+        <BaseButton class="w-full" type="submit"> Submit </BaseButton>
       </div>
     </form>
   </div>

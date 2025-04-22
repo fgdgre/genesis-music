@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, watchEffect } from "vue";
-import type { QueryParams, Track } from "@/types";
+import { ref, watch } from "vue";
+import type { QueryParams } from "@/types";
 import { useTrackStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 import TrackTile from "./TrackTile.vue";
@@ -9,7 +9,8 @@ import AppHeader from "./app/AppHeader.vue";
 import TracksFilters from "./TracksFilters.vue";
 import AppErrorPage from "./app/AppErrorPage.vue";
 import CreateTrackModal from "./CreateTrackModal.vue";
-import { postTrackAPI } from "@/api";
+import BaseBaseButton from "./BaseButton.vue";
+import BaseButton from "./BaseButton.vue";
 
 // /filtering/search ----------------------------------------------------------------
 const queryParams = ref<QueryParams>({
@@ -23,14 +24,6 @@ const queryParams = ref<QueryParams>({
 
 // pagination -----------------------------------------------------------------------
 const currentPage = ref(1);
-
-watch(
-  queryParams,
-  () => {
-    currentPage.value = 1;
-  },
-  { deep: true },
-);
 // --------------------------------------------------------------------------------------
 
 // store ----------------------------------------------------------------------------
@@ -39,11 +32,19 @@ const tracksStore = useTrackStore();
 const { isLoading, isError, initialize, tracks, tracksMeta } =
   storeToRefs(tracksStore);
 
+// get tracks --------------------------------------------------------------------------
 const fetchTracks = () => {
   tracksStore.fetchTracks({ page: currentPage, filters: queryParams });
 };
 
-// get tracks --------------------------------------------------------------------------
+const handleFiltersChanged = (filters: QueryParams) => {
+  currentPage.value = 1;
+
+  queryParams.value = filters;
+
+  fetchTracks();
+};
+
 watch(
   [currentPage],
   () => {
@@ -60,31 +61,25 @@ const isCreateTrackModalOpen = ref(false);
 
   <main class="flex flex-col h-[calc(100svh-61px)] p-6">
     <!-- error page -------------------------------------------------------------------- -->
-
     <AppErrorPage v-if="isError && !isLoading" @refetch="fetchTracks" />
 
     <!-- tracks list ------------------------------------------------------------------ -->
-    <div v-if="!isError" class="flex flex-col gap-4 flex-1 max-h-full">
+    <div
+      v-if="!isError && initialize"
+      class="flex flex-col gap-4 flex-1 max-h-full"
+    >
       <template v-if="tracks && initialize">
         <div class="flex gap-4 justify-between items-end">
-          <TracksFilters
-            v-model:search="queryParams.search"
-            v-model:sort="queryParams.sort"
-            v-model:genre="queryParams.genre"
-            v-model:artist="queryParams.artist"
-            v-model:order="queryParams.order"
-          />
-          <button
-            @click="isCreateTrackModalOpen = true"
-            class="bg-black text-white px-4 py-3 rounded-md w-fit text-sm h-min"
-          >
+          <TracksFilters @filters-changed="handleFiltersChanged" />
+
+          <BaseBaseButton @click="isCreateTrackModalOpen = true">
             Add track
-          </button>
+          </BaseBaseButton>
         </div>
 
         <!-- track list loading -->
         <div
-          v-if="isLoading"
+          v-if="isLoading && initialize"
           class="flex flex-col gap-4 justify-center items-center h-full"
         >
           <p>Loading...</p>
@@ -115,16 +110,16 @@ const isCreateTrackModalOpen = ref(false);
 
       <!-- initial empty screen -->
       <div
-        v-if="initialize && !isError && !isError && !tracks?.length"
+        v-if="!tracks && initialize"
         class="flex flex-col gap-4 justify-center items-center h-full"
       >
         <p>looks like you dont have tracks</p>
-        <button
+        <BaseButton
           @click="isCreateTrackModalOpen = true"
           class="bg-black text-white px-4 py-3 rounded-md w-fit text-sm"
         >
           Add track
-        </button>
+        </BaseButton>
       </div>
     </div>
   </main>
@@ -151,14 +146,14 @@ const isCreateTrackModalOpen = ref(false);
           <input type="file" accept="audio/*" @change="onFileChange" />
         </label>
         <div class="col-span-2 w-full flex gap-2">
-          <button
+          <BaseButton
             class="flex-1"
-            type="button"
+            type="BaseButton"
             @click="isUploadFileModalOpen = false"
           >
             Cancel
-          </button>
-          <button
+          </BaseButton>
+          <BaseButton
             class="bg-black text-white flex-1"
             type="submit"
             @click="handleUploadTrackFile"
@@ -168,7 +163,7 @@ const isCreateTrackModalOpen = ref(false);
                 ? "Submitting..."
                 : "Submit"
             }}
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>
