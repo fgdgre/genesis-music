@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import type { QueryParams, Track, TracksMeta } from "@/types";
 import { ref } from "vue";
 import type { Ref } from "vue";
-import { fetchTracksAPI } from "@/api/fetchTracksAPI";
+import * as api from "@/api";
 
 export const useTrackStore = defineStore("tracksStore", () => {
   const initialize = ref(false);
@@ -23,7 +23,7 @@ export const useTrackStore = defineStore("tracksStore", () => {
 
       isError.value = false;
 
-      const { data, error } = await fetchTracksAPI({
+      const { data, error } = await api.fetchTracksAPI({
         page: page.value || 1,
         filters: filters.value,
       });
