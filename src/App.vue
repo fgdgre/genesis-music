@@ -7,6 +7,7 @@ import { useFetchGenres } from "./composables/useFetchGenres";
 import { useDeleteTrack } from "./composables/useDeleteTrack";
 import { useEditTrack } from "./composables/useEditTrack";
 import { usePostMusicFile } from "./composables/usePostMusicFile";
+import * as z from "zod";
 
 // /filtering/search ----------------------------------------------------------------
 const queryParams = ref<QueryParams>({
@@ -80,13 +81,70 @@ const cleanupModalState = () => {
   modalErrorMessage.value = "";
 };
 
-const handleSubmit = () => {
-  if (formData.value.id) {
-    handleEditTrack(formData.value);
-  } else {
-    formData.value.id = self.crypto.randomUUID();
-    addNewTrack(formData.value);
+// validation -----------------------------------------------------------------------------------------------------------
+
+const schema = z.object({
+  title: z.string().nonempty({ message: "Title is required field" }),
+  artist: z.string().nonempty({ message: "Artist is required field" }),
+  album: z.string().nonempty({ message: "Album is required field" }),
+  genres: z.array(z.string()).nonempty({ message: "Genres is required field" }),
+  coverImage: z
+    .string()
+    .nonempty({ message: "Cover Image is required field" })
+    .url(),
+});
+
+const validateForm = (formData: Track, schema: z.Schema<Partial<Track>>) => {
+  return schema.safeParse(formData);
+};
+
+const errorMessages = ref({
+  title: "",
+  artist: "",
+  album: "",
+  genres: "",
+  coverImage: "",
+});
+
+const clearErrorMessages = () => {
+  errorMessages.value = {
+    title: "",
+    artist: "",
+    album: "",
+    genres: "",
+    coverImage: "",
+  };
+};
+
+const setErrors = (error: z.ZodError) => {
+  clearErrorMessages();
+
+  for (const fieldKey in error.formErrors.fieldErrors) {
+    if (error.formErrors.fieldErrors[fieldKey].length) {
+      errorMessages.value[fieldKey] =
+        error.formErrors.fieldErrors[fieldKey]?.[0];
+    }
   }
+  console.log(errorMessages.value);
+};
+
+// ----------------------------------------------------------------------------------------------------------------------------------
+
+const handleSubmit = () => {
+  const { success, error } = validateForm(formData.value, schema);
+
+  if (error) {
+    setErrors(error);
+    return;
+  }
+  return;
+
+  // if (formData.value.id) {
+  //   handleEditTrack(formData.value);
+  // } else {
+  //   formData.value.id = self.crypto.randomUUID();
+  //   addNewTrack(formData.value);
+  // }
 };
 
 const addNewTrack = async (track: Track) => {
@@ -195,7 +253,6 @@ const handleEditTrack = async (track: Track) => {
     updateTrack(oldId, editedTrack.value);
   }
 };
-// ----------------------------------------------------------------------------------------------------------------------------------
 
 // UploadTrackFile -----------------------------------------------------------------------------------------
 const isUploadFileModalOpen = ref(false);
