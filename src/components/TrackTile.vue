@@ -2,12 +2,14 @@
 import type { Track } from "@/types";
 import EditTrackModal from "./EditTrackModal.vue";
 import { ref } from "vue";
+import DeleteTrackModal from "./DeleteTrackModal.vue";
 
 defineProps<{
   track: Track;
 }>();
 
 const isEditTrackModalOpen = ref(false);
+const isDeleteTrackModalOpen = ref(false);
 </script>
 
 <template>
@@ -23,7 +25,10 @@ const isEditTrackModalOpen = ref(false);
 
     <div class="flex gap-2">
       <!-- @click="handleDeleteTrack(track.id)" -->
-      <button class="bg-red-400 text-black px-4 py-3 rounded-md w-fit text-sm">
+      <button
+        class="bg-red-400 text-black px-4 py-3 rounded-md w-fit text-sm"
+        @click="isDeleteTrackModalOpen = true"
+      >
         Delete
       </button>
       <!-- @click="handleOpenEditTrackModal(track)" -->
@@ -45,6 +50,12 @@ const isEditTrackModalOpen = ref(false);
       v-if="isEditTrackModalOpen"
       :initial-data="track"
       @close="isEditTrackModalOpen = false"
+    />
+
+    <DeleteTrackModal
+      v-if="isDeleteTrackModalOpen"
+      :track
+      @close="isDeleteTrackModalOpen = false"
     />
   </div>
 </template>

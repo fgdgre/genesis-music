@@ -17,19 +17,29 @@ defineEmits<{
   <div
     class="fixed top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] w-full h-full flex items-center justify-center z-30"
   >
-    <div class="p-4 flex gap-4 justify-between">
-      <p>
-        {{ title }}
-      </p>
-      <button @click="$emit('close')" class="p-4">x</button>
-    </div>
+    <div
+      class="flex flex-col max-w-[400px] max-h-[500px] bg-white rounded-md p-4 gap-4"
+    >
+      <div class="flex justify-between items-center h-min relative">
+        <p class="text-lg">
+          {{ title }}
+        </p>
 
-    <div class="max-w-[400px] max-h-[500px] bg-white rounded-md p-4">
-      <slot></slot>
-    </div>
+        <button
+          @click="$emit('close')"
+          class="flex flex-col items-center justify-center absolute top-0 right-0 size-10 cursor-pointer"
+        >
+          x
+        </button>
+      </div>
 
-    <div class="p-4 flex gap-4">
-      <slot name="actions"></slot>
+      <div>
+        <slot></slot>
+      </div>
+
+      <div class="flex gap-4">
+        <slot name="actions"></slot>
+      </div>
     </div>
   </div>
 </template>
