@@ -124,18 +124,17 @@ const setErrors = (error: z.ZodError) => {
   clearErrorMessages();
 
   for (const fieldKey in error.formErrors.fieldErrors) {
-    if (error.formErrors.fieldErrors[fieldKey].length) {
-      errorMessages.value[fieldKey] =
+    if (error.formErrors.fieldErrors?.[fieldKey]?.length) {
+      errorMessages.value[fieldKey as keyof typeof errorMessages.value] =
         error.formErrors.fieldErrors[fieldKey]?.[0];
     }
   }
-  console.log(errorMessages.value);
 };
 
 // ----------------------------------------------------------------------------------------------------------------------------------
 
 const handleSubmit = () => {
-  const { success, error } = validateForm(formData.value, schema);
+  const { error } = validateForm(formData.value, schema);
 
   if (error) {
     setErrors(error);
