@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import type { Track } from "@/types";
+import EditTrackModal from "./EditTrackModal.vue";
+import { ref } from "vue";
 
 defineProps<{
   track: Track;
 }>();
+
+const isEditTrackModalOpen = ref(false);
 </script>
 
 <template>
@@ -25,6 +29,7 @@ defineProps<{
       <!-- @click="handleOpenEditTrackModal(track)" -->
       <button
         class="bg-yellow-400 text-black px-4 py-3 rounded-md w-fit text-sm"
+        @click="isEditTrackModalOpen = true"
       >
         Edit
       </button>
@@ -35,5 +40,11 @@ defineProps<{
         Upload track file
       </button>
     </div>
+
+    <EditTrackModal
+      v-if="isEditTrackModalOpen"
+      :initial-data="track"
+      @close="isEditTrackModalOpen = false"
+    />
   </div>
 </template>

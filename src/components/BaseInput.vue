@@ -1,0 +1,66 @@
+<template>
+  <div
+    class="[flex flex-col relative w-full"
+    :class="[disabled && 'opacity-70 select-none']"
+  >
+    <label
+      v-if="label"
+      :for="id"
+      class="flex text-sm font-medium leading-none text-foreground select-none mb-1"
+      :class="[Boolean(errorMessage) && 'text-red-400']"
+    >
+      {{ label }}
+    </label>
+
+    <input
+      :id
+      :aria-invalid="Boolean(errorMessage)"
+      :aria-describedby="errorMessage"
+      v-bind="$attrs"
+      class="px-3 py-1 bg-transparent rounded-md border border-border text-base md:text-sm font-normal placeholder:text-placeholder focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-focus text-foreground w-full"
+      :class="[
+        disabled || (loading && 'cursor-not-allowed select-none'),
+        Boolean(errorMessage) &&
+          'border-red-400 text-red-400 placeholder:text-red-400/70 focus-visible:ring-red-400',
+      ]"
+      :placeholder
+      :value="modelValue"
+      :disabled="disabled || loading"
+      @focus="$emit('focus', $event)"
+      @blur="$emit('blur', $event)"
+      @input="updateModelValue(($event.target as HTMLInputElement).value)"
+    />
+
+    <p v-if="errorMessage" class="text-red-400 text-xs mt-2">
+      {{ errorMessage }}
+    </p>
+  </div>
+</template>
+
+<script setup lang="ts">
+defineOptions({
+  inheritAttrs: false,
+});
+
+defineProps<{
+  placeholder?: string;
+  label?: string;
+  disabled?: boolean;
+  loading?: boolean;
+  errorMessage?: string;
+  modelValue?: string | number;
+}>();
+
+const emit = defineEmits<{
+  focus: [Event];
+  blur: [Event];
+  click: [Event];
+  "update:modelValue": [string];
+}>();
+
+const updateModelValue = (value: string) => {
+  return emit("update:modelValue", value);
+};
+
+const id = self.crypto.randomUUID();
+</script>

@@ -1,57 +1,55 @@
 <script setup lang="ts">
-import { useFetchGenres } from "@/composables/useFetchGenres";
+import { useTrackStore } from "@/stores/tracks";
+import type { QueryParams } from "@/types";
+import { ref } from "vue";
+import BaseInput from "./BaseInput.vue";
 
 // defineEmits<{
 //   filtersChanged: [];
 // }>();
 
-const search = defineModel<string>("search");
-const genre = defineModel<string>("genre");
-const sort = defineModel<string>("sort");
-const order = defineModel<string>("order");
-const artist = defineModel<string>("artist");
+const queryParams = ref<QueryParams>({
+  search: "",
+  genre: "",
+  artist: "",
+  order: "",
+  sort: "",
+});
 
-const { genres } = useFetchGenres();
+const { tracksGenres } = useTrackStore();
 </script>
 
 <template>
   <div class="flex gap-4">
     <div class="flex gap-4 items-end">
-      <label class="flex flex-col gap-1">
-        Search
-        <input
-          class="px-4 py-2 border rounded-md"
-          placeholder="Title, Artist, Album, Date"
-          v-model="search"
-        />
-      </label>
+      <BaseInput
+        label="Search"
+        placeholder="Title, Artist, Album, Date"
+        v-model="queryParams.search"
+      />
 
       <!-- <genresSelect> -->
       <label class="flex flex-col gap-1">
         Genres
-        <select class="px-4 py-2 border rounded-md" v-model="genre">
+        <select class="px-4 py-2 border rounded-md" v-model="queryParams.genre">
           <option value=""></option>
-          <option v-for="genre in genres" :value="genre">
+          <option v-for="genre in tracksGenres" :value="genre">
             {{ genre }}
           </option>
         </select>
       </label>
       <!-- </genresSelect> -->
-      <label class="flex flex-col gap-1">
-        Artist
-        <input
-          class="px-4 py-2 border rounded-md"
-          placeholder="Artist name"
-          v-model="artist"
-        />
-      </label>
+      <BaseInput
+        label="Artist"
+        placeholder="Artist name"
+        v-model="queryParams.artist"
+      />
 
       <label class="flex flex-col gap-1">
-        Sort
         <select
           class="px-4 py-2 border rounded-md"
           placeholder="Title, Artist, Album, Date"
-          v-model="sort"
+          v-model="queryParams.sort"
         >
           <option value=""></option>
           <option value="title">Title</option>
@@ -66,7 +64,7 @@ const { genres } = useFetchGenres();
         <select
           class="px-4 py-2 border rounded-md"
           placeholder="Title, Artist, Album, Date"
-          v-model="order"
+          v-model="queryParams.order"
         >
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>

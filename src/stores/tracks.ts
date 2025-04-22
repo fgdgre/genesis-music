@@ -1,13 +1,15 @@
 import { defineStore } from "pinia";
 import type { QueryParams, Track, TracksMeta } from "@/types";
 import { ref } from "vue";
-import type { Ref } from "vue";
+import type { readonly, Ref } from "vue";
 import * as api from "@/api";
+import { useFetchGenres } from "@/composables/useFetchGenres";
 
 export const useTrackStore = defineStore("tracksStore", () => {
   const initialize = ref(false);
   const tracks = ref<Track[]>();
   const tracksMeta = ref<TracksMeta | null>(null);
+  const { genres: tracksGenres } = useFetchGenres();
   const isLoading = ref(false);
   const isError = ref(false);
 
@@ -65,5 +67,6 @@ export const useTrackStore = defineStore("tracksStore", () => {
     isError,
     tracks,
     tracksMeta,
+    tracksGenres,
   };
 });
