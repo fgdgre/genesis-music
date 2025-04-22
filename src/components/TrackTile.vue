@@ -3,7 +3,7 @@ import type { Track } from "@/types";
 import EditTrackModal from "./EditTrackModal.vue";
 import { ref } from "vue";
 import DeleteTrackModal from "./DeleteTrackModal.vue";
-import BaseButton from "./BaseButton.vue";
+import BaseButton from "./base/BaseButton.vue";
 
 defineProps<{
   track: Track;

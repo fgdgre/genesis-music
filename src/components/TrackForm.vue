@@ -3,8 +3,8 @@ import { useTrackStore } from "@/stores/tracks";
 import type { Track } from "@/types";
 import { ref } from "vue";
 import * as z from "zod";
-import BaseInput from "./BaseInput.vue";
-import BaseButton from "./BaseButton.vue";
+import BaseInput from "./base/BaseInput.vue";
+import BaseButton from "./base/BaseButton.vue";
 
 const props = defineProps<{
   initialData?: Track;

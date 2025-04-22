@@ -9,8 +9,8 @@ import AppHeader from "./app/AppHeader.vue";
 import TracksFilters from "./TracksFilters.vue";
 import AppErrorPage from "./app/AppErrorPage.vue";
 import CreateTrackModal from "./CreateTrackModal.vue";
-import BaseBaseButton from "./BaseButton.vue";
-import BaseButton from "./BaseButton.vue";
+import BaseBaseButton from "./base/BaseButton.vue";
+import BaseButton from "./base/BaseButton.vue";
 
 // /filtering/search ----------------------------------------------------------------
 const queryParams = ref<QueryParams>({

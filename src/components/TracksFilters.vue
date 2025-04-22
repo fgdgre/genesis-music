@@ -2,7 +2,7 @@
 import { useTrackStore } from "@/stores/tracks";
 import type { QueryParams } from "@/types";
 import { ref } from "vue";
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./base/BaseInput.vue";
 
 defineEmits<{
   filtersChanged: [QueryParams];

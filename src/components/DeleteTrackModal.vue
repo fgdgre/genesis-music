@@ -5,7 +5,7 @@ import TrackForm from "./TrackForm.vue";
 import { useTrackStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 import { deleteTrackAPI } from "@/api";
-import BaseButton from "./BaseButton.vue";
+import BaseButton from "./base/BaseButton.vue";
 
 const props = defineProps<{
   track: Track;
@@ -40,7 +40,11 @@ const handleDeleteTrack = async () => {
 
 <template>
   <AppModal title="Delete track">
-    <p>Do you want to delete track with id {{ track.id }}?</p>
+    <p>
+      Do you want to delete track with id
+      <span class="font-medium">{{ track.id }}</span
+      >?
+    </p>
 
     <template #actions>
       <div class="col-span-2 w-full flex gap-2">
