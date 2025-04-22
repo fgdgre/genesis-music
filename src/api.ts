@@ -77,7 +77,7 @@ export const editTrackAPI = async (track: NewTrack) => {
   }
 };
 
-export const fetchTrackGenresAPI = async () => {
+export const fetchGenresAPI = async () => {
   try {
     const response = await fetch("api/genres");
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TracksPage from "./components/TrackPage.vue";
+import TracksPage from "./components/TracksPage.vue";
 // --------------------------------------------------------------------------------------
 
 // // genres -------------------------------------------------------------------------------
@@ -249,7 +249,5 @@ import TracksPage from "./components/TrackPage.vue";
 </script>
 
 <template>
-  <main class="flex flex-col h-full w-full p-6">
-    <TracksPage />
-  </main>
+  <TracksPage />
 </template>

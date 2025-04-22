@@ -1,5 +1,5 @@
 import { onMounted, ref } from "vue";
-import { fetchTrackGenresAPI } from "@/api/fetchTrackGenresAPI";
+import { fetchGenresAPI } from "@/api";
 
 export const useFetchGenres = () => {
   const genres = ref<string[] | null>(null);
@@ -12,7 +12,7 @@ export const useFetchGenres = () => {
 
       isError.value = null;
 
-      const { data, error } = await fetchTrackGenresAPI();
+      const { data, error } = await fetchGenresAPI();
 
       if (error) {
         genres.value = null;
