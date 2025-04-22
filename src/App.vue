@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, watchEffect } from "vue";
 import { useFetchTracks } from "./composables/useFetchTracks";
 import type { NewTrack, QueryParams, Track } from "./types";
 import { usePostTracks } from "./composables/usePostTrack";
@@ -8,6 +8,8 @@ import { useDeleteTrack } from "./composables/useDeleteTrack";
 import { useEditTrack } from "./composables/useEditTrack";
 import { usePostMusicFile } from "./composables/usePostMusicFile";
 import * as z from "zod";
+import { useTrackStore } from "./stores/tracks";
+import { storeToRefs } from "pinia";
 
 // /filtering/search ----------------------------------------------------------------
 const queryParams = ref<QueryParams>({
@@ -31,12 +33,19 @@ watch(
 );
 // --------------------------------------------------------------------------------------
 
+// store ----------------------------------------------------------------------------
+const tracksStore = useTrackStore();
+
+const { isLoading, isError, initialize, tracks, tracksMeta } =
+  storeToRefs(tracksStore);
+
+const handleFetchTracks = () => {
+  tracksStore.fetchTracks({ page: currentPage, filters: queryParams });
+};
+
+handleFetchTracks();
 // get tracks --------------------------------------------------------------------------
-const { tracks, tracksMeta, isLoading, isError, refetchTracks, initialize } =
-  useFetchTracks({
-    page: currentPage,
-    filters: queryParams,
-  });
+
 // --------------------------------------------------------------------------------------
 
 // genres -------------------------------------------------------------------------------
