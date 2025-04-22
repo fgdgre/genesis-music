@@ -95,7 +95,7 @@ const handleSubmit = () => {
 
 <template>
   <div>
-    <form @submit.prevent="handleSubmit" class="grid grid-cols-2 gap-4 p-6">
+    <form @submit.prevent="handleSubmit" class="grid grid-cols-2 gap-4">
       <BaseInput
         label="Title"
         :error-message="errorMessages.title"

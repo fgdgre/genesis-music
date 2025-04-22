@@ -22,19 +22,15 @@ defineEmits<{
     <div
       class="flex flex-col max-w-[400px] max-h-[500px] bg-white rounded-md p-4 gap-4"
     >
-      <div class="flex justify-between items-center h-min relative">
-        <p class="text-lg">
-          {{ title }}
-        </p>
-
-        <BaseButton transparent @click="$emit('close')"> x </BaseButton>
-      </div>
+      <p class="text-lg">
+        {{ title }}
+      </p>
 
       <div>
         <slot></slot>
       </div>
 
-      <div class="flex gap-4">
+      <div class="flex gap-4" v-if="$slots.actions">
         <slot name="actions"></slot>
       </div>
     </div>
