@@ -16,7 +16,7 @@ export const useEditTrack = () => {
       const { data, error } = await editTrackAPI(track);
 
       if (error) {
-        isError.value = error;
+        isError.value = "error";
       } else {
         editedTrack.value = data;
       }

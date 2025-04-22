@@ -238,8 +238,9 @@ const {
 } = useEditTrack();
 
 const handleEditTrack = async (track: Track) => {
-  const oldId = formData.value.id;
-  updateTrack(oldId, track);
+  const oldTrack = tracks.value!.find((t) => t.id === track.id)!;
+
+  updateTrack(track.id, track);
 
   isFormModalOpen.value = false;
 
@@ -249,10 +250,11 @@ const handleEditTrack = async (track: Track) => {
 
   if (isErrorWhileEditing.value) {
     alert(isErrorWhileEditing.value);
+    updateTrack(track.id, oldTrack);
   }
 
   if (editedTrack.value) {
-    updateTrack(oldId, editedTrack.value);
+    updateTrack(track.id, editedTrack.value);
   }
 };
 
