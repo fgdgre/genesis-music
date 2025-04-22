@@ -4,9 +4,11 @@ import type { QueryParams } from "@/types";
 import { useTrackStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 import TrackTile from "./TrackTile.vue";
-import AppPagination from "./AppPagination.vue";
-import AppHeader from "./AppHeader.vue";
+import AppPagination from "./app/AppPagination.vue";
+import AppHeader from "./app/AppHeader.vue";
 import TracksFilters from "./TracksFilters.vue";
+import AppErrorPage from "./app/AppErrorPage.vue";
+import CreateTrackModal from "./CreateTrackModal.vue";
 
 // /filtering/search ----------------------------------------------------------------
 const queryParams = ref<QueryParams>({
@@ -48,24 +50,16 @@ watch(
   },
   { deep: true, immediate: true },
 );
+
+const isCreateTrackFormModalOpen = ref(false);
 </script>
 <template>
   <AppHeader title="Tracks page" :is-loading="isLoading && !initialize" />
 
   <main class="flex flex-col h-full w-full p-6">
     <!-- error page -------------------------------------------------------------------- -->
-    <div
-      v-if="isError && !isLoading"
-      class="flex flex-col gap-4 justify-center items-center h-full"
-    >
-      <p class="text-red-400">{{ isError }}</p>
-      <button
-        class="bg-black rounded-md text-white px-4 py-2"
-        @click="fetchTracks"
-      >
-        Refetch
-      </button>
-    </div>
+
+    <AppErrorPage v-if="isError && !isLoading" @refetch="fetchTracks" />
 
     <!-- tracks list ------------------------------------------------------------------ -->
     <div v-if="!isError" class="flex flex-col gap-4 h-full">
@@ -79,7 +73,7 @@ watch(
             v-model:order="queryParams.order"
           />
           <button
-            @click="isFormModalOpen = true"
+            @click="isCreateTrackFormModalOpen = true"
             class="bg-black text-white px-4 py-3 rounded-md w-fit text-sm h-min"
           >
             Add track
@@ -134,10 +128,8 @@ watch(
   </main>
 
   <!-- modal-------------------------------------------------------------------- -->
-  <template v-if="isFormModalOpen">
-    <div class="fixed top-0 left-0 w-full h-full bg-black/50 z-30"></div>
-
-    <div
+  <CreateTrackModal v-if="isCreateTrackFormModalOpen" />
+  <!-- <div
       class="fixed top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] w-full h-full flex items-center justify-center z-30"
     >
       <div class="max-w-[400px] max-h-[500px] bg-white rounded-md">
@@ -178,7 +170,6 @@ watch(
               {{ errorMessages.album }}
             </p>
           </label>
-          <!-- <genresSelect> -->
           <label class="flex flex-col gap-1">
             Genres
             <select
@@ -195,7 +186,6 @@ watch(
               {{ errorMessages.genres }}
             </p>
           </label>
-          <!-- </genresSelect> -->
           <label class="flex flex-col gap-1">
             Cover image
             <input
@@ -223,7 +213,7 @@ watch(
         </form>
       </div>
     </div>
-  </template>
+  </template> -->
   <!-- modal-------------------------------------------------------------------- -->
 
   <!-- upload file modal -->
