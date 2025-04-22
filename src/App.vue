@@ -486,7 +486,7 @@ const handleUploadTrackFile = async () => {
             Title
             <input
               class="px-4 py-2 border rounded-md"
-              :class="[errorMessages.coverImage && 'border-red-400']"
+              :class="[errorMessages.title && 'border-red-400']"
               v-model="formData.title"
             />
             <p v-if="errorMessages.title" class="text-red-400">
@@ -497,7 +497,7 @@ const handleUploadTrackFile = async () => {
             Artist
             <input
               class="px-4 py-2 border rounded-md"
-              :class="[errorMessages.coverImage && 'border-red-400']"
+              :class="[errorMessages.artist && 'border-red-400']"
               v-model="formData.artist"
             />
             <p v-if="errorMessages.artist" class="text-red-400">
@@ -508,7 +508,7 @@ const handleUploadTrackFile = async () => {
             Album
             <input
               class="px-4 py-2 border rounded-md"
-              :class="[errorMessages.coverImage && 'border-red-400']"
+              :class="[errorMessages.album && 'border-red-400']"
               v-model="formData.album"
             />
             <p v-if="errorMessages.album" class="text-red-400">
@@ -520,7 +520,7 @@ const handleUploadTrackFile = async () => {
             Genres
             <select
               class="px-4 py-2 border rounded-md"
-              :class="[errorMessages.coverImage && 'border-red-400']"
+              :class="[errorMessages.genres && 'border-red-400']"
               v-model="formData.genres"
               multiple
             >
