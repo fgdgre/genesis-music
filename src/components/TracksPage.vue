@@ -53,29 +53,12 @@ watch(
 );
 
 // create track--------------------------------------------------------
-const isCreateTrackFormModalOpen = ref(false);
-
-const handleCreateTrack = async (track: Track) => {
-  tracksStore.createTrack(track);
-
-  isCreateTrackFormModalOpen.value = false;
-
-  const { data, error } = await postTrackAPI(track);
-
-  if (error) {
-    tracksStore.deleteTrack(track.id);
-    alert(error);
-  }
-
-  if (data) {
-    tracksStore.updateTrack(track.id, data);
-  }
-};
+const isCreateTrackModalOpen = ref(false);
 </script>
 <template>
   <AppHeader title="Tracks page" :is-loading="isLoading && !initialize" />
 
-  <main class="flex flex-col h-full w-full p-6">
+  <main class="flex flex-col h-[calc(100svh-61px)] p-6">
     <!-- error page -------------------------------------------------------------------- -->
 
     <AppErrorPage v-if="isError && !isLoading" @refetch="fetchTracks" />
@@ -92,7 +75,7 @@ const handleCreateTrack = async (track: Track) => {
             v-model:order="queryParams.order"
           />
           <button
-            @click="isCreateTrackFormModalOpen = true"
+            @click="isCreateTrackModalOpen = true"
             class="bg-black text-white px-4 py-3 rounded-md w-fit text-sm h-min"
           >
             Add track
@@ -137,7 +120,7 @@ const handleCreateTrack = async (track: Track) => {
       >
         <p>looks like you dont have tracks</p>
         <button
-          @click="isCreateTrackFormModalOpen = true"
+          @click="isCreateTrackModalOpen = true"
           class="bg-black text-white px-4 py-3 rounded-md w-fit text-sm"
         >
           Add track
@@ -148,9 +131,8 @@ const handleCreateTrack = async (track: Track) => {
 
   <!-- create modal-------------------------------------------------------------------- -->
   <CreateTrackModal
-    v-if="isCreateTrackFormModalOpen"
-    @submit="handleCreateTrack"
-    @discard="isCreateTrackFormModalOpen = false"
+    v-if="isCreateTrackModalOpen"
+    @close="isCreateTrackModalOpen = false"
   />
 
   <!-- upload file modal -->
