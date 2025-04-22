@@ -33,7 +33,7 @@ export const useTrackStore = defineStore("tracksStore", () => {
 
       if (error) {
         isError.value = true;
-        // useToast().addToast()
+        // useToast().addToast();
       } else {
         tracks.value = data.data;
         tracksMeta.value = data.meta;

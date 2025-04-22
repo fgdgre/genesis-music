@@ -4,6 +4,7 @@ import EditTrackModal from "./EditTrackModal.vue";
 import { ref } from "vue";
 import DeleteTrackModal from "./DeleteTrackModal.vue";
 import BaseButton from "./base/BaseButton.vue";
+import { DEFAULT_TRACK_COVER } from "@/consts";
 
 defineProps<{
   track: Track;
@@ -16,10 +17,7 @@ const isDeleteTrackModalOpen = ref(false);
 <template>
   <div class="flex gap-4 items-center">
     <img
-      :src="
-        track.coverImage ||
-        'https://community.spotify.com/t5/image/serverpage/image-id/55829iC2AD64ADB887E2A5/image-dimensions/2500?v=v2&px=-1'
-      "
+      :src="track.coverImage || DEFAULT_TRACK_COVER"
       class="size-20 shrink-0 rounded-md"
     />
     <p>{{ track }}</p>
