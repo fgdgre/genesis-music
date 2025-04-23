@@ -5,7 +5,8 @@ import type { Track } from "@/types";
 import { useTracksStore } from "@/stores/tracks";
 import { deleteTrackAPI } from "@/api";
 import type { DeepReadonly } from "vue";
-import { useNotification } from "@/composables/useNotifications";
+import { useTracksToasts } from "@/composables/useTracksToasts";
+import { storeToRefs } from "pinia";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -16,26 +17,36 @@ const emit = defineEmits<{
 }>();
 
 const tracksStore = useTracksStore();
+const { notSubmittedTracks } = storeToRefs(tracksStore);
 
-const notificationStore = useNotification();
-const { setErrorToast, setSuccessToast } = notificationStore;
+const { addErrorToast, addSuccessToast } = useTracksToasts();
 
 const handleDeleteTrack = async () => {
   emit("close");
 
+  const isExisting = Boolean(props.track.slug);
+
   tracksStore.deleteTrack(props.track.id);
 
-  if (props.track.slug) {
+  if (isExisting) {
     const { data, error } = await deleteTrackAPI(props.track.id);
 
     if (error) {
+      tracksStore.isError = true;
+
       tracksStore.createTrack(props.track);
 
-      setErrorToast(error);
+      addErrorToast(error);
     }
 
     if (data) {
-      setSuccessToast("delete");
+      tracksStore.deleteNotSubmittedTrack(props.track.id);
+
+      if (!notSubmittedTracks.value.length) {
+        tracksStore.isError = false;
+      }
+
+      addSuccessToast("delete");
     }
   }
 };

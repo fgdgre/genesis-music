@@ -4,9 +4,9 @@ import AppModal from "./app/AppModal.vue";
 import TrackForm from "./TrackForm.vue";
 import { useTracksStore } from "@/stores/tracks";
 import { postTrackAPI } from "@/api";
-import { useToast } from "@/stores/toast";
 import type { DeepReadonly } from "vue";
-import { useNotification } from "@/composables/useNotifications";
+import { useTracksToasts } from "@/composables/useTracksToasts";
+import { storeToRefs } from "pinia";
 
 const emit = defineEmits<{
   close: [];
@@ -14,24 +14,27 @@ const emit = defineEmits<{
 
 const tracksStore = useTracksStore();
 
-const notificationStore = useNotification();
-const { setErrorToast, setSuccessToast } = notificationStore;
+const { addErrorToast, addSuccessToast } = useTracksToasts();
 
-const handleCreateTrack = async (track: DeepReadonly<Track>) => {
+const handleCreateTrack = async (newTrack: DeepReadonly<Track>) => {
   emit("close");
 
-  tracksStore.createTrack(track);
+  tracksStore.createTrack(newTrack);
 
-  const { data, error } = await postTrackAPI(track);
+  const { data, error } = await postTrackAPI(newTrack);
 
   if (error) {
-    setErrorToast(error);
+    tracksStore.isError = true;
+
+    tracksStore.addNotSubmittedTrack(newTrack);
+
+    addErrorToast(error);
   }
 
   if (data) {
-    tracksStore.updateTrack(track.id, data);
+    tracksStore.updateTrack(newTrack.id, data);
 
-    setSuccessToast("create");
+    addSuccessToast("create");
   }
 };
 </script>

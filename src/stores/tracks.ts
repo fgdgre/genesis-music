@@ -1,19 +1,32 @@
 import { defineStore } from "pinia";
-import type { QueryParams, Track, TracksMeta } from "@/types";
-import { ref, type DeepReadonly } from "vue";
+import type { Track, TracksMeta } from "@/types";
+import { ref, watchEffect, type DeepReadonly } from "vue";
 import { readonly, type Ref } from "vue";
 import * as api from "@/api";
-import { useFetchGenres } from "@/composables/useFetchGenres";
-import { useToast } from "./toast";
+import { useTracksToasts } from "@/composables/useTracksToasts";
 
 export const useTracksStore = defineStore("tracksStore", () => {
-  const toastStore = useToast();
+  const { addErrorToast } = useTracksToasts();
 
   const initialized = ref(false);
   const tracks = ref<Track[]>([]);
   const tracksMeta = ref<TracksMeta | null>(null);
   const isLoading = ref(false);
   const isError = ref(false);
+
+  // not submitted tracks logic ------------------------------------
+  const notSubmittedTracks = ref<Track[]>([]);
+
+  const addNotSubmittedTrack = (trackData: DeepReadonly<Track>) => {
+    notSubmittedTracks.value?.push(trackData as Track);
+  };
+
+  const deleteNotSubmittedTrack = (id: string) => {
+    notSubmittedTracks.value = notSubmittedTracks.value?.filter(
+      (t) => t.id !== id,
+    );
+  };
+  // ---------------------------------------------------------------
 
   const fetchTracks = async ({
     page,
@@ -48,11 +61,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
         isError.value = true;
 
         if (initialized.value) {
-          toastStore.addToast({
-            title: "Something went wrong",
-            description: error,
-            color: "red",
-          });
+          addErrorToast(error);
         }
       } else {
         tracks.value = data.data;
@@ -78,6 +87,10 @@ export const useTracksStore = defineStore("tracksStore", () => {
     tracks.value = tracks.value?.filter((t) => t.id !== id);
   };
 
+  watchEffect(() => {
+    console.log(notSubmittedTracks.value);
+  });
+
   return {
     fetchTracks,
     createTrack,
@@ -88,5 +101,9 @@ export const useTracksStore = defineStore("tracksStore", () => {
     isError,
     tracks: readonly(tracks),
     tracksMeta: readonly(tracksMeta),
+    // not submitted
+    notSubmittedTracks: readonly(notSubmittedTracks),
+    addNotSubmittedTrack,
+    deleteNotSubmittedTrack,
   };
 });

@@ -1,9 +1,9 @@
 import { useToast } from "@/stores/toast";
 
-export const useNotification = () => {
+export const useTracksToasts = () => {
   const toastsStore = useToast();
 
-  const setErrorToast = (error: { status: number; message: string }) => {
+  const addErrorToast = (error: { status: number; message: string }) => {
     toastsStore.clearToasts();
 
     let message: string;
@@ -25,7 +25,9 @@ export const useNotification = () => {
     });
   };
 
-  const setSuccessToast = (action: "create" | "delete" | "edit") => {
+  const addSuccessToast = (action: "create" | "delete" | "edit") => {
+    toastsStore.clearToasts();
+
     let title: string;
 
     switch (action) {
@@ -52,5 +54,5 @@ export const useNotification = () => {
     });
   };
 
-  return { setErrorToast, setSuccessToast };
+  return { addErrorToast, addSuccessToast };
 };

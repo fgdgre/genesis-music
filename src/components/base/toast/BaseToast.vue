@@ -1,3 +1,39 @@
+<script setup lang="ts">
+import { useTimestamp } from "@vueuse/core";
+import { computed } from "vue";
+import BaseButton from "../BaseButton.vue";
+import BaseProgress from "@/components/app/BaseProgress.vue";
+
+const props = defineProps<{
+  title: string;
+  description?: string;
+  icon?: "check" | "warning";
+  color?: "default" | "red" | "yellow" | "green";
+  closable?: boolean;
+  duration?: number;
+  showProgress?: boolean;
+}>();
+
+const emit = defineEmits<{
+  close: [];
+}>();
+
+const currentTimestamp = useTimestamp();
+const startTime = currentTimestamp.value;
+
+if (props.duration) {
+  setTimeout(() => {
+    emit("close");
+  }, props.duration);
+}
+
+const width = computed(() => {
+  const elapsed = currentTimestamp.value - startTime;
+  const progress = Math.max(0, 1 - elapsed / (props.duration! - 100));
+  return progress * 100;
+});
+</script>
+
 <template>
   <div
     class="items-start w-full rounded-lg border p-4 border-gray-300 gap-x-[10px] shadow-sm relative overflow-hidden"
@@ -78,42 +114,6 @@
     />
   </div>
 </template>
-
-<script setup lang="ts">
-import { useTimestamp } from "@vueuse/core";
-import { computed } from "vue";
-import BaseButton from "../BaseButton.vue";
-import BaseProgress from "@/components/app/BaseProgress.vue";
-
-const props = defineProps<{
-  title: string;
-  description?: string;
-  icon?: "check" | "warning";
-  color?: "default" | "red" | "yellow" | "green";
-  closable?: boolean;
-  duration?: number;
-  showProgress?: boolean;
-}>();
-
-const emit = defineEmits<{
-  close: [];
-}>();
-
-const currentTimestamp = useTimestamp();
-const startTime = currentTimestamp.value;
-
-if (props.duration) {
-  setTimeout(() => {
-    emit("close");
-  }, props.duration);
-}
-
-const width = computed(() => {
-  const elapsed = currentTimestamp.value - startTime;
-  const progress = Math.max(0, 1 - elapsed / (props.duration! - 100));
-  return progress * 100;
-});
-</script>
 
 <style>
 .toast-message-layout {

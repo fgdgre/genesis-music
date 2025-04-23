@@ -1,3 +1,29 @@
+<script setup lang="ts">
+import type { Toast } from "@/types";
+import BaseToast from "./BaseToast.vue";
+
+defineProps<{
+  toasts: Toast[];
+}>();
+
+const emit = defineEmits<{
+  closeToast: [id: string];
+}>();
+
+const closeToast = (id: string) => {
+  emit("closeToast", id);
+};
+
+const getToastType = (color: Toast["color"]) => {
+  if (color === "red") {
+    return "error";
+  }
+  if (color === "green") {
+    return "success";
+  }
+};
+</script>
+
 <template>
   <Teleport to="body">
     <TransitionGroup
@@ -25,32 +51,6 @@
     </TransitionGroup>
   </Teleport>
 </template>
-
-<script setup lang="ts">
-import type { Toast } from "@/types";
-import BaseToast from "./BaseToast.vue";
-
-defineProps<{
-  toasts: Toast[];
-}>();
-
-const emit = defineEmits<{
-  closeToast: [id: string];
-}>();
-
-const closeToast = (id: string) => {
-  emit("closeToast", id);
-};
-
-const getToastType = (color: Toast["color"]) => {
-  if (color === "red") {
-    return "error";
-  }
-  if (color === "green") {
-    return "success";
-  }
-};
-</script>
 
 <style>
 .toasts-move,

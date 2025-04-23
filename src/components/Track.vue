@@ -1,17 +1,25 @@
 <script setup lang="ts">
 import type { Track } from "@/types";
 import EditTrackModal from "./EditTrackModal.vue";
-import { ref, type DeepReadonly } from "vue";
+import { computed, ref, type DeepReadonly } from "vue";
 import DeleteTrackModal from "./DeleteTrackModal.vue";
 import BaseButton from "./base/BaseButton.vue";
 import { DEFAULT_TRACK_COVER } from "@/consts";
 import { useTracksStore } from "@/stores/tracks";
+import { storeToRefs } from "pinia";
 
-defineProps<{
+const props = defineProps<{
   track: DeepReadonly<Track>;
 }>();
 
 const tracksStore = useTracksStore();
+const { isError, isLoading } = storeToRefs(tracksStore);
+
+const isTrackHaveIncorrectTitle = computed(
+  () =>
+    props.track.title.trim().toLowerCase().replace(/\s+/g, "-") !==
+      props.track.slug && isError,
+);
 
 const isEditTrackModalOpen = ref(false);
 const isDeleteTrackModalOpen = ref(false);
@@ -25,7 +33,11 @@ const isDeleteTrackModalOpen = ref(false);
     />
     <div class="flex gap-4 w-full">
       <div class="flex flex-col">
-        <p class="font-medium" :data-testid="`track-item-${track.id}-title`">
+        <p
+          class="font-medium"
+          :class="isTrackHaveIncorrectTitle && 'text-red-400'"
+          :data-testid="`track-item-${track.id}-title`"
+        >
           {{ track.title }}
         </p>
         <p class="text-gray-400 text-xs">
@@ -42,10 +54,6 @@ const isDeleteTrackModalOpen = ref(false);
         <span class="truncate" v-for="(genre, index) in track.genres">
           {{ `${genre}${index !== track.genres.length - 1 ? ", " : ""}` }}
         </span>
-      </div>
-
-      <div class="max-w-full overflow-hidden">
-        {{ track.slug }}
       </div>
     </div>
 

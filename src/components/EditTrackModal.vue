@@ -5,7 +5,8 @@ import TrackForm from "./TrackForm.vue";
 import { useTracksStore } from "@/stores/tracks";
 import { editTrackAPI, postTrackAPI } from "@/api";
 import type { DeepReadonly } from "vue";
-import { useNotification } from "@/composables/useNotifications";
+import { useTracksToasts } from "@/composables/useTracksToasts";
+import { storeToRefs } from "pinia";
 
 defineProps<{
   track: DeepReadonly<Track>;
@@ -16,9 +17,9 @@ const emit = defineEmits<{
 }>();
 
 const tracksStore = useTracksStore();
+const { notSubmittedTracks } = storeToRefs(tracksStore);
 
-const notificationStore = useNotification();
-const { setErrorToast, setSuccessToast } = notificationStore;
+const { addErrorToast, addSuccessToast } = useTracksToasts();
 
 const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
   emit("close");
@@ -35,7 +36,13 @@ const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
     if (isTitleChanged) {
       response = await editTrackAPI(updatedTrack);
     } else {
-      setSuccessToast("edit");
+      tracksStore.deleteNotSubmittedTrack(updatedTrack.id);
+
+      if (!notSubmittedTracks.value.length) {
+        tracksStore.isError = false;
+      }
+
+      addSuccessToast("edit");
       return;
     }
   } else {
@@ -44,13 +51,24 @@ const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
   }
 
   if (response?.error) {
-    setErrorToast(response.error);
+    tracksStore.isError = true;
+
+    tracksStore.addNotSubmittedTrack(updatedTrack);
+
+    addErrorToast(response.error);
     return;
   }
 
   if (response?.data) {
+    tracksStore.deleteNotSubmittedTrack(updatedTrack.id);
+
+    if (!notSubmittedTracks.value.length) {
+      tracksStore.isError = false;
+    }
+
     tracksStore.updateTrack(updatedTrack.id, response.data);
-    setSuccessToast(toastType);
+
+    addSuccessToast(toastType);
   }
 };
 </script>
