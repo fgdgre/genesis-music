@@ -42,10 +42,6 @@ const schema = z.object({
     .optional(),
 });
 
-const validateForm = (formData: Track, schema: z.Schema<Partial<Track>>) => {
-  return schema.safeParse(formData);
-};
-
 const errorMessages = ref({
   title: "",
   artist: "",
@@ -54,33 +50,51 @@ const errorMessages = ref({
   coverImage: "",
 });
 
-const clearErrorMessages = () => {
-  errorMessages.value = {
-    title: "",
-    artist: "",
-    album: "",
-    genres: "",
-    coverImage: "",
-  };
-};
+const handleValidateField = (
+  fieldKey: keyof typeof errorMessages.value,
+  value: any,
+  rule: z.Schema,
+) => {
+  const { error } = validateField(value, rule);
 
-const setErrors = (error: z.ZodError) => {
-  clearErrorMessages();
-
-  for (const fieldKey in error.formErrors.fieldErrors) {
-    if (error.formErrors.fieldErrors?.[fieldKey]?.length) {
-      errorMessages.value[fieldKey as keyof typeof errorMessages.value] =
-        error.formErrors.fieldErrors[fieldKey]?.[0];
-    }
+  if (error) {
+    errorMessages.value[fieldKey] = error.errors[0].message;
+  } else {
+    errorMessages.value[fieldKey] = "";
   }
 };
+
+const validateField = (value: any, schema: any) => {
+  console.log(schema, value);
+  return schema.safeParse(value);
+};
+
+const validateForm = (formData: Track, schema: any) => {
+  Object.entries(formData).forEach(([fieldKey, fieldValue]) => {
+    handleValidateField(
+      fieldKey as keyof typeof errorMessages.value,
+      fieldValue,
+      schema.shape[fieldKey],
+    );
+  });
+};
+
+// const setErrors = (error: z.ZodError) => {
+//   clearErrorMessages();
+
+//   for (const fieldKey in error.formErrors.fieldErrors) {
+//     if (error.formErrors.fieldErrors?.[fieldKey]?.length) {
+//       errorMessages.value[fieldKey as keyof typeof errorMessages.value] =
+//         error.formErrors.fieldErrors[fieldKey]?.[0];
+//     }
+//   }
+// };
 // ----------------------------------------------------------------------------------------------------------------------------------
 
 const handleSubmit = () => {
-  const { error } = validateForm(formData.value, schema);
+  validateForm(formData.value, schema);
 
-  if (error) {
-    setErrors(error);
+  if (Object.values(errorMessages.value)) {
     return;
   }
 
@@ -105,6 +119,9 @@ const handleSubmit = () => {
         v-model="formData.title"
         data-testid="input-title"
         error-message-testid="error-title"
+        @update:model-value="
+          (value) => handleValidateField('title', value, schema.shape.title)
+        "
       />
       <BaseInput
         label="Artist"
@@ -112,6 +129,9 @@ const handleSubmit = () => {
         v-model="formData.artist"
         data-testid="input-artist"
         error-message-testid="error-artist"
+        @update:model-value="
+          (value) => handleValidateField('artist', value, schema.shape.artist)
+        "
       />
       <BaseInput
         label="Album"
@@ -119,6 +139,9 @@ const handleSubmit = () => {
         v-model="formData.album"
         data-testid="input-album"
         error-message-testid="error-album"
+        @update:model-value="
+          (value) => handleValidateField('album', value, schema.shape.album)
+        "
       />
 
       <BaseInput
@@ -127,6 +150,10 @@ const handleSubmit = () => {
         v-model="formData.coverImage"
         data-testid="input-cover-image"
         error-message-testid="error-cover-image"
+        @update:model-value="
+          (value) =>
+            handleValidateField('coverImage', value, schema.shape.coverImage)
+        "
       />
 
       <GenresMultiselect
@@ -137,6 +164,9 @@ const handleSubmit = () => {
         class="col-span-2"
         trigger-testid="genre-selector"
         error-message-testid="error-genre-selector"
+        @update:model-value="
+          (value) => handleValidateField('genres', value, schema.shape.genres)
+        "
       />
 
       <div class="col-span-2 w-full flex gap-2">
