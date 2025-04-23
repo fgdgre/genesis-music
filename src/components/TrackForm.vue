@@ -27,6 +27,28 @@ const formData = ref<Track>({
   slug: props.initialData?.slug || "",
 });
 
+const touchedFields = ref({
+  id: false,
+  title: false,
+  artist: false,
+  album: false,
+  genres: false,
+  coverImage: false,
+  slug: false,
+});
+
+const markAllFieldTouched = () => {
+  touchedFields.value = {
+    id: true,
+    title: true,
+    artist: true,
+    album: true,
+    genres: true,
+    coverImage: true,
+    slug: true,
+  };
+};
+
 // validation -----------------------------------------------------------------------------------------------------------
 const schema = z.object({
   title: z.string().trim().nonempty({ message: "Title is required field" }),
@@ -50,17 +72,29 @@ const errorMessages = ref({
   coverImage: "",
 });
 
+const handleFieldBlur = (
+  fieldKey: keyof typeof errorMessages.value,
+  value: any,
+) => {
+  if (!touchedFields.value[fieldKey]) {
+    touchedFields.value[fieldKey] = true;
+
+    handleValidateField(fieldKey, value);
+  }
+};
+
 const handleValidateField = (
   fieldKey: keyof typeof errorMessages.value,
   value: any,
-  rule: z.Schema,
 ) => {
-  const { error } = validateField(value, rule);
+  if (touchedFields.value[fieldKey]) {
+    const { error } = validateField(value, schema.shape[fieldKey]);
 
-  if (error) {
-    errorMessages.value[fieldKey] = error.errors[0].message;
-  } else {
-    errorMessages.value[fieldKey] = "";
+    if (error) {
+      errorMessages.value[fieldKey] = error.errors[0].message;
+    } else {
+      errorMessages.value[fieldKey] = "";
+    }
   }
 };
 
@@ -69,12 +103,13 @@ const validateField = (value: any, schema: any) => {
 };
 
 const validateForm = (formData: Track, schema: any) => {
+  markAllFieldTouched();
+
   Object.entries(formData).forEach(([fieldKey, fieldValue]) => {
     if (Object.keys(schema.shape).includes(fieldKey))
       handleValidateField(
         fieldKey as keyof typeof errorMessages.value,
         fieldValue,
-        schema.shape[fieldKey],
       );
   });
 };
@@ -107,9 +142,8 @@ const handleSubmit = () => {
         v-model="formData.title"
         data-testid="input-title"
         error-message-testid="error-title"
-        @update:model-value="
-          (value) => handleValidateField('title', value, schema.shape.title)
-        "
+        @update:model-value="handleValidateField('title', formData.title)"
+        @blur="handleFieldBlur('title', formData.title)"
       />
       <BaseInput
         label="Artist"
@@ -117,9 +151,8 @@ const handleSubmit = () => {
         v-model="formData.artist"
         data-testid="input-artist"
         error-message-testid="error-artist"
-        @update:model-value="
-          (value) => handleValidateField('artist', value, schema.shape.artist)
-        "
+        @update:model-value="handleValidateField('artist', formData.artist)"
+        @blur="handleFieldBlur('artist', formData.artist)"
       />
       <BaseInput
         label="Album"
@@ -127,9 +160,8 @@ const handleSubmit = () => {
         v-model="formData.album"
         data-testid="input-album"
         error-message-testid="error-album"
-        @update:model-value="
-          (value) => handleValidateField('album', value, schema.shape.album)
-        "
+        @update:model-value="handleValidateField('album', formData.album)"
+        @blur="handleFieldBlur('album', formData.album)"
       />
 
       <BaseInput
@@ -139,9 +171,9 @@ const handleSubmit = () => {
         data-testid="input-cover-image"
         error-message-testid="error-cover-image"
         @update:model-value="
-          (value) =>
-            handleValidateField('coverImage', value, schema.shape.coverImage)
+          handleValidateField('coverImage', formData.coverImage)
         "
+        @blur="handleFieldBlur('coverImage', formData.coverImage)"
       />
 
       <GenresMultiselect
@@ -152,9 +184,8 @@ const handleSubmit = () => {
         class="col-span-2"
         trigger-testid="genre-selector"
         error-message-testid="error-genre-selector"
-        @update:model-value="
-          (value) => handleValidateField('genres', value, schema.shape.genres)
-        "
+        @update:model-value="handleValidateField('genres', formData.genres)"
+        @blur="handleFieldBlur('genres', formData.genres)"
       />
 
       <div class="col-span-2 w-full flex gap-2">
