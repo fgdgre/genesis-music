@@ -89,7 +89,10 @@ const isCreateTrackModalOpen = ref(false);
       <div class="flex gap-4 justify-between items-end">
         <TracksFilters @filters-changed="handleFiltersChanged" />
 
-        <BaseButton @click="isCreateTrackModalOpen = true">
+        <BaseButton
+          @click="isCreateTrackModalOpen = true"
+          data-testid="create-track-button"
+        >
           Add track
         </BaseButton>
       </div>
@@ -98,6 +101,8 @@ const isCreateTrackModalOpen = ref(false);
       <div
         v-if="isLoading"
         class="flex flex-col gap-4 justify-center items-center h-full"
+        data-testid="loading-tracks"
+        :data-loading="true"
       >
         <p>Loading...</p>
       </div>
@@ -122,6 +127,7 @@ const isCreateTrackModalOpen = ref(false);
         v-if="tracksMeta?.totalPages && tracks.length"
         v-model="currentPage"
         :total-pages="tracksMeta.totalPages"
+        :is-loading="isLoading"
       />
     </div>
   </main>

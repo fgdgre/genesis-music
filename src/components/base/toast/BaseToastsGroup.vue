@@ -4,6 +4,7 @@
       tag="ul"
       name="toasts"
       class="fixed top-[14px] right-[14px] w-[calc(100%-32px)] max-w-[420px] z-20"
+      data-testid="toast-container"
     >
       <li
         v-for="toast in toasts"
@@ -18,6 +19,7 @@
           :duration="toast.duration"
           :show-progress="toast.showProgress"
           @close="closeToast(toast.id)"
+          :data-testid="`toast-${getToastType(toast.color)}`"
         />
       </li>
     </TransitionGroup>
@@ -25,7 +27,6 @@
 </template>
 
 <script setup lang="ts">
-import { TransitionGroup } from "vue";
 import type { Toast } from "@/types";
 import BaseToast from "./BaseToast.vue";
 
@@ -39,6 +40,15 @@ const emit = defineEmits<{
 
 const closeToast = (id: string) => {
   emit("closeToast", id);
+};
+
+const getToastType = (color: Toast["color"]) => {
+  if (color === "red") {
+    return "error";
+  }
+  if (color === "green") {
+    return "success";
+  }
 };
 </script>
 

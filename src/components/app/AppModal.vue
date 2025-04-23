@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import BaseButton from "./base/BaseButton.vue";
-
 defineProps<{
   title?: string;
 }>();
@@ -8,6 +6,8 @@ defineProps<{
 defineEmits<{
   close: [];
 }>();
+
+defineOptions({ inheritAttrs: false });
 </script>
 
 <template>
@@ -21,6 +21,7 @@ defineEmits<{
   >
     <div
       class="flex flex-col max-w-[400px] max-h-[500px] bg-white rounded-md p-4 gap-4"
+      v-bind="$attrs"
     >
       <p class="text-lg">
         {{ title }}

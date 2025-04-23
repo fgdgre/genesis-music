@@ -53,7 +53,7 @@ const handleDeleteTrack = async () => {
 </script>
 
 <template>
-  <AppModal title="Delete track">
+  <AppModal title="Delete track" data-testid="confirm-dialog">
     <p>
       Do you want to delete track with id
       <span class="font-medium">{{ track.id }}</span
@@ -67,6 +67,7 @@ const handleDeleteTrack = async () => {
           class="w-full"
           type="button"
           @click="$emit('close')"
+          data-testid="cancel-delete"
         >
           Cancel
         </BaseButton>
@@ -75,6 +76,7 @@ const handleDeleteTrack = async () => {
           class="w-full"
           type="submit"
           @click="handleDeleteTrack"
+          data-testid="confirm-delete"
         >
           Delete
         </BaseButton>

@@ -1,6 +1,57 @@
+<script lang="ts" setup>
+import type { DropdownItem } from "@/types";
+import { computed, ref } from "vue";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+} from "radix-vue";
+import BaseButton from "./BaseButton.vue";
+
+const props = defineProps<{
+  label?: string;
+  items?: DropdownItem[];
+  placeholder?: string;
+  isLoading?: boolean;
+  loadingMessage?: string;
+  disabled?: boolean;
+  errorMessage?: string;
+  menuStretch?: boolean;
+  emptyMessage?: string;
+  isEmpty?: boolean;
+  triggerTestid?: string;
+  errorMessageTestid?: string;
+}>();
+
+defineEmits<{
+  "update:modelValue": [string];
+  blur: [Event];
+}>();
+
+const selected = defineModel<string>();
+
+const clearSelectedItem = () => {
+  isDropdownOpen.value = false;
+  selected.value = "";
+};
+
+const currentItem = computed(() =>
+  props.items?.find((i) => i.value === selected.value),
+);
+
+const isDropdownOpen = ref(false);
+
+const selectItem = (item: DropdownItem) => {
+  isDropdownOpen.value = false;
+  selected.value = item.value;
+};
+</script>
+
 <template>
   <DropdownMenuRoot v-model:open="isDropdownOpen" :modal="false">
-    <div class="h-min" data-testid="dropdown-menu-wrapper" v-bind="$attrs">
+    <div class="h-min" v-bind="$attrs">
       <p
         v-if="label"
         class="flex text-sm font-medium leading-none text-foreground select-none mb-1"
@@ -16,15 +67,15 @@
             'border-red-400 text-red-400 placeholder:text-red-400/70 focus-visible:ring-red-400',
           disabled && 'opacity-70',
         ]"
-        :disabled
+        :disabled="disabled || isLoading"
+        :aria-disabled="disabled || isLoading"
         :aria-invalid="Boolean(errorMessage)"
         :aria-describedby="errorMessage"
-        data-testid="dropdown-menu-trigger"
+        :data-testid="triggerTestid"
         @click="isDropdownOpen = !isDropdownOpen"
       >
         <div
           v-if="placeholder && (!selected || isLoading)"
-          data-testid="multiselect-placeholder"
           class="text-gray-400 flex gap-2"
           :class="[Boolean(errorMessage) && 'text-red-300']"
         >
@@ -50,7 +101,6 @@
         <div
           v-if="selected && !isLoading"
           class="flex items-center gap-2 text-foreground overflow-hidden flex-1"
-          data-testid="multiselect-selected-item"
         >
           {{ currentItem?.label }}
 
@@ -96,7 +146,7 @@
       <p
         v-if="errorMessage"
         class="text-red-400 text-xs mt-1"
-        data-testid="multiselect-error-message"
+        :data-testid="errorMessageTestid"
       >
         {{ errorMessage }}
       </p>
@@ -107,13 +157,11 @@
           :side-offset="5"
           class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 bg-white w-[var(--radix-dropdown-menu-trigger-width)] min-w-max max-h-[150px] overflow-auto"
           :class="isLoading && 'p-0'"
-          data-testid="dropdown-menu-content"
         >
           <template v-if="!(isEmpty || isLoading)">
             <DropdownMenuItem
               v-for="(item, i) in items"
               :key="item.label"
-              :data-testid="'dropdown-menu-item' + '-' + i"
               class="[&:not(:first-child)]:mt-1 flex items-center text-sm rounded-md cursor-pointer w-full text-foreground px-2 py-1.5 gap-2 select-none hover:bg-gray-200"
               @select="selectItem(item)"
             >
@@ -176,55 +224,6 @@
     </div>
   </DropdownMenuRoot>
 </template>
-
-<script lang="ts" setup>
-import type { DropdownItem } from "@/types";
-import { computed, ref } from "vue";
-import {
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuPortal,
-  DropdownMenuRoot,
-  DropdownMenuTrigger,
-} from "radix-vue";
-import BaseButton from "./BaseButton.vue";
-
-const props = defineProps<{
-  label?: string;
-  items?: DropdownItem[];
-  placeholder?: string;
-  isLoading?: boolean;
-  loadingMessage?: string;
-  disabled?: boolean;
-  errorMessage?: string;
-  menuStretch?: boolean;
-  emptyMessage?: string;
-  isEmpty?: boolean;
-}>();
-
-defineEmits<{
-  "update:modelValue": [string];
-  blur: [Event];
-}>();
-
-const selected = defineModel<string>();
-
-const clearSelectedItem = () => {
-  isDropdownOpen.value = false;
-  selected.value = "";
-};
-
-const currentItem = computed(() =>
-  props.items?.find((i) => i.value === selected.value),
-);
-
-const isDropdownOpen = ref(false);
-
-const selectItem = (item: DropdownItem) => {
-  isDropdownOpen.value = false;
-  selected.value = item.value;
-};
-</script>
 
 <style scoped>
 :deep(div[data-radix-menu-content][data-state="open"]) {

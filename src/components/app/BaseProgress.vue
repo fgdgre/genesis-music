@@ -10,10 +10,7 @@ withDefaults(
 </script>
 
 <template>
-  <div
-    data-testid="base-progress"
-    class="w-full overflow-hidden rounded-md bg-transparent h-1"
-  >
+  <div class="w-full overflow-hidden rounded-md bg-transparent h-1">
     <div
       class="h-full"
       :class="[

@@ -7,9 +7,10 @@ defineProps<{
   placeholder?: string;
   label?: string;
   disabled?: boolean;
-  loading?: boolean;
+  isLoading?: boolean;
   errorMessage?: string;
   modelValue?: string | number;
+  errorMessageTestid?: string;
 }>();
 
 const emit = defineEmits<{
@@ -53,19 +54,24 @@ const id = self.crypto.randomUUID();
       v-bind="$attrs"
       class="px-3 py-1 bg-transparent rounded-md border border-border text-base md:text-sm font-normal placeholder:text-placeholder focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-focus text-foreground w-full h-9"
       :class="[
-        disabled || (loading && 'cursor-not-allowed select-none'),
+        (disabled || isLoading) && 'cursor-not-allowed select-none',
         Boolean(errorMessage) &&
           'border-red-400 text-red-400 placeholder:text-red-300 focus-visible:ring-red-400',
       ]"
       :placeholder
       :value="modelValue"
-      :disabled="disabled || loading"
+      :disabled="disabled || isLoading"
+      :aria-disabled="disabled || isLoading"
       @focus="$emit('focus', $event)"
       @blur="$emit('blur', $event)"
       @input="updateModelValue(($event.target as HTMLInputElement).value)"
     />
 
-    <p v-if="errorMessage" class="text-red-400 text-xs mt-1">
+    <p
+      v-if="errorMessage"
+      class="text-red-400 text-xs mt-1"
+      :data-testid="errorMessageTestid"
+    >
       {{ errorMessage }}
     </p>
   </div>

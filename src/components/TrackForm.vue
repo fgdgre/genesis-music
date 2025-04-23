@@ -93,27 +93,39 @@ const handleSubmit = () => {
 
 <template>
   <div>
-    <form @submit.prevent="handleSubmit" class="grid grid-cols-2 gap-4">
+    <form
+      @submit.prevent="handleSubmit"
+      class="grid grid-cols-2 gap-4"
+      data-testid="track-form"
+    >
       <BaseInput
         label="Title"
         :error-message="errorMessages.title"
         v-model="formData.title"
+        data-testid="input-title"
+        error-message-testid="error-title"
       />
       <BaseInput
         label="Artist"
         :error-message="errorMessages.artist"
         v-model="formData.artist"
+        data-testid="input-artist"
+        error-message-testid="error-artist"
       />
       <BaseInput
         label="Album"
         :error-message="errorMessages.album"
         v-model="formData.album"
+        data-testid="input-album"
+        error-message-testid="error-album"
       />
 
       <BaseInput
         label="Cover Image"
         :error-message="errorMessages.coverImage"
         v-model="formData.coverImage"
+        data-testid="input-cover-image"
+        error-message-testid="error-cover-image"
       />
 
       <GenresMultiselect
@@ -122,6 +134,8 @@ const handleSubmit = () => {
         :error-message="errorMessages.genres"
         v-model="formData.genres"
         class="col-span-2"
+        trigger-testid="genre-selector"
+        error-message-testid="error-genre-selector"
       />
 
       <div class="col-span-2 w-full flex gap-2">
@@ -133,7 +147,9 @@ const handleSubmit = () => {
         >
           Cancel
         </BaseButton>
-        <BaseButton class="w-full" type="submit"> Submit </BaseButton>
+        <BaseButton class="w-full" type="submit" data-testid="submit-button">
+          Submit
+        </BaseButton>
       </div>
     </form>
   </div>

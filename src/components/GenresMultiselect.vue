@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { DropdownItem } from "@/types";
 import BaseMultiselect from "./base/BaseMultiselect.vue";
 import { fetchGenresAPI } from "@/api";
 import { ref, watchEffect } from "vue";
@@ -11,6 +10,8 @@ defineProps<{
   disabled?: boolean;
   errorMessage?: string;
   emptyMessage?: string;
+  triggerTestid?: string;
+  errorMessageTestid?: string;
 }>();
 
 defineEmits<{
@@ -55,5 +56,7 @@ watchEffect(() => {
     :is-loading="isLoading"
     :label
     :placeholder
+    :trigger-testid
+    :error-message-testid
   />
 </template>

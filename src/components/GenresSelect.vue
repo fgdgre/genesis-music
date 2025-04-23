@@ -10,6 +10,8 @@ defineProps<{
   disabled?: boolean;
   errorMessage?: string;
   emptyMessage?: string;
+  triggerTestid?: string;
+  errorMessageTestid?: string;
 }>();
 
 defineEmits<{
@@ -53,5 +55,7 @@ watchEffect(() => {
     :is-empty="trackGenresItems?.length === 0 && !isLoading"
     :label
     :placeholder
+    :trigger-testid
+    :error-message-testid
   />
 </template>

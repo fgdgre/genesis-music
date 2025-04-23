@@ -20,7 +20,7 @@ defineEmits<{
 
 <template>
   <button
-    class="flex gap-x-[5px] items-center justify-center rounded-md cursor-pointer w-fit select-none transition-colors px-4 py-2 h-9 pointer-events-auto font-medium text-sm"
+    class="flex gap-x-[5px] items-center justify-center rounded-md w-fit select-none transition-colors px-4 py-2 h-9 pointer-events-auto font-medium text-sm cursor-pointer"
     :class="[
       color === 'red' && 'bg-red-400 text-[#18181b] hover:bg-red-400/80',
       color === 'black' && 'bg-black text-white hover:bg-black/80',
@@ -30,6 +30,7 @@ defineEmits<{
       (disabled || isLoading) && 'opacity-70',
     ]"
     :disabled="disabled || isLoading"
+    :aria-disabled="disabled || isLoading"
     :type
     @click="(e) => $emit('click', e)"
   >

@@ -1,6 +1,78 @@
+<script lang="ts" setup>
+import type { DropdownItem } from "@/types";
+import { ref } from "vue";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+} from "radix-vue";
+import { computed } from "vue";
+import BaseButton from "./BaseButton.vue";
+
+const props = withDefaults(
+  defineProps<{
+    items?: DropdownItem[];
+    label?: string;
+    placeholder?: string;
+    isLoading?: boolean;
+    disabled?: boolean;
+    isEmpty?: boolean;
+    loadingMessage?: string;
+    maxCount?: number;
+    errorMessage?: string;
+    emptyMessage?: string;
+    triggerTestid?: string;
+    errorMessageTestid?: string;
+  }>(),
+  {
+    maxCount: 2,
+    menuAlign: "end",
+  },
+);
+
+const emit = defineEmits<{
+  "update:modelValue": [string[]];
+  blur: [Event];
+}>();
+
+defineOptions({ inheritAttrs: false });
+
+const selected = defineModel<string[]>({ required: true });
+
+const isItemSelected = (value: string) =>
+  Boolean(selected.value.find((s) => s === value));
+
+const query = ref("");
+
+const filteredItems = computed(() =>
+  props.items?.filter((i) =>
+    i.label.toLowerCase().includes(query.value.toLowerCase()),
+  ),
+);
+
+const isMultiselectOpen = ref(false);
+
+const clearSelectedItems = () => {
+  emit("update:modelValue", []);
+};
+
+const toggleItem = (item: string) => {
+  if (isItemSelected(item)) {
+    emit(
+      "update:modelValue",
+      selected.value.filter((i) => i !== item),
+    );
+  } else {
+    emit("update:modelValue", [...selected.value, item]);
+  }
+};
+</script>
+
 <template>
   <DropdownMenuRoot v-model:open="isMultiselectOpen" :modal="false">
-    <div class="h-min" data-testid="multiselect-menu-wrapper" v-bind="$attrs">
+    <div class="h-min" v-bind="$attrs">
       <p
         v-if="label"
         class="flex text-sm font-medium leading-none text-foreground select-none mb-1"
@@ -11,6 +83,7 @@
 
       <DropdownMenuTrigger
         class="w-full px-3 py-1 flex items-center justify-between border rounded-md select-none text-sm gap-2 min-w-[75px] cursor-pointer overflow-hidden focus-visible:outline-none focus-visible:ring focus-visible:ring-black h-9"
+        :data-testid="triggerTestid"
         :class="[
           Boolean(errorMessage) &&
             'border-red-400 text-red-400 placeholder:text-red-400/70 focus-visible:ring-red-400',
@@ -18,15 +91,14 @@
           selected.length > maxCount && 'min-w-[230px]',
           disabled && 'opacity-70',
         ]"
-        :disabled
+        :disabled="disabled || isLoading"
+        :aria-disabled="disabled || isLoading"
         :aria-invalid="Boolean(errorMessage)"
         :aria-describedby="errorMessage"
-        data-testid="multiselect-menu-trigger"
         @click="isMultiselectOpen = !isMultiselectOpen"
       >
         <div
           v-if="placeholder && (!selected?.length || isLoading)"
-          data-testid="multiselect-placeholder"
           class="text-gray-400 flex gap-2"
           :class="[Boolean(errorMessage) && 'text-red-300']"
         >
@@ -51,7 +123,6 @@
         <div
           v-if="selected?.length && !isLoading"
           class="flex items-center gap-2 text-foreground overflow-hidden flex-1"
-          data-testid="multiselect-selected-item"
         >
           <div v-if="selected?.length" class="overflow-hidden flex gap-1">
             <div
@@ -85,7 +156,6 @@
             </div>
           </div>
 
-          <!-- text-nowrap -->
           <p
             v-if="selected?.length > maxCount"
             class="text-gray-400 flex gap-2 text-sm"
@@ -135,7 +205,7 @@
       <p
         v-if="errorMessage"
         class="text-red-400 text-xs mt-1"
-        data-testid="multiselect-error-message"
+        :data-testid="errorMessageTestid"
       >
         {{ errorMessage }}
       </p>
@@ -145,7 +215,6 @@
           @interact-outside="(e) => $emit('blur', e)"
           :side-offset="5"
           class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 bg-white w-[var(--radix-dropdown-menu-trigger-width)] min-w-max"
-          data-testid="multiselect-menu-content"
         >
           <template v-if="!(isEmpty || isLoading)">
             <div
@@ -155,7 +224,6 @@
                 v-for="(item, i) in filteredItems"
                 :key="item.label"
                 class="[&:not(:first-child)]:mt-1 hover:bg-gray-200 rounded-md"
-                :data-testid="'multiselect-menu-item' + '-' + i"
                 @select.prevent="toggleItem(item.value)"
               >
                 <BaseButton transparent class="justify-start w-full h-full">
@@ -240,76 +308,6 @@
     </div>
   </DropdownMenuRoot>
 </template>
-
-<script lang="ts" setup>
-import type { DropdownItem } from "@/types";
-import { ref } from "vue";
-import {
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuPortal,
-  DropdownMenuRoot,
-  DropdownMenuTrigger,
-} from "radix-vue";
-import { computed } from "vue";
-import BaseButton from "./BaseButton.vue";
-
-const props = withDefaults(
-  defineProps<{
-    items?: DropdownItem[];
-    label?: string;
-    placeholder?: string;
-    isLoading?: boolean;
-    disabled?: boolean;
-    isEmpty?: boolean;
-    loadingMessage?: string;
-    maxCount?: number;
-    errorMessage?: string;
-    emptyMessage?: string;
-  }>(),
-  {
-    maxCount: 2,
-    menuAlign: "end",
-  },
-);
-
-const emit = defineEmits<{
-  "update:modelValue": [string[]];
-  blur: [Event];
-}>();
-
-defineOptions({ inheritAttrs: false });
-
-const selected = defineModel<string[]>({ required: true });
-
-const isItemSelected = (value: string) =>
-  Boolean(selected.value.find((s) => s === value));
-
-const query = ref("");
-
-const filteredItems = computed(() =>
-  props.items?.filter((i) =>
-    i.label.toLowerCase().includes(query.value.toLowerCase()),
-  ),
-);
-
-const isMultiselectOpen = ref(false);
-
-const clearSelectedItems = () => {
-  emit("update:modelValue", []);
-};
-
-const toggleItem = (item: string) => {
-  if (isItemSelected(item)) {
-    emit(
-      "update:modelValue",
-      selected.value.filter((i) => i !== item),
-    );
-  } else {
-    emit("update:modelValue", [...selected.value, item]);
-  }
-};
-</script>
 
 <style scoped>
 :deep(div[data-radix-menu-content][data-state="open"]) {
