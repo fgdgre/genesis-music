@@ -4,7 +4,6 @@ import AppModal from "./app/AppModal.vue";
 import TrackForm from "./TrackForm.vue";
 import { useTracksStore } from "@/stores/tracks";
 import { editTrackAPI, postTrackAPI } from "@/api";
-import { useToast } from "@/stores/toast";
 import type { DeepReadonly } from "vue";
 import { useNotification } from "@/composables/useNotifications";
 
@@ -20,43 +19,37 @@ const emit = defineEmits<{
 
 const tracksStore = useTracksStore();
 
-const toastsStore = useToast();
-
 const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
-  tracksStore.updateTrack(updatedTrack.id, updatedTrack);
-
   emit("close");
 
-  if (updatedTrack.slug) {
-    if (updatedTrack.title !== updatedTrack.slug) {
-      const { data, error } = await editTrackAPI(updatedTrack);
+  const isExisting = Boolean(updatedTrack.slug);
+  const isTitleChanged = updatedTrack.title !== updatedTrack.slug;
 
-      if (error) {
-        setErrorToast(error);
-      }
+  tracksStore.updateTrack(updatedTrack.id, updatedTrack);
 
-      if (data) {
-        tracksStore.updateTrack(updatedTrack.id, data);
+  let response;
+  let toastType: "create" | "edit" = "edit";
 
-        setSuccessToast("edit");
-      }
+  if (isExisting) {
+    if (isTitleChanged) {
+      response = await editTrackAPI(updatedTrack);
     } else {
       setSuccessToast("edit");
+      return;
     }
   } else {
-    emit("close");
+    response = await postTrackAPI(updatedTrack);
+    toastType = "create";
+  }
 
-    const { data, error } = await postTrackAPI(updatedTrack);
+  if (response?.error) {
+    setErrorToast(response.error);
+    return;
+  }
 
-    if (error) {
-      setErrorToast(error);
-    }
-
-    if (data) {
-      tracksStore.updateTrack(updatedTrack.id, data);
-
-      setSuccessToast("create");
-    }
+  if (response?.data) {
+    tracksStore.updateTrack(updatedTrack.id, response.data);
+    setSuccessToast(toastType);
   }
 };
 </script>
