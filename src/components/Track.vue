@@ -13,7 +13,7 @@ const props = defineProps<{
 }>();
 
 const tracksStore = useTracksStore();
-const { isError, isLoading } = storeToRefs(tracksStore);
+const { isError } = storeToRefs(tracksStore);
 
 const isTrackHaveIncorrectTitle = computed(
   () =>
@@ -26,7 +26,6 @@ const isDeleteTrackModalOpen = ref(false);
 </script>
 
 <template>
-  {{ isError }}
   <div class="flex gap-4 items-center" :data-testid="`track-item-${track.id}`">
     <img
       :src="track.coverImage || DEFAULT_TRACK_COVER"

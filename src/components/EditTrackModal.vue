@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { Track } from "@/types";
+import type { DeepReadonly } from "vue";
 import AppModal from "./app/AppModal.vue";
 import TrackForm from "./TrackForm.vue";
 import { useTracksStore } from "@/stores/tracks";
 import { editTrackAPI, postTrackAPI } from "@/api";
-import type { DeepReadonly } from "vue";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 import { storeToRefs } from "pinia";
 
