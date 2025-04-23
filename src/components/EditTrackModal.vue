@@ -7,8 +7,6 @@ import { editTrackAPI, postTrackAPI } from "@/api";
 import type { DeepReadonly } from "vue";
 import { useNotification } from "@/composables/useNotifications";
 
-const { setErrorToast, setSuccessToast } = useNotification();
-
 defineProps<{
   track: DeepReadonly<Track>;
 }>();
@@ -18,6 +16,9 @@ const emit = defineEmits<{
 }>();
 
 const tracksStore = useTracksStore();
+
+const notificationStore = useNotification();
+const { setErrorToast, setSuccessToast } = notificationStore;
 
 const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
   emit("close");

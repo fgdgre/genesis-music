@@ -6,49 +6,32 @@ import { useTracksStore } from "@/stores/tracks";
 import { postTrackAPI } from "@/api";
 import { useToast } from "@/stores/toast";
 import type { DeepReadonly } from "vue";
+import { useNotification } from "@/composables/useNotifications";
 
 const emit = defineEmits<{
   close: [];
 }>();
 
 const tracksStore = useTracksStore();
-const toastsStore = useToast();
+
+const notificationStore = useNotification();
+const { setErrorToast, setSuccessToast } = notificationStore;
 
 const handleCreateTrack = async (track: DeepReadonly<Track>) => {
-  tracksStore.createTrack(track);
-
   emit("close");
+
+  tracksStore.createTrack(track);
 
   const { data, error } = await postTrackAPI(track);
 
   if (error) {
-    if (error.status === 409) {
-      toastsStore.addToast({
-        title: error.message,
-        description: "Edit or delete, because his will not save",
-        color: "red",
-        icon: "warning",
-      });
-    } else {
-      toastsStore.addToast({
-        title: "Something went wrong",
-        description: error.message,
-        color: "red",
-        icon: "warning",
-      });
-    }
+    setErrorToast(error);
   }
 
   if (data) {
     tracksStore.updateTrack(track.id, data);
 
-    toastsStore.addToast({
-      title: "Track successfully created",
-      color: "green",
-      icon: "check",
-      duration: 1500,
-      showProgress: true,
-    });
+    setSuccessToast("create");
   }
 };
 </script>
