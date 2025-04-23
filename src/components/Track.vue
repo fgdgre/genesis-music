@@ -7,6 +7,7 @@ import BaseButton from "./base/BaseButton.vue";
 import { DEFAULT_TRACK_COVER } from "@/consts";
 import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
+import UploadTrackFile from "./UploadTrackFile.vue";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -23,6 +24,7 @@ const isTrackHaveIncorrectTitle = computed(
 
 const isEditTrackModalOpen = ref(false);
 const isDeleteTrackModalOpen = ref(false);
+const isUploadTrackFileModalOpen = ref(false);
 </script>
 
 <template>
@@ -75,6 +77,7 @@ const isDeleteTrackModalOpen = ref(false);
       <BaseButton
         color="green"
         :data-testid="`upload-track-${track.id}`"
+        @click="isUploadTrackFileModalOpen = true"
         v-if="track.slug"
       >
         Upload track file
@@ -91,6 +94,12 @@ const isDeleteTrackModalOpen = ref(false);
       v-if="isDeleteTrackModalOpen"
       :track
       @close="isDeleteTrackModalOpen = false"
+    />
+
+    <UploadTrackFile
+      v-if="isUploadTrackFileModalOpen"
+      :track
+      @close="isUploadTrackFileModalOpen = false"
     />
   </div>
 </template>
