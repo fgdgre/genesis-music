@@ -12,25 +12,21 @@ import CreateTrackModal from "./CreateTrackModal.vue";
 import AppEmptyScreen from "./app/AppEmptyScreen.vue";
 import BaseButton from "./base/BaseButton.vue";
 
-// filtering/search ----------------------------------------------------------------
-const search = ref("");
-const order = ref<"desc" | "asc" | "">("");
-const artist = ref("");
-const genre = ref("");
-const sort = ref<"title" | "artist" | "album" | "createdAt" | "">("");
-// --------------------------------------------------------------------------------------
-
-// pagination -----------------------------------------------------------------------
-const currentPage = ref(1);
-// --------------------------------------------------------------------------------------
-
-// store ----------------------------------------------------------------------------
 const tracksStore = useTracksStore();
 
 const { isLoading, isError, initialized, tracks, tracksMeta } =
   storeToRefs(tracksStore);
 
-// get tracks --------------------------------------------------------------------------
+const isCreateTrackModalOpen = ref(false);
+
+const search = ref("");
+const order = ref<"desc" | "asc" | "">("");
+const artist = ref("");
+const genre = ref("");
+const sort = ref<"title" | "artist" | "album" | "createdAt" | "">("");
+
+const currentPage = ref(1);
+
 const fetchTracks = () => {
   tracksStore.fetchTracks({
     page: currentPage,
@@ -55,7 +51,7 @@ const handleFiltersChanged = (filters: QueryParams) => {
 };
 
 watch(
-  [currentPage],
+  currentPage,
   () => {
     fetchTracks();
   },
@@ -66,19 +62,14 @@ const noFiltersSelected = computed(
   () =>
     !search.value && !artist.value && !genre.value && currentPage.value === 1,
 );
-
-// create track--------------------------------------------------------
-const isCreateTrackModalOpen = ref(false);
 </script>
 
 <template>
   <AppHeader title="Tracks page" :is-loading="isLoading && !initialized" />
 
   <main v-if="initialized" class="flex flex-col h-[calc(100svh-61px)] p-6">
-    <!-- error page -------------------------------------------------------------------- -->
     <AppErrorPage v-if="isError && !initialized" @refetch="fetchTracks" />
 
-    <!-- initial empty screen -->
     <AppEmptyScreen
       v-else-if="noFiltersSelected && !isLoading && tracks?.length === 0"
       @create-track="isCreateTrackModalOpen = true"
@@ -120,7 +111,7 @@ const isCreateTrackModalOpen = ref(false);
         v-else
         class="flex flex-col gap-4 justify-center items-center h-full"
       >
-        nothing is found
+        Nothing is found
       </div>
 
       <AppPagination
@@ -132,7 +123,6 @@ const isCreateTrackModalOpen = ref(false);
     </div>
   </main>
 
-  <!-- create modal-------------------------------------------------------------------- -->
   <CreateTrackModal
     v-if="isCreateTrackModalOpen"
     @close="isCreateTrackModalOpen = false"
