@@ -115,7 +115,7 @@
               :key="item.label"
               :data-testid="'dropdown-menu-item' + '-' + i"
               class="[&:not(:first-child)]:mt-1 flex items-center text-sm rounded-md cursor-pointer w-full text-foreground px-2 py-1.5 gap-2 select-none hover:bg-gray-200"
-              @click="selectItem(item)"
+              @select="selectItem(item)"
             >
               <div class="flex items-center gap-3">
                 <p>

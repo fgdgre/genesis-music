@@ -6,7 +6,7 @@ import * as api from "@/api";
 import { useFetchGenres } from "@/composables/useFetchGenres";
 import { useToast } from "./toast";
 
-export const useTrackStore = defineStore("tracksStore", () => {
+export const useTracksStore = defineStore("tracksStore", () => {
   const toastStore = useToast();
 
   const initialized = ref(false);
@@ -15,14 +15,20 @@ export const useTrackStore = defineStore("tracksStore", () => {
   const isLoading = ref(false);
   const isError = ref(false);
 
-  const counter = ref(0);
-
   const fetchTracks = async ({
     page,
-    filters,
+    search,
+    genre,
+    artist,
+    order,
+    sort,
   }: {
     page: Ref<number>;
-    filters: Ref<QueryParams>;
+    search?: Ref<string>;
+    genre?: Ref<string>;
+    artist?: Ref<string>;
+    order?: Ref<"asc" | "desc" | "">;
+    sort?: Ref<"title" | "artist" | "album" | "createdAt" | "">;
   }) => {
     try {
       isLoading.value = true;
@@ -31,18 +37,23 @@ export const useTrackStore = defineStore("tracksStore", () => {
 
       const { data, error } = await api.fetchTracksAPI({
         page: page.value,
-        filters: filters.value,
+        search: search?.value,
+        genre: genre?.value,
+        artist: artist?.value,
+        order: order?.value,
+        sort: sort?.value,
       });
 
-      if (error || counter.value === 1) {
+      if (error) {
+        isError.value = true;
+
         if (initialized.value) {
           toastStore.addToast({
             title: "Something went wrong",
-            description: "Error while fetching tracks",
+            description: error,
             color: "red",
           });
         }
-        isError.value = true;
       } else {
         tracks.value = data.data;
         tracksMeta.value = data.meta;
@@ -50,7 +61,6 @@ export const useTrackStore = defineStore("tracksStore", () => {
     } finally {
       initialized.value = true;
       isLoading.value = false;
-      counter.value++;
     }
   };
 

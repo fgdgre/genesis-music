@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { useTrackStore } from "@/stores/tracks";
 import type { Track } from "@/types";
 import { ref, type DeepReadonly } from "vue";
 import * as z from "zod";
 import BaseInput from "./base/BaseInput.vue";
 import BaseButton from "./base/BaseButton.vue";
-import BaseMultiselect from "./base/BaseMultiselect.vue";
 import GenresMultiselect from "./GenresMultiselect.vue";
 
 const props = defineProps<{

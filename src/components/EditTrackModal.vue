@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { Track } from "@/types";
-import AppModal from "./AppModal.vue";
+import AppModal from "./app/AppModal.vue";
 import TrackForm from "./TrackForm.vue";
-import { useTrackStore } from "@/stores/tracks";
+import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 import { editTrackAPI } from "@/api";
 import { useToast } from "@/stores/toast";
@@ -16,7 +16,7 @@ const emit = defineEmits<{
   close: [];
 }>();
 
-const tracksStore = useTrackStore();
+const tracksStore = useTracksStore();
 const { tracks } = storeToRefs(tracksStore);
 
 const toastsStore = useToast();

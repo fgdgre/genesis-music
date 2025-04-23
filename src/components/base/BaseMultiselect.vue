@@ -156,13 +156,9 @@
                 :key="item.label"
                 class="[&:not(:first-child)]:mt-1 hover:bg-gray-200 rounded-md"
                 :data-testid="'multiselect-menu-item' + '-' + i"
-                @select.prevent
+                @select.prevent="toggleItem(item.value)"
               >
-                <BaseButton
-                  @click="toggleItem(item.value)"
-                  transparent
-                  class="justify-start w-full h-full"
-                >
+                <BaseButton transparent class="justify-start w-full h-full">
                   <div
                     class="flex appearance-none items-center justify-center rounded-[4px] cursor-pointer border border-gray-400"
                     :class="[

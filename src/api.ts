@@ -1,38 +1,56 @@
 import type { QueryParams, Track } from "@/types";
 import type { DeepReadonly } from "vue";
 
-const buildTrackQuery = (page?: number, filters?: Partial<QueryParams>) => {
+const buildTrackQuery = ({
+  page,
+  search,
+  genre,
+  artist,
+  order,
+  sort,
+}: {
+  page?: number;
+  search?: string;
+  genre?: string;
+  artist?: string;
+  order?: "asc" | "desc" | "";
+  sort?: "title" | "artist" | "album" | "createdAt" | "";
+}) => {
   const params = new URLSearchParams();
 
   if (page) params.set("page", String(page));
+  if (search) params.set("search", search);
+  if (genre) params.set("genre", genre);
+  if (artist) params.set("artist", artist);
+  if (order) params.set("order", order);
+  if (sort) params.set("sort", sort);
 
-  if (filters) {
-    if (filters.search) params.set("search", filters.search);
-    if (filters.artist) params.set("artist", filters.artist);
-    if (filters.order) params.set("order", filters.order);
-    if (filters.sort) params.set("sort", filters.sort);
-    if (filters.genre) params.set("genre", filters.genre);
-  }
-
-  return params.toString(); // only query string
+  return params.toString();
 };
 
 export const fetchTracksAPI = async ({
   page,
-  filters,
+  search,
+  genre,
+  artist,
+  order,
+  sort,
 }: {
   page: number;
-  filters: QueryParams;
+  search?: string;
+  genre?: string;
+  artist?: string;
+  order?: "asc" | "desc" | "";
+  sort?: "title" | "artist" | "album" | "createdAt" | "";
 }) => {
   try {
     const response = await fetch(
-      `api/tracks?${buildTrackQuery(page, filters)}`,
+      `api/tracks?${buildTrackQuery({ page, search, genre, artist, order, sort })}`,
     );
 
     if (!response.ok) {
-      // TODO: fix
-      const errText = await response.text();
-      throw new Error(`Server error: ${response.status} - ${errText}`);
+      const text = await response.json();
+      throw new Error(`status: ${response.status} - ${text.error}`);
     }
 
     const data = await response.json();
@@ -48,8 +66,8 @@ export const deleteTrackAPI = async (id: string) => {
     const response = await fetch(`api/tracks/${id}`, { method: "DELETE" });
 
     if (!response.ok) {
-      // TODO: fix
-      throw new Error(`Server error: ${response.status} - ${response}`);
+      const text = await response.json();
+      throw new Error(`status: ${response.status} - ${text.error}`);
     }
 
     return { data: id, error: null };
@@ -70,12 +88,8 @@ export const editTrackAPI = async (track: DeepReadonly<Track>) => {
     });
 
     if (!response.ok) {
-      // TODO: fix
-      const errorMessage =
-        response.status === 409
-          ? "Track with this title already exists"
-          : "Something went wrong";
-      throw new Error(`${response.status} - ${errorMessage}`);
+      const text = await response.json();
+      throw new Error(`status: ${response.status} - ${text.error}`);
     } else {
       const data = await response.json();
       return { data, error: null };
@@ -91,9 +105,8 @@ export const fetchGenresAPI = async () => {
     const response = await fetch("api/genres");
 
     if (!response.ok) {
-      // TODO: fix
-      const errText = await response.text();
-      throw new Error(`Server error: ${response.status} - ${errText}`);
+      const text = await response.json();
+      throw new Error(`status: ${response.status} - ${text.error}`);
     }
 
     const genres = await response.json();
@@ -115,11 +128,8 @@ export const postTrackAPI = async (track: DeepReadonly<Track>) => {
     });
 
     if (!response.ok) {
-      const errorMessage =
-        response.status === 409
-          ? "Track with this title already exists"
-          : "Something went wrong";
-      throw new Error(`${response.status} - ${errorMessage}`);
+      const text = await response.json();
+      throw new Error(`status: ${response.status} - ${text.error}`);
     }
 
     const data = await response.json();

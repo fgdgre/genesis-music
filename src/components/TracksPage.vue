@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import type { QueryParams } from "@/types";
-import { useTrackStore } from "@/stores/tracks";
+import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 import Track from "./Track.vue";
 import AppPagination from "./app/AppPagination.vue";
@@ -13,13 +13,11 @@ import AppEmptyScreen from "./app/AppEmptyScreen.vue";
 import BaseButton from "./base/BaseButton.vue";
 
 // filtering/search ----------------------------------------------------------------
-const queryParams = ref<QueryParams>({
-  search: "",
-  genre: "",
-  artist: "",
-  order: "",
-  sort: "",
-});
+const search = ref("");
+const order = ref<"desc" | "asc" | "">("");
+const artist = ref("");
+const genre = ref("");
+const sort = ref<"title" | "artist" | "album" | "createdAt" | "">("");
 // --------------------------------------------------------------------------------------
 
 // pagination -----------------------------------------------------------------------
@@ -27,20 +25,31 @@ const currentPage = ref(1);
 // --------------------------------------------------------------------------------------
 
 // store ----------------------------------------------------------------------------
-const tracksStore = useTrackStore();
+const tracksStore = useTracksStore();
 
 const { isLoading, isError, initialized, tracks, tracksMeta } =
   storeToRefs(tracksStore);
 
 // get tracks --------------------------------------------------------------------------
 const fetchTracks = () => {
-  tracksStore.fetchTracks({ page: currentPage, filters: queryParams });
+  tracksStore.fetchTracks({
+    page: currentPage,
+    search,
+    order,
+    artist,
+    genre,
+    sort,
+  });
 };
 
 const handleFiltersChanged = (filters: QueryParams) => {
   currentPage.value = 1;
 
-  queryParams.value = filters;
+  search.value = filters.search;
+  order.value = filters.order;
+  artist.value = filters.artist;
+  genre.value = filters.genre;
+  sort.value = filters.sort;
 
   fetchTracks();
 };
@@ -53,17 +62,9 @@ watch(
   { immediate: true },
 );
 
-// TODO fix
-watch([isError], () => {
-  currentPage.value = 1;
-});
-
 const noFiltersSelected = computed(
   () =>
-    !queryParams.value.search &&
-    !queryParams.value.artist &&
-    !queryParams.value.genre &&
-    currentPage.value === 1,
+    !search.value && !artist.value && !genre.value && currentPage.value === 1,
 );
 
 // create track--------------------------------------------------------
