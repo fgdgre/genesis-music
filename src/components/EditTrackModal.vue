@@ -6,6 +6,9 @@ import { useTracksStore } from "@/stores/tracks";
 import { editTrackAPI, postTrackAPI } from "@/api";
 import { useToast } from "@/stores/toast";
 import type { DeepReadonly } from "vue";
+import { useNotification } from "@/composables/useNotifications";
+
+const { setErrorToast, setSuccessToast } = useNotification();
 
 defineProps<{
   track: DeepReadonly<Track>;
@@ -20,7 +23,6 @@ const tracksStore = useTracksStore();
 const toastsStore = useToast();
 
 const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
-  console.log(updatedTrack);
   tracksStore.updateTrack(updatedTrack.id, updatedTrack);
 
   emit("close");
@@ -30,42 +32,16 @@ const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
       const { data, error } = await editTrackAPI(updatedTrack);
 
       if (error) {
-        if (error.status === 409) {
-          toastsStore.addToast({
-            title: error.message,
-            description: "Edit or delete, because his will not save",
-            color: "red",
-            icon: "warning",
-          });
-        } else {
-          toastsStore.addToast({
-            title: "Something went wrong",
-            description: error.message,
-            color: "red",
-            icon: "warning",
-          });
-        }
+        setErrorToast(error);
       }
 
       if (data) {
         tracksStore.updateTrack(updatedTrack.id, data);
 
-        toastsStore.addToast({
-          title: "Track successfully edited",
-          color: "green",
-          icon: "check",
-          duration: 1500,
-          showProgress: true,
-        });
+        setSuccessToast("edit");
       }
     } else {
-      toastsStore.addToast({
-        title: "Track successfully created",
-        color: "green",
-        icon: "check",
-        duration: 1500,
-        showProgress: true,
-      });
+      setSuccessToast("edit");
     }
   } else {
     emit("close");
@@ -73,33 +49,13 @@ const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
     const { data, error } = await postTrackAPI(updatedTrack);
 
     if (error) {
-      if (error.status === 409) {
-        toastsStore.addToast({
-          title: error.message,
-          description: "Edit or delete, because his will not save",
-          color: "red",
-          icon: "warning",
-        });
-      } else {
-        toastsStore.addToast({
-          title: "Something went wrong",
-          description: error.message,
-          color: "red",
-          icon: "warning",
-        });
-      }
+      setErrorToast(error);
     }
 
     if (data) {
       tracksStore.updateTrack(updatedTrack.id, data);
 
-      toastsStore.addToast({
-        title: "Track successfully created",
-        color: "green",
-        icon: "check",
-        duration: 1500,
-        showProgress: true,
-      });
+      setSuccessToast("create");
     }
   }
 };
