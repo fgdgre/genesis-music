@@ -4,22 +4,27 @@ export const useNotification = () => {
   const toastsStore = useToast();
 
   const setErrorToast = (error: { status: number; message: string }) => {
-    if (error.status === 409) {
-      toastsStore.addToast({
-        title: error.message,
-        description: "Edit or delete, because his will not save",
-        color: "red",
-        icon: "warning",
-      });
-    } else {
-      toastsStore.addToast({
-        title: "Something went wrong",
-        description: error.message,
-        color: "red",
-        icon: "warning",
-      });
+    toastsStore.clearToasts();
+
+    let message: string;
+
+    switch (error.status) {
+      case 409:
+        message = "Edit or delete, because his will not save";
+        break;
+      default:
+        message = "Something went wrong";
+        break;
     }
+
+    toastsStore.addToast({
+      title: error.message,
+      description: message,
+      color: "red",
+      icon: "warning",
+    });
   };
+
   const setSuccessToast = (action: "create" | "delete" | "edit") => {
     let title: string;
 

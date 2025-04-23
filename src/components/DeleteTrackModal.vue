@@ -3,10 +3,9 @@ import AppModal from "./app/AppModal.vue";
 import BaseButton from "./base/BaseButton.vue";
 import type { Track } from "@/types";
 import { useTracksStore } from "@/stores/tracks";
-import { storeToRefs } from "pinia";
 import { deleteTrackAPI } from "@/api";
-import { useToast } from "@/stores/toast";
 import type { DeepReadonly } from "vue";
+import { useNotification } from "@/composables/useNotifications";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -17,41 +16,26 @@ const emit = defineEmits<{
 }>();
 
 const tracksStore = useTracksStore();
-const { tracks } = storeToRefs(tracksStore);
 
-const toastsStore = useToast();
+const notificationStore = useNotification();
+const { setErrorToast, setSuccessToast } = notificationStore;
 
 const handleDeleteTrack = async () => {
-  const trackBeforeRequest = tracks.value!.find(
-    (t) => t.id === props.track.id,
-  )!;
+  emit("close");
 
   tracksStore.deleteTrack(props.track.id);
 
-  emit("close");
-
-  if (trackBeforeRequest.slug) {
+  if (props.track.slug) {
     const { data, error } = await deleteTrackAPI(props.track.id);
 
     if (error) {
-      toastsStore.addToast({
-        title: "Something went wrong",
-        description: error,
-        color: "red",
-        icon: "warning",
-      });
+      tracksStore.createTrack(props.track);
 
-      tracksStore.createTrack(trackBeforeRequest);
+      setErrorToast(error);
     }
 
     if (data) {
-      toastsStore.addToast({
-        title: "Track successfully deleted",
-        color: "green",
-        icon: "check",
-        duration: 1500,
-        showProgress: true,
-      });
+      setSuccessToast("delete");
     }
   }
 };
