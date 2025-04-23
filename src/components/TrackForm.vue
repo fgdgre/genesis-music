@@ -65,7 +65,6 @@ const handleValidateField = (
 };
 
 const validateField = (value: any, schema: any) => {
-  console.log(schema, value);
   return schema.safeParse(value);
 };
 
