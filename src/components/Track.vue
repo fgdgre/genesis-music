@@ -18,7 +18,7 @@ const { isError, isLoading } = storeToRefs(tracksStore);
 const isTrackHaveIncorrectTitle = computed(
   () =>
     props.track.title.trim().toLowerCase().replace(/\s+/g, "-") !==
-      props.track.slug && isError,
+      props.track.slug && isError.value,
 );
 
 const isEditTrackModalOpen = ref(false);
@@ -26,6 +26,7 @@ const isDeleteTrackModalOpen = ref(false);
 </script>
 
 <template>
+  {{ isError }}
   <div class="flex gap-4 items-center" :data-testid="`track-item-${track.id}`">
     <img
       :src="track.coverImage || DEFAULT_TRACK_COVER"
