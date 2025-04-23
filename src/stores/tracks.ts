@@ -1,13 +1,11 @@
 import { defineStore } from "pinia";
 import type { QueryParams, Track, TracksMeta } from "@/types";
-import { ref } from "vue";
-import type { readonly, Ref } from "vue";
+import { ref, type DeepReadonly } from "vue";
+import { readonly, type Ref } from "vue";
 import * as api from "@/api";
 import { useFetchGenres } from "@/composables/useFetchGenres";
 
 export const useTrackStore = defineStore("tracksStore", () => {
-  // const toastStore = useToasts()
-
   const initialized = ref(false);
   const tracks = ref<Track[]>([]);
   const tracksMeta = ref<TracksMeta | null>(null);
@@ -35,7 +33,6 @@ export const useTrackStore = defineStore("tracksStore", () => {
 
       if (error) {
         isError.value = true;
-        // useToast().addToast();
       } else {
         tracks.value = data.data;
         tracksMeta.value = data.meta;
@@ -46,14 +43,14 @@ export const useTrackStore = defineStore("tracksStore", () => {
     }
   };
 
-  const createTrack = (trackData: Track) => {
-    tracks.value?.unshift(trackData);
+  const createTrack = (trackData: DeepReadonly<Track>) => {
+    tracks.value?.unshift(trackData as Track);
   };
 
-  const updateTrack = (id: string, newTrack: Track) => {
+  const updateTrack = (id: string, newTrack: DeepReadonly<Track>) => {
     tracks.value = tracks.value?.map((t) =>
       t.id === id ? { ...t, ...newTrack } : t,
-    );
+    ) as Track[];
   };
 
   const deleteTrack = (id: string) => {
@@ -68,7 +65,7 @@ export const useTrackStore = defineStore("tracksStore", () => {
     initialized,
     isLoading,
     isError,
-    tracks,
+    tracks: readonly(tracks),
     tracksMeta,
     tracksGenres,
   };

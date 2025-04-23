@@ -6,9 +6,10 @@ import { useTrackStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 import { editTrackAPI } from "@/api";
 import { useToast } from "@/stores/toast";
+import type { DeepReadonly } from "vue";
 
 defineProps<{
-  track: Track;
+  track: DeepReadonly<Track>;
 }>();
 
 const emit = defineEmits<{
@@ -18,7 +19,9 @@ const emit = defineEmits<{
 const tracksStore = useTrackStore();
 const { tracks } = storeToRefs(tracksStore);
 
-const editTrack = async (track: Track) => {
+const toastsStore = useToast();
+
+const editTrack = async (track: DeepReadonly<Track>) => {
   const oldTrack = tracks.value!.find((t) => t.id === track.id)!;
 
   tracksStore.updateTrack(track.id, track);
@@ -28,18 +31,20 @@ const editTrack = async (track: Track) => {
   const { data, error } = await editTrackAPI(track);
 
   if (error) {
-    useToast().addToast({
+    tracksStore.updateTrack(track.id, oldTrack);
+
+    toastsStore.addToast({
       title: "Something went wrong",
       description: error,
       color: "red",
       icon: "warning",
     });
-    tracksStore.updateTrack(track.id, oldTrack);
   }
 
   if (data) {
     tracksStore.updateTrack(track.id, data);
-    useToast().addToast({
+
+    toastsStore.addToast({
       title: "Track successfully edited",
       color: "green",
       icon: "check",

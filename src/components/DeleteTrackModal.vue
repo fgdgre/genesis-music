@@ -6,9 +6,10 @@ import { useTrackStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 import { deleteTrackAPI } from "@/api";
 import { useToast } from "@/stores/toast";
+import type { DeepReadonly } from "vue";
 
 const props = defineProps<{
-  track: Track;
+  track: DeepReadonly<Track>;
 }>();
 
 const emit = defineEmits<{
@@ -17,6 +18,8 @@ const emit = defineEmits<{
 
 const tracksStore = useTrackStore();
 const { tracks } = storeToRefs(tracksStore);
+
+const toastsStore = useToast();
 
 const handleDeleteTrack = async () => {
   const oldTrack = tracks.value!.find((t) => t.id === props.track.id)!;
@@ -28,7 +31,7 @@ const handleDeleteTrack = async () => {
   const { data, error } = await deleteTrackAPI(props.track.id);
 
   if (error) {
-    useToast().addToast({
+    toastsStore.addToast({
       title: "Something went wrong",
       description: error,
       color: "red",
@@ -38,7 +41,7 @@ const handleDeleteTrack = async () => {
   }
 
   if (data) {
-    useToast().addToast({
+    toastsStore.addToast({
       title: "Track successfully deleted",
       color: "green",
       icon: "check",

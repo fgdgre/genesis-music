@@ -1,4 +1,5 @@
-import type { QueryParams, NewTrack } from "@/types";
+import type { QueryParams, Track } from "@/types";
+import type { DeepReadonly } from "vue";
 
 const buildTrackQuery = (page?: number, filters?: Partial<QueryParams>) => {
   const params = new URLSearchParams();
@@ -29,14 +30,15 @@ export const fetchTracksAPI = async ({
     );
 
     if (!response.ok) {
+      // TODO: fix
       const errText = await response.text();
       throw new Error(`Server error: ${response.status} - ${errText}`);
     }
 
     const data = await response.json();
     return { data, error: null };
-  } catch (e) {
-    console.log(e);
+  } catch (e: any) {
+    console.error(e);
     return { data: null, error: e };
   }
 };
@@ -46,17 +48,18 @@ export const deleteTrackAPI = async (id: string) => {
     const response = await fetch(`api/tracks/${id}`, { method: "DELETE" });
 
     if (!response.ok) {
+      // TODO: fix
       throw new Error(`Server error: ${response.status} - ${response}`);
     }
 
     return { data: id, error: null };
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
     return { data: null, error: e };
   }
 };
 
-export const editTrackAPI = async (track: NewTrack) => {
+export const editTrackAPI = async (track: DeepReadonly<Track>) => {
   try {
     const response = await fetch(`api/tracks/${track.id}`, {
       method: "PUT",
@@ -67,12 +70,18 @@ export const editTrackAPI = async (track: NewTrack) => {
     });
 
     if (!response.ok) {
-      throw new Error(`Server error: ${response.status} - ${errText}`);
+      // TODO: fix
+      const errorMessage =
+        response.status === 409
+          ? "Track with this title already exists"
+          : "Something went wrong";
+      throw new Error(`${response.status} - ${errorMessage}`);
     } else {
       const data = await response.json();
       return { data, error: null };
     }
-  } catch (e) {
+  } catch (e: any) {
+    console.error(e);
     return { data: null, error: e };
   }
 };
@@ -82,19 +91,20 @@ export const fetchGenresAPI = async () => {
     const response = await fetch("api/genres");
 
     if (!response.ok) {
+      // TODO: fix
       const errText = await response.text();
       throw new Error(`Server error: ${response.status} - ${errText}`);
     }
 
     const genres = await response.json();
     return { data: genres, error: null };
-  } catch (e) {
-    console.log(e);
+  } catch (e: any) {
+    console.error(e);
     return { data: null, error: e };
   }
 };
 
-export const postTrackAPI = async (track: NewTrack) => {
+export const postTrackAPI = async (track: DeepReadonly<Track>) => {
   try {
     const response = await fetch("api/tracks", {
       method: "POST",
@@ -105,15 +115,18 @@ export const postTrackAPI = async (track: NewTrack) => {
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`Server error: ${response.status} - ${errText}`);
+      const errorMessage =
+        response.status === 409
+          ? "Track with this title already exists"
+          : "Something went wrong";
+      throw new Error(`${response.status} - ${errorMessage}`);
     }
 
     const data = await response.json();
 
     return { data, error: null };
   } catch (e: any) {
-    console.log(e);
+    console.error(e);
     return { data: null, error: e };
   }
 };

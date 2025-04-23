@@ -12,6 +12,8 @@ const emit = defineEmits<{
 
 const tracksStore = useTrackStore();
 
+const toastsStore = useToast();
+
 const handleCreateTrack = async (track: Track) => {
   tracksStore.createTrack(track);
 
@@ -21,7 +23,8 @@ const handleCreateTrack = async (track: Track) => {
 
   if (error) {
     tracksStore.deleteTrack(track.id);
-    useToast().addToast({
+
+    toastsStore.addToast({
       title: "Something went wrong",
       description: error,
       color: "red",
@@ -31,7 +34,8 @@ const handleCreateTrack = async (track: Track) => {
 
   if (data) {
     tracksStore.updateTrack(track.id, data);
-    useToast().addToast({
+
+    toastsStore.addToast({
       title: "Track successfully created",
       color: "green",
       icon: "check",

@@ -7,7 +7,7 @@ import BaseButton from "./base/BaseButton.vue";
 import { DEFAULT_TRACK_COVER } from "@/consts";
 
 defineProps<{
-  track: Track;
+  track: DeepReadonly<Track>;
 }>();
 
 const isEditTrackModalOpen = ref(false);

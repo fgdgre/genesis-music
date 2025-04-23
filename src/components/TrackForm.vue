@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { useTrackStore } from "@/stores/tracks";
 import type { Track } from "@/types";
-import { ref } from "vue";
+import { ref, type DeepReadonly } from "vue";
 import * as z from "zod";
 import BaseInput from "./base/BaseInput.vue";
 import BaseButton from "./base/BaseButton.vue";
 
 const props = defineProps<{
-  initialData?: Track;
+  initialData?: DeepReadonly<Track>;
 }>();
 
 const emit = defineEmits<{
-  submit: [Track];
+  submit: [DeepReadonly<Track>];
   discard: [];
 }>();
 
