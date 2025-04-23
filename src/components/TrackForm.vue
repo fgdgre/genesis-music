@@ -23,7 +23,7 @@ const formData = ref<Track>({
   artist: props.initialData?.artist || "",
   album: props.initialData?.album || "",
   genres: props.initialData?.genres?.length
-    ? [...props.initialData?.genres]
+    ? props.initialData?.genres.map((genre) => genre.toLowerCase())
     : [],
   coverImage: props.initialData?.coverImage || "",
 });

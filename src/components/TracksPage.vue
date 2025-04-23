@@ -3,7 +3,7 @@ import { computed, ref, watch } from "vue";
 import type { QueryParams } from "@/types";
 import { useTrackStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
-import TrackTile from "./TrackTile.vue";
+import Track from "./Track.vue";
 import AppPagination from "./app/AppPagination.vue";
 import AppHeader from "./app/AppHeader.vue";
 import TracksFilters from "./TracksFilters.vue";
@@ -12,7 +12,7 @@ import CreateTrackModal from "./CreateTrackModal.vue";
 import AppEmptyScreen from "./app/AppEmptyScreen.vue";
 import BaseButton from "./base/BaseButton.vue";
 
-// /filtering/search ----------------------------------------------------------------
+// filtering/search ----------------------------------------------------------------
 const queryParams = ref<QueryParams>({
   search: "",
   genre: "",
@@ -20,7 +20,6 @@ const queryParams = ref<QueryParams>({
   order: "",
   sort: "",
 });
-
 // --------------------------------------------------------------------------------------
 
 // pagination -----------------------------------------------------------------------
@@ -102,7 +101,7 @@ const isCreateTrackModalOpen = ref(false);
         class="flex-1 flex flex-col overflow-auto gap-4"
       >
         <li v-for="track in tracks">
-          <TrackTile :track />
+          <Track :track />
         </li>
       </ul>
 

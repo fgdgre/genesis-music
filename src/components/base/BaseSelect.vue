@@ -23,7 +23,7 @@
         @click="isDropdownOpen = !isDropdownOpen"
       >
         <div
-          v-if="placeholder && !selected"
+          v-if="placeholder && (!selected || isLoading)"
           data-testid="multiselect-placeholder"
           class="text-gray-400 flex gap-2"
           :class="[Boolean(errorMessage) && 'text-red-300']"
@@ -32,7 +32,7 @@
         </div>
 
         <div
-          v-if="selected"
+          v-if="selected && !isLoading"
           class="flex items-center gap-2 text-foreground overflow-hidden flex-1"
           data-testid="multiselect-selected-item"
         >

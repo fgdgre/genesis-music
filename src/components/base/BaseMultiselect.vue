@@ -25,7 +25,7 @@
         @click="isMultiselectOpen = !isMultiselectOpen"
       >
         <div
-          v-if="placeholder && !selected?.length"
+          v-if="placeholder && (!selected?.length || isLoading)"
           data-testid="multiselect-placeholder"
           class="text-gray-400 flex gap-2"
           :class="[Boolean(errorMessage) && 'text-red-300']"
@@ -33,7 +33,7 @@
           <p>{{ placeholder }}</p>
         </div>
         <div
-          v-if="selected?.length"
+          v-if="selected?.length && !isLoading"
           class="flex items-center gap-2 text-foreground overflow-hidden flex-1"
           data-testid="multiselect-selected-item"
         >
