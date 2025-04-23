@@ -15,21 +15,51 @@ const isDeleteTrackModalOpen = ref(false);
 </script>
 
 <template>
-  <div class="flex gap-4 items-center">
+  <div class="flex gap-4 items-center" :data-testid="`track-item-${track.id}`">
     <img
       :src="track.coverImage || DEFAULT_TRACK_COVER"
       class="size-20 shrink-0 rounded-md"
     />
-    <p>{{ track }}</p>
+    <div class="flex gap-4 w-full">
+      <div class="flex flex-col">
+        <p class="font-medium" :data-testid="`track-item-${track.id}-title`">
+          {{ track.title }}
+        </p>
+        <p class="text-gray-400 text-xs">
+          <span :data-testid="`track-item-${track.id}-artist`">
+            {{ track.artist }}
+          </span>
+          -
+          <span>{{ track.album }}</span>
+        </p>
+      </div>
+
+      <div class="max-w-full overflow-hidden">
+        Genres:
+        <span class="truncate" v-for="(genre, index) in track.genres">
+          {{ `${genre}${index !== track.genres.length - 1 ? ", " : ""}` }}
+        </span>
+      </div>
+    </div>
 
     <div class="flex gap-2">
-      <BaseButton color="red" @click="isDeleteTrackModalOpen = true">
+      <BaseButton
+        color="red"
+        @click="isDeleteTrackModalOpen = true"
+        :data-testid="`delete-track-${track.id}`"
+      >
         Delete
       </BaseButton>
-      <BaseButton color="yellow" @click="isEditTrackModalOpen = true">
+      <BaseButton
+        color="yellow"
+        @click="isEditTrackModalOpen = true"
+        :data-testid="`edit-track-${track.id}`"
+      >
         Edit
       </BaseButton>
-      <BaseButton color="green"> Upload track file </BaseButton>
+      <BaseButton color="green" :data-testid="`upload-track-${track.id}`">
+        Upload track file
+      </BaseButton>
     </div>
 
     <EditTrackModal
