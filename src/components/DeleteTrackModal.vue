@@ -45,6 +45,8 @@ const handleDeleteTrack = async () => {
       title: "Track successfully deleted",
       color: "green",
       icon: "check",
+      duration: 1500,
+      showProgress: true,
     });
   }
 };

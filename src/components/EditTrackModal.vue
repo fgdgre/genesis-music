@@ -48,6 +48,8 @@ const editTrack = async (track: DeepReadonly<Track>) => {
       title: "Track successfully edited",
       color: "green",
       icon: "check",
+      duration: 1500,
+      showProgress: true,
     });
   }
 };

@@ -69,19 +69,20 @@
     >
       {{ description }}
     </p>
-    <!-- <SupaProgress
+    <BaseProgress
       v-if="duration && showProgress"
       :width
       :color
-      :ui="{ wrapper: 'absolute bottom-0' }"
-    /> -->
+      class="absolute bottom-0"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-// import { useTimestamp } from "@vueuse/core";
+import { useTimestamp } from "@vueuse/core";
 import { computed } from "vue";
 import BaseButton from "../BaseButton.vue";
+import BaseProgress from "@/components/app/BaseProgress.vue";
 
 const props = defineProps<{
   title: string;
@@ -97,20 +98,20 @@ const emit = defineEmits<{
   close: [];
 }>();
 
-// const currentTimestamp = useTimestamp();
-// const startTime = currentTimestamp.value;
+const currentTimestamp = useTimestamp();
+const startTime = currentTimestamp.value;
 
-// if (props.duration) {
-//   setTimeout(() => {
-//     emit("close");
-//   }, props.duration);
-// }
+if (props.duration) {
+  setTimeout(() => {
+    emit("close");
+  }, props.duration);
+}
 
-// const width = computed(() => {
-//   const elapsed = currentTimestamp.value - startTime;
-//   const progress = Math.max(0, 1 - elapsed / (props.duration! - 100));
-//   return progress * 100;
-// });
+const width = computed(() => {
+  const elapsed = currentTimestamp.value - startTime;
+  const progress = Math.max(0, 1 - elapsed / (props.duration! - 100));
+  return progress * 100;
+});
 </script>
 
 <style>

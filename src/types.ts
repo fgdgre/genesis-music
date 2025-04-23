@@ -18,15 +18,6 @@ export type TracksMeta = {
   totalPages: number;
 };
 
-export type NewTrack = {
-  id?: string;
-  title: string;
-  artist: string;
-  album: string;
-  genres: string[];
-  coverImage: string;
-};
-
 export type QueryParams = {
   search: string;
   genre: string;
