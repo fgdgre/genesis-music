@@ -3,7 +3,6 @@ import type { Track } from "@/types";
 import AppModal from "./app/AppModal.vue";
 import TrackForm from "./TrackForm.vue";
 import { useTracksStore } from "@/stores/tracks";
-import { storeToRefs } from "pinia";
 import { editTrackAPI, postTrackAPI } from "@/api";
 import { useToast } from "@/stores/toast";
 import type { DeepReadonly } from "vue";
@@ -17,43 +16,51 @@ const emit = defineEmits<{
 }>();
 
 const tracksStore = useTracksStore();
-const { tracks } = storeToRefs(tracksStore);
 
 const toastsStore = useToast();
 
-const editTrack = async (track: DeepReadonly<Track>) => {
-  // const trackBeforeRequest = tracks.value!.find((t) => t.id === track.id)!;
-
-  tracksStore.updateTrack(track.id, track);
+const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
+  console.log(updatedTrack);
+  tracksStore.updateTrack(updatedTrack.id, updatedTrack);
 
   emit("close");
 
-  if (track.slug) {
-    const { data, error } = await editTrackAPI(track);
+  if (updatedTrack.slug) {
+    if (updatedTrack.title !== updatedTrack.slug) {
+      const { data, error } = await editTrackAPI(updatedTrack);
 
-    if (error) {
-      if (error.status === 409) {
+      if (error) {
+        if (error.status === 409) {
+          toastsStore.addToast({
+            title: error.message,
+            description: "Edit or delete, because his will not save",
+            color: "red",
+            icon: "warning",
+          });
+        } else {
+          toastsStore.addToast({
+            title: "Something went wrong",
+            description: error.message,
+            color: "red",
+            icon: "warning",
+          });
+        }
+      }
+
+      if (data) {
+        tracksStore.updateTrack(updatedTrack.id, data);
+
         toastsStore.addToast({
-          title: error.message,
-          description: "Edit or delete, because his will not save",
-          color: "red",
-          icon: "warning",
-        });
-      } else {
-        toastsStore.addToast({
-          title: "Something went wrong",
-          description: error.message,
-          color: "red",
-          icon: "warning",
+          title: "Track successfully edited",
+          color: "green",
+          icon: "check",
+          duration: 1500,
+          showProgress: true,
         });
       }
-    }
-
-    if (data) {
-      tracksStore.updateTrack(track.id, data);
-
+    } else {
       toastsStore.addToast({
-        title: "Track successfully edited",
+        title: "Track successfully created",
         color: "green",
         icon: "check",
         duration: 1500,
@@ -63,7 +70,7 @@ const editTrack = async (track: DeepReadonly<Track>) => {
   } else {
     emit("close");
 
-    const { data, error } = await postTrackAPI(track);
+    const { data, error } = await postTrackAPI(updatedTrack);
 
     if (error) {
       if (error.status === 409) {
@@ -84,7 +91,7 @@ const editTrack = async (track: DeepReadonly<Track>) => {
     }
 
     if (data) {
-      tracksStore.updateTrack(track.id, data);
+      tracksStore.updateTrack(updatedTrack.id, data);
 
       toastsStore.addToast({
         title: "Track successfully created",

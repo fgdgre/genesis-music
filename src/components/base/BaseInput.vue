@@ -3,7 +3,7 @@ defineOptions({
   inheritAttrs: false,
 });
 
-defineProps<{
+const props = defineProps<{
   placeholder?: string;
   label?: string;
   disabled?: boolean;
@@ -11,6 +11,7 @@ defineProps<{
   errorMessage?: string;
   modelValue?: string | number;
   errorMessageTestid?: string;
+  withDebounce?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -23,11 +24,15 @@ const emit = defineEmits<{
 let debounceTimeout: any;
 
 const updateModelValue = (value: string) => {
-  clearTimeout(debounceTimeout);
+  if (props.withDebounce) {
+    clearTimeout(debounceTimeout);
 
-  debounceTimeout = setTimeout(() => {
+    debounceTimeout = setTimeout(() => {
+      emit("update:modelValue", value);
+    }, 300);
+  } else {
     emit("update:modelValue", value);
-  }, 300);
+  }
 };
 
 const id = self.crypto.randomUUID();

@@ -37,6 +37,7 @@ const orderSelectItems = [
   <div class="flex gap-4">
     <div class="flex gap-4 items-end">
       <BaseInput
+        with-debounce
         label="Search"
         placeholder="Title, Artist, Album, Date"
         v-model="queryParams.search"
@@ -56,6 +57,7 @@ const orderSelectItems = [
       />
 
       <BaseInput
+        with-debounce
         label="Artist"
         placeholder="Artist name"
         v-model="queryParams.artist"

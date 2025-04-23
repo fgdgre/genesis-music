@@ -6,7 +6,6 @@ import { useTracksStore } from "@/stores/tracks";
 import { postTrackAPI } from "@/api";
 import { useToast } from "@/stores/toast";
 import type { DeepReadonly } from "vue";
-import { storeToRefs } from "pinia";
 
 const emit = defineEmits<{
   close: [];

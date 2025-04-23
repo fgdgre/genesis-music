@@ -24,6 +24,7 @@ const formData = ref<Track>({
     ? props.initialData?.genres.map((genre) => genre.toLowerCase())
     : [],
   coverImage: props.initialData?.coverImage || "",
+  slug: props.initialData?.slug || "",
 });
 
 // validation -----------------------------------------------------------------------------------------------------------
