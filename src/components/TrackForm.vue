@@ -71,30 +71,19 @@ const validateField = (value: any, schema: any) => {
 
 const validateForm = (formData: Track, schema: any) => {
   Object.entries(formData).forEach(([fieldKey, fieldValue]) => {
-    handleValidateField(
-      fieldKey as keyof typeof errorMessages.value,
-      fieldValue,
-      schema.shape[fieldKey],
-    );
+    if (Object.keys(schema.shape).includes(fieldKey))
+      handleValidateField(
+        fieldKey as keyof typeof errorMessages.value,
+        fieldValue,
+        schema.shape[fieldKey],
+      );
   });
 };
-
-// const setErrors = (error: z.ZodError) => {
-//   clearErrorMessages();
-
-//   for (const fieldKey in error.formErrors.fieldErrors) {
-//     if (error.formErrors.fieldErrors?.[fieldKey]?.length) {
-//       errorMessages.value[fieldKey as keyof typeof errorMessages.value] =
-//         error.formErrors.fieldErrors[fieldKey]?.[0];
-//     }
-//   }
-// };
-// ----------------------------------------------------------------------------------------------------------------------------------
 
 const handleSubmit = () => {
   validateForm(formData.value, schema);
 
-  if (Object.values(errorMessages.value)) {
+  if (Object.values(errorMessages.value).some((val) => val !== "")) {
     return;
   }
 
