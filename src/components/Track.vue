@@ -5,10 +5,13 @@ import { ref, type DeepReadonly } from "vue";
 import DeleteTrackModal from "./DeleteTrackModal.vue";
 import BaseButton from "./base/BaseButton.vue";
 import { DEFAULT_TRACK_COVER } from "@/consts";
+import { useTracksStore } from "@/stores/tracks";
 
 defineProps<{
   track: DeepReadonly<Track>;
 }>();
+
+const tracksStore = useTracksStore();
 
 const isEditTrackModalOpen = ref(false);
 const isDeleteTrackModalOpen = ref(false);
@@ -40,6 +43,10 @@ const isDeleteTrackModalOpen = ref(false);
           {{ `${genre}${index !== track.genres.length - 1 ? ", " : ""}` }}
         </span>
       </div>
+
+      <div class="max-w-full overflow-hidden">
+        {{ track.slug }}
+      </div>
     </div>
 
     <div class="flex gap-2">
@@ -57,7 +64,11 @@ const isDeleteTrackModalOpen = ref(false);
       >
         Edit
       </BaseButton>
-      <BaseButton color="green" :data-testid="`upload-track-${track.id}`">
+      <BaseButton
+        color="green"
+        :data-testid="`upload-track-${track.id}`"
+        v-if="track.slug"
+      >
         Upload track file
       </BaseButton>
     </div>

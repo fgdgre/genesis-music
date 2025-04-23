@@ -22,32 +22,37 @@ const { tracks } = storeToRefs(tracksStore);
 const toastsStore = useToast();
 
 const handleDeleteTrack = async () => {
-  const oldTrack = tracks.value!.find((t) => t.id === props.track.id)!;
+  const trackBeforeRequest = tracks.value!.find(
+    (t) => t.id === props.track.id,
+  )!;
 
   tracksStore.deleteTrack(props.track.id);
 
   emit("close");
 
-  const { data, error } = await deleteTrackAPI(props.track.id);
+  if (trackBeforeRequest.slug) {
+    const { data, error } = await deleteTrackAPI(props.track.id);
 
-  if (error) {
-    toastsStore.addToast({
-      title: "Something went wrong",
-      description: error,
-      color: "red",
-      icon: "warning",
-    });
-    tracksStore.createTrack(oldTrack);
-  }
+    if (error) {
+      toastsStore.addToast({
+        title: "Something went wrong",
+        description: error,
+        color: "red",
+        icon: "warning",
+      });
 
-  if (data) {
-    toastsStore.addToast({
-      title: "Track successfully deleted",
-      color: "green",
-      icon: "check",
-      duration: 1500,
-      showProgress: true,
-    });
+      tracksStore.createTrack(trackBeforeRequest);
+    }
+
+    if (data) {
+      toastsStore.addToast({
+        title: "Track successfully deleted",
+        color: "green",
+        icon: "check",
+        duration: 1500,
+        showProgress: true,
+      });
+    }
   }
 };
 </script>

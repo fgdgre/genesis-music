@@ -6,13 +6,13 @@ import { useTracksStore } from "@/stores/tracks";
 import { postTrackAPI } from "@/api";
 import { useToast } from "@/stores/toast";
 import type { DeepReadonly } from "vue";
+import { storeToRefs } from "pinia";
 
 const emit = defineEmits<{
   close: [];
 }>();
 
 const tracksStore = useTracksStore();
-
 const toastsStore = useToast();
 
 const handleCreateTrack = async (track: DeepReadonly<Track>) => {
@@ -23,14 +23,21 @@ const handleCreateTrack = async (track: DeepReadonly<Track>) => {
   const { data, error } = await postTrackAPI(track);
 
   if (error) {
-    tracksStore.deleteTrack(track.id);
-
-    toastsStore.addToast({
-      title: "Something went wrong",
-      description: error,
-      color: "red",
-      icon: "warning",
-    });
+    if (error.status === 409) {
+      toastsStore.addToast({
+        title: error.message,
+        description: "Edit or delete, because his will not save",
+        color: "red",
+        icon: "warning",
+      });
+    } else {
+      toastsStore.addToast({
+        title: "Something went wrong",
+        description: error.message,
+        color: "red",
+        icon: "warning",
+      });
+    }
   }
 
   if (data) {
