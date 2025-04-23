@@ -1,9 +1,8 @@
 import { defineStore } from "pinia";
-import type { QueryParams, Track, TracksMeta } from "@/types";
+import type { Track, TracksMeta } from "@/types";
 import { ref, type DeepReadonly } from "vue";
 import { readonly, type Ref } from "vue";
 import * as api from "@/api";
-import { useFetchGenres } from "@/composables/useFetchGenres";
 import { useToast } from "./toast";
 
 export const useTracksStore = defineStore("tracksStore", () => {
@@ -14,6 +13,8 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const tracksMeta = ref<TracksMeta | null>(null);
   const isLoading = ref(false);
   const isError = ref(false);
+
+  const counter = ref(0);
 
   const fetchTracks = async ({
     page,
@@ -44,7 +45,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
         sort: sort?.value,
       });
 
-      if (error) {
+      if (error || counter.value === 1) {
         isError.value = true;
 
         if (initialized.value) {
@@ -61,6 +62,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
     } finally {
       initialized.value = true;
       isLoading.value = false;
+      counter.value++;
     }
   };
 
