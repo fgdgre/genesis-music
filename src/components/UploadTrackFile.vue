@@ -4,6 +4,7 @@ import BaseButton from "./base/BaseButton.vue";
 import BaseInput from "./base/BaseInput.vue";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 import { ref } from "vue";
+import { MAX_FILES_SIZE } from "@/consts";
 
 const emit = defineEmits<{
   close: [];
@@ -11,16 +12,29 @@ const emit = defineEmits<{
 
 const { addErrorToast, addSuccessToast } = useTracksToasts();
 
+const trackFileInputErrorMessage = ref("");
+
 const trackFile = ref<File>();
 
-function onFileChange(e: Event) {
+const onFileChange = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0];
   if (file) {
     trackFile.value = file;
-    console.log(trackFile.value);
-    console.log(trackFile.value);
+    validateUploadedFile(file);
   }
-}
+};
+
+const validateUploadedFile = (file: File) => {
+  if (!file.type.includes("audio")) {
+    trackFileInputErrorMessage.value = "File should be with audio format";
+    return;
+  }
+  if (file.size > MAX_FILES_SIZE) {
+    trackFileInputErrorMessage.value = "File is too big";
+    return;
+  }
+  trackFileInputErrorMessage.value = "";
+};
 
 const handleUploadTrackFile = async () => {
   emit("close");
@@ -50,9 +64,17 @@ const handleUploadTrackFile = async () => {
 
 <template>
   <AppModal title="Upload track file" data-testid="confirm-dialog">
-    <p>Please upload audio file for this track</p>
+    <div class="flex flex-col gap-2">
+      <p class="text-gray-400">Please upload audio file for this track</p>
 
-    <BaseInput type="file" accept="audio/*" @change="onFileChange" />
+      <BaseInput
+        type="file"
+        accept="audio/*"
+        @change="onFileChange"
+        placeholder="Upload your file here"
+        :error-message="trackFileInputErrorMessage"
+      />
+    </div>
 
     <template #actions>
       <div class="col-span-2 w-full flex gap-2">
