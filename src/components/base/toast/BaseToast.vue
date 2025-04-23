@@ -6,7 +6,7 @@
       color === 'red' ? 'bg-red-400' : 'bg-white',
     ]"
   >
-    <div>
+    <div v-if="icon">
       <svg
         v-if="icon === 'check'"
         xmlns="http://www.w3.org/2000/svg"
@@ -41,6 +41,7 @@
         />
       </svg>
     </div>
+
     <h5 class="font-medium tracking-tight text-sm text-black">
       {{ title }}
     </h5>
@@ -64,7 +65,7 @@
 
     <p
       v-if="description"
-      class="text-sm col-end-[-1] text-black"
+      class="text-sm col-end-[-1] row-start-2 text-black"
       :class="[Boolean(icon) ? 'col-start-2' : 'col-start-1']"
     >
       {{ description }}

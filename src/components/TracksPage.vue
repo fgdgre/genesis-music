@@ -53,6 +53,11 @@ watch(
   { immediate: true },
 );
 
+// TODO fix
+watch([isError], () => {
+  currentPage.value = 1;
+});
+
 const noFiltersSelected = computed(
   () =>
     !queryParams.value.search &&
@@ -70,7 +75,7 @@ const isCreateTrackModalOpen = ref(false);
 
   <main v-if="initialized" class="flex flex-col h-[calc(100svh-61px)] p-6">
     <!-- error page -------------------------------------------------------------------- -->
-    <AppErrorPage v-if="isError" @refetch="fetchTracks" />
+    <AppErrorPage v-if="isError && !initialized" @refetch="fetchTracks" />
 
     <!-- initial empty screen -->
     <AppEmptyScreen

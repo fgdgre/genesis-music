@@ -4,13 +4,18 @@ import { ref, type DeepReadonly } from "vue";
 import { readonly, type Ref } from "vue";
 import * as api from "@/api";
 import { useFetchGenres } from "@/composables/useFetchGenres";
+import { useToast } from "./toast";
 
 export const useTrackStore = defineStore("tracksStore", () => {
+  const toastStore = useToast();
+
   const initialized = ref(false);
   const tracks = ref<Track[]>([]);
   const tracksMeta = ref<TracksMeta | null>(null);
   const isLoading = ref(false);
   const isError = ref(false);
+
+  const counter = ref(0);
 
   const fetchTracks = async ({
     page,
@@ -29,7 +34,14 @@ export const useTrackStore = defineStore("tracksStore", () => {
         filters: filters.value,
       });
 
-      if (error) {
+      if (error || counter.value === 1) {
+        if (initialized.value) {
+          toastStore.addToast({
+            title: "Something went wrong",
+            description: "Error while fetching tracks",
+            color: "red",
+          });
+        }
         isError.value = true;
       } else {
         tracks.value = data.data;
@@ -38,6 +50,7 @@ export const useTrackStore = defineStore("tracksStore", () => {
     } finally {
       initialized.value = true;
       isLoading.value = false;
+      counter.value++;
     }
   };
 
