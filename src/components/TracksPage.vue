@@ -75,7 +75,7 @@ const isCreateTrackModalOpen = ref(false);
 
     <!-- initial empty screen -->
     <AppEmptyScreen
-      v-else-if="noFiltersSelected && tracks?.length === 0"
+      v-else-if="noFiltersSelected && !isLoading && tracks?.length === 0"
       @create-track="isCreateTrackModalOpen = true"
     />
 

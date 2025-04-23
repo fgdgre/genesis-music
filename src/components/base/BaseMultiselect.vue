@@ -1,0 +1,318 @@
+<template>
+  <DropdownMenuRoot v-model:open="isMultiselectOpen" :modal="false">
+    <div class="h-min" data-testid="multiselect-menu-wrapper" v-bind="$attrs">
+      <p
+        v-if="label"
+        class="flex text-sm font-medium leading-none text-foreground select-none mb-1"
+        :class="[Boolean(errorMessage) && 'text-red-400']"
+      >
+        {{ label }}
+      </p>
+
+      <DropdownMenuTrigger
+        class="w-full px-3 py-1 flex items-center justify-between border rounded-md select-none text-sm gap-2 min-w-[75px] cursor-pointer overflow-hidden focus-visible:outline-none focus-visible:ring focus-visible:ring-black h-9"
+        :class="[
+          Boolean(errorMessage) &&
+            'border-red-400 text-red-400 placeholder:text-red-400/70 focus-visible:ring-red-400',
+          Boolean(selected.length) && 'min-w-[150px]',
+          selected.length > maxCount && 'min-w-[230px]',
+          disabled && 'opacity-70',
+        ]"
+        :disabled
+        :aria-invalid="Boolean(errorMessage)"
+        :aria-describedby="errorMessage"
+        data-testid="multiselect-menu-trigger"
+        @click="isMultiselectOpen = !isMultiselectOpen"
+      >
+        <div
+          v-if="placeholder && !selected?.length"
+          data-testid="multiselect-placeholder"
+          class="text-gray-400 flex gap-2"
+          :class="[Boolean(errorMessage) && 'text-error-300']"
+        >
+          <p>{{ placeholder }}</p>
+        </div>
+        <div
+          v-if="selected?.length"
+          class="flex items-center gap-2 text-foreground overflow-hidden flex-1"
+          data-testid="multiselect-selected-item"
+        >
+          <div v-if="selected?.length" class="overflow-hidden flex gap-1">
+            <div
+              @click.stop
+              v-for="item in selected.slice(0, maxCount)"
+              class="flex items-center bg-black text-white gap-1 cursor-default rounded-xl pl-2 pr-1 h-min"
+            >
+              <p class="text-nowrap text-xs">
+                {{ items?.find((i) => i.value === item)?.label }}
+              </p>
+              <BaseButton
+                @click="toggleItem(item)"
+                transparent
+                class="w-min h-min !p-0.5 size-[14px]"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="size-4 text-white"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6 18 18 6M6 6l12 12"
+                  />
+                </svg>
+              </BaseButton>
+            </div>
+          </div>
+
+          <!-- text-nowrap -->
+          <p
+            v-if="selected?.length > maxCount"
+            class="text-gray-400 flex gap-2"
+          >
+            And {{ selected.length - maxCount }} more
+          </p>
+
+          <BaseButton
+            @click.stop="clearSelectedItems"
+            transparent
+            class="w-min h-min !p-0.5 ml-auto"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-4"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18 18 6M6 6l12 12"
+              />
+            </svg>
+          </BaseButton>
+        </div>
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="size-5 p-0.5 transition-transform shrink-0 ml-auto"
+          :class="[isMultiselectOpen ? 'rotate-[-180deg]' : 'rotate-0']"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m19.5 8.25-7.5 7.5-7.5-7.5"
+          />
+        </svg>
+      </DropdownMenuTrigger>
+
+      <p
+        v-if="errorMessage"
+        class="text-red-400 text-xs mt-2"
+        data-testid="multiselect-error-message"
+      >
+        {{ errorMessage }}
+      </p>
+
+      <DropdownMenuPortal>
+        <DropdownMenuContent
+          @interact-outside="(e) => $emit('blur', e)"
+          :side-offset="5"
+          class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 bg-white w-[var(--radix-dropdown-menu-trigger-width)] min-w-max"
+          data-testid="multiselect-menu-content"
+        >
+          <template v-if="!(isEmpty || loading)">
+            <div
+              class="flex-1 max-h-[150px] scrollbar-thin scrollbar-muted overflow-auto p-1"
+            >
+              <DropdownMenuItem
+                v-for="(item, i) in filteredItems"
+                :key="item.label"
+                class="[&:not(:first-child)]:mt-1 hover:bg-gray-200 rounded-md"
+                :data-testid="'multiselect-menu-item' + '-' + i"
+                @select.prevent
+              >
+                <BaseButton
+                  @click="toggleItem(item.value)"
+                  transparent
+                  class="justify-start w-full h-full"
+                >
+                  <div
+                    class="flex appearance-none items-center justify-center rounded-[4px] cursor-pointer border border-gray-400"
+                    :class="[
+                      isItemSelected(item.value)
+                        ? 'bg-black text-white'
+                        : 'text-transparent',
+                    ]"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-4"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m4.5 12.75 6 6 9-13.5"
+                      />
+                    </svg>
+                  </div>
+                  <p class="font-normal">{{ item.label }}</p>
+                </BaseButton>
+              </DropdownMenuItem>
+            </div>
+            <div class="flex border-t border-gray-300 mt-1">
+              <BaseButton
+                @click="isMultiselectOpen = !isMultiselectOpen"
+                transparent
+                class="font-normal leading-0 transition-none text-sm w-full"
+                :class="[
+                  selected?.length && 'border-r rounded-none border-gray-300',
+                ]"
+              >
+                Close
+              </BaseButton>
+              <BaseButton
+                v-if="selected?.length"
+                @click="clearSelectedItems"
+                transparent
+                class="font-normal leading-0 text-sm w-full"
+              >
+                Clear
+              </BaseButton>
+            </div>
+          </template>
+
+          <div
+            v-if="isEmpty"
+            class="flex items-center justify-center gap-2 text-center p-3 flex-1 text-sm"
+          >
+            {{ emptyMessage || "No items" }}
+          </div>
+
+          <div
+            v-if="loading"
+            class="flex items-center justify-center gap-2 text-center p-3 flex-1 text-sm"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="animate-spin text-inherit size-4"
+            >
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+            {{ loadingMessage || "Loading items" }}
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenuPortal>
+    </div>
+  </DropdownMenuRoot>
+</template>
+
+<script lang="ts" setup>
+import type { DropdownItem } from "@/types";
+import { ref } from "vue";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+} from "radix-vue";
+import { computed } from "vue";
+import BaseButton from "./BaseButton.vue";
+
+const props = withDefaults(
+  defineProps<{
+    items?: DropdownItem[];
+    label?: string;
+    placeholder?: string;
+    loading?: boolean;
+    disabled?: boolean;
+    isError?: boolean;
+    searchable?: boolean;
+    isEmpty?: boolean;
+    loadingMessage?: string;
+    maxCount?: number;
+    errorMessage?: string;
+    emptyMessage?: string;
+  }>(),
+  {
+    maxCount: 2,
+    menuAlign: "end",
+  },
+);
+
+const emit = defineEmits<{
+  "update:modelValue": [string[]];
+  blur: [Event];
+}>();
+
+defineOptions({ inheritAttrs: false });
+
+const selected = defineModel<string[]>({ required: true });
+
+const isItemSelected = (value: string) =>
+  Boolean(selected.value.find((s) => s === value));
+
+const query = ref("");
+
+const filteredItems = computed(() =>
+  props.items?.filter((i) =>
+    i.label.toLowerCase().includes(query.value.toLowerCase()),
+  ),
+);
+
+const isMultiselectOpen = ref(false);
+
+const clearSelectedItems = () => {
+  emit("update:modelValue", []);
+};
+
+const toggleItem = (item: string) => {
+  if (isItemSelected(item)) {
+    emit(
+      "update:modelValue",
+      selected.value.filter((i) => i !== item),
+    );
+  } else {
+    emit("update:modelValue", [...selected.value, item]);
+  }
+};
+</script>
+
+<style scoped>
+:deep(div[data-radix-menu-content][data-state="open"]) {
+  animation: dropdownAppear 0.15s ease;
+}
+
+@keyframes dropdownAppear {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+</style>

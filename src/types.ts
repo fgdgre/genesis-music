@@ -35,3 +35,8 @@ export type Toast = {
   duration?: number;
   showProgress?: boolean;
 };
+
+export type DropdownItem = {
+  label: string;
+  value: string;
+};

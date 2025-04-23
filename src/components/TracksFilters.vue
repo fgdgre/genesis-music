@@ -3,6 +3,7 @@ import { useTrackStore } from "@/stores/tracks";
 import type { QueryParams } from "@/types";
 import { ref } from "vue";
 import BaseInput from "./base/BaseInput.vue";
+import BaseSelect from "./base/BaseSelect.vue";
 
 defineEmits<{
   filtersChanged: [QueryParams];
@@ -17,6 +18,17 @@ const queryParams = ref<QueryParams>({
 });
 
 const { tracksGenres } = useTrackStore();
+
+const sortSelectItems = [
+  { label: "Artist", value: "artist" },
+  { label: "Album", value: "album" },
+  { label: "Created At", value: "createdAt" },
+];
+
+const orderSelectItems = [
+  { label: "Ascending", value: "asc" },
+  { label: "Descending", value: "desc" },
+];
 </script>
 
 <template>
@@ -29,21 +41,20 @@ const { tracksGenres } = useTrackStore();
         @update:model-value="$emit('filtersChanged', queryParams)"
       />
 
-      <!-- <genresSelect> -->
-      <label class="flex flex-col gap-1">
-        Genres
-        <select
-          class="px-4 py-2 border rounded-md"
-          v-model="queryParams.genre"
-          @change="$emit('filtersChanged', queryParams)"
-        >
-          <option value=""></option>
-          <option v-for="genre in tracksGenres" :value="genre">
-            {{ genre }}
-          </option>
-        </select>
-      </label>
-      <!-- </genresSelect> -->
+      <BaseSelect
+        label="Genres"
+        placeholder="Select one"
+        :items="
+          tracksGenres!.map((genre) => ({
+            label: genre,
+            value: genre.toLocaleLowerCase(),
+          }))
+        "
+        v-model="queryParams.genre"
+        @update:model-value="$emit('filtersChanged', queryParams)"
+        class="min-w-[150px]"
+      />
+
       <BaseInput
         label="Artist"
         placeholder="Artist name"
@@ -51,33 +62,23 @@ const { tracksGenres } = useTrackStore();
         @update:model-value="$emit('filtersChanged', queryParams)"
       />
 
-      <label class="flex flex-col gap-1">
-        <select
-          class="px-4 py-2 border rounded-md"
-          placeholder="Title, Artist, Album, Date"
-          v-model="queryParams.sort"
-          @change="$emit('filtersChanged', queryParams)"
-        >
-          <option value=""></option>
-          <option value="title">Title</option>
-          <option value="artist">Artist</option>
-          <option value="album">Album</option>
-          <option value="createdAt">Created At</option>
-        </select>
-      </label>
+      <BaseSelect
+        label="Sort"
+        placeholder="Select one"
+        :items="sortSelectItems"
+        v-model="queryParams.sort"
+        @update:model-value="$emit('filtersChanged', queryParams)"
+        class="min-w-[150px]"
+      />
 
-      <label class="flex flex-col gap-1">
-        Order
-        <select
-          class="px-4 py-2 border rounded-md"
-          placeholder="Title, Artist, Album, Date"
-          v-model="queryParams.order"
-          @change="$emit('filtersChanged', queryParams)"
-        >
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
-        </select>
-      </label>
+      <BaseSelect
+        label="Order"
+        placeholder="Select one"
+        :items="orderSelectItems"
+        v-model="queryParams.order"
+        @update:model-value="$emit('filtersChanged', queryParams)"
+        class="min-w-[150px]"
+      />
     </div>
   </div>
 </template>

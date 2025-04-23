@@ -5,6 +5,7 @@ import { ref, type DeepReadonly } from "vue";
 import * as z from "zod";
 import BaseInput from "./base/BaseInput.vue";
 import BaseButton from "./base/BaseButton.vue";
+import BaseMultiselect from "./base/BaseMultiselect.vue";
 
 const props = defineProps<{
   initialData?: DeepReadonly<Track>;
@@ -112,27 +113,23 @@ const handleSubmit = () => {
         v-model="formData.album"
       />
 
-      <!-- <genresSelect> -->
-      <label class="flex flex-col gap-1">
-        Genres
-        <select
-          class="px-4 py-2 border rounded-md"
-          :class="[errorMessages.genres && 'border-red-400']"
-          v-model="formData.genres"
-          multiple
-        >
-          <option v-for="genre in tracksGenres" :value="genre">
-            {{ genre }}
-          </option>
-        </select>
-        <p v-if="errorMessages.genres" class="text-red-400">
-          {{ errorMessages.genres }}
-        </p>
-      </label>
       <BaseInput
         label="Cover Image"
         :error-message="errorMessages.coverImage"
         v-model="formData.coverImage"
+      />
+
+      <BaseMultiselect
+        label="Genres"
+        :items="
+          tracksGenres!.map((genre) => ({
+            label: genre,
+            value: genre.toLocaleLowerCase(),
+          }))
+        "
+        :error-message="errorMessages.genres"
+        v-model="formData.genres"
+        class="col-span-2"
       />
 
       <div class="col-span-2 w-full flex gap-2">

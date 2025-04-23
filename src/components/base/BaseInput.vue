@@ -34,7 +34,7 @@ const id = self.crypto.randomUUID();
 
 <template>
   <div
-    class="[flex flex-col relative w-full"
+    class="flex flex-col relative w-full"
     :class="[disabled && 'opacity-70 select-none']"
   >
     <label
@@ -51,7 +51,7 @@ const id = self.crypto.randomUUID();
       :aria-invalid="Boolean(errorMessage)"
       :aria-describedby="errorMessage"
       v-bind="$attrs"
-      class="px-3 py-1 bg-transparent rounded-md border border-border text-base md:text-sm font-normal placeholder:text-placeholder focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-focus text-foreground w-full"
+      class="px-3 py-1 bg-transparent rounded-md border border-border text-base md:text-sm font-normal placeholder:text-placeholder focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-focus text-foreground w-full h-9"
       :class="[
         disabled || (loading && 'cursor-not-allowed select-none'),
         Boolean(errorMessage) &&
