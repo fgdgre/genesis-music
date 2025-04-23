@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { Track } from "@/types";
 import AppModal from "./AppModal.vue";
-import TrackForm from "./TrackForm.vue";
+import BaseButton from "./base/BaseButton.vue";
+import type { Track } from "@/types";
 import { useTrackStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 import { deleteTrackAPI } from "@/api";
-import BaseButton from "./base/BaseButton.vue";
+import { useToast } from "@/stores/toast";
 
 const props = defineProps<{
   track: Track;
@@ -28,12 +28,21 @@ const handleDeleteTrack = async () => {
   const { data, error } = await deleteTrackAPI(props.track.id);
 
   if (error) {
-    alert(error);
+    useToast().addToast({
+      title: "Something went wrong",
+      description: error,
+      color: "red",
+      icon: "warning",
+    });
     tracksStore.createTrack(oldTrack);
   }
 
   if (data) {
-    alert("Track successfully deleted");
+    useToast().addToast({
+      title: "Track successfully deleted",
+      color: "green",
+      icon: "check",
+    });
   }
 };
 </script>
@@ -48,7 +57,12 @@ const handleDeleteTrack = async () => {
 
     <template #actions>
       <div class="col-span-2 w-full flex gap-2">
-        <BaseButton class="w-full" type="button" @click="$emit('close')">
+        <BaseButton
+          transparent
+          class="w-full"
+          type="button"
+          @click="$emit('close')"
+        >
           Cancel
         </BaseButton>
         <BaseButton

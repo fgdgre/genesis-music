@@ -6,8 +6,10 @@ import * as api from "@/api";
 import { useFetchGenres } from "@/composables/useFetchGenres";
 
 export const useTrackStore = defineStore("tracksStore", () => {
-  const initialize = ref(false);
-  const tracks = ref<Track[]>();
+  // const toastStore = useToasts()
+
+  const initialized = ref(false);
+  const tracks = ref<Track[]>([]);
   const tracksMeta = ref<TracksMeta | null>(null);
   // TODO fix
   const { genres: tracksGenres } = useFetchGenres();
@@ -37,24 +39,24 @@ export const useTrackStore = defineStore("tracksStore", () => {
       } else {
         tracks.value = data.data;
         tracksMeta.value = data.meta;
-        initialize.value = true;
       }
     } finally {
+      initialized.value = true;
       isLoading.value = false;
     }
   };
 
-  const createTrack = async (trackData: Track) => {
+  const createTrack = (trackData: Track) => {
     tracks.value?.unshift(trackData);
   };
 
   const updateTrack = (id: string, newTrack: Track) => {
     tracks.value = tracks.value?.map((t) =>
       t.id === id ? { ...t, ...newTrack } : t,
-    ) as Track[];
+    );
   };
 
-  const deleteTrack = async (id: string) => {
+  const deleteTrack = (id: string) => {
     tracks.value = tracks.value?.filter((t) => t.id !== id);
   };
 
@@ -63,7 +65,7 @@ export const useTrackStore = defineStore("tracksStore", () => {
     createTrack,
     updateTrack,
     deleteTrack,
-    initialize,
+    initialized,
     isLoading,
     isError,
     tracks,

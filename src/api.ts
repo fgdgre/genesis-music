@@ -67,7 +67,7 @@ export const editTrackAPI = async (track: NewTrack) => {
     });
 
     if (!response.ok) {
-      throw new Error(`Server error: ${response.status} - ${response}`);
+      throw new Error(`Server error: ${response.status} - ${errText}`);
     } else {
       const data = await response.json();
       return { data, error: null };

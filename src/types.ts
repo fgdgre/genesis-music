@@ -34,3 +34,13 @@ export type QueryParams = {
   order: "asc" | "desc" | "";
   sort: "title" | "artist" | "album" | "createdAt" | "";
 };
+
+export type Toast = {
+  id: string;
+  title: string;
+  description?: string;
+  color?: "red" | "green";
+  icon?: "check" | "warning";
+  duration?: number;
+  showProgress?: boolean;
+};

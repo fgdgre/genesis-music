@@ -24,8 +24,8 @@ defineEmits<{
     :class="[
       color === 'red' && 'bg-red-400 text-[#18181b] hover:bg-red-400/80',
       color === 'black' && 'bg-black text-white hover:bg-black/80',
-      color === 'yellow' && 'bg-yellow-400 text-white hover:bg-yellow-400/80',
-      color === 'green' && 'bg-green-400 text-white hover:bg-green-400/80',
+      color === 'yellow' && 'bg-yellow-400 text-black hover:bg-yellow-400/80',
+      color === 'green' && 'bg-green-400 text-black hover:bg-green-400/80',
       transparent && 'bg-transparent !text-black hover:bg-transparent',
       (disabled || isLoading) && 'opacity-70',
     ]"

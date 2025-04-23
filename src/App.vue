@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { storeToRefs } from "pinia";
+import BaseToastsGroup from "./components/base/toast/BaseToastsGroup.vue";
 import TracksPage from "./components/TracksPage.vue";
+import { useToast } from "./stores/toast";
 // --------------------------------------------------------------------------------------
 
 // // genres -------------------------------------------------------------------------------
@@ -246,8 +249,13 @@ import TracksPage from "./components/TracksPage.vue";
 
 //   await postMusicFile(formData.value.id, uploadedFile.value);
 // };
+
+const store = useToast();
+const { toasts } = storeToRefs(store);
 </script>
 
 <template>
   <TracksPage />
+
+  <BaseToastsGroup :toasts @close-toast="(id) => store.removeToast(id)" />
 </template>

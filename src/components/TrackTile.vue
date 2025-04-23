@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Track } from "@/types";
 import EditTrackModal from "./EditTrackModal.vue";
-import { ref } from "vue";
+import { ref, type DeepReadonly } from "vue";
 import DeleteTrackModal from "./DeleteTrackModal.vue";
 import BaseButton from "./base/BaseButton.vue";
 import { DEFAULT_TRACK_COVER } from "@/consts";
@@ -34,7 +34,7 @@ const isDeleteTrackModalOpen = ref(false);
 
     <EditTrackModal
       v-if="isEditTrackModalOpen"
-      :initial-data="track"
+      :track
       @close="isEditTrackModalOpen = false"
     />
 

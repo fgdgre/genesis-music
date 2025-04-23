@@ -5,9 +5,10 @@ import TrackForm from "./TrackForm.vue";
 import { useTrackStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 import { editTrackAPI } from "@/api";
+import { useToast } from "@/stores/toast";
 
 defineProps<{
-  initialData: Track;
+  track: Track;
 }>();
 
 const emit = defineEmits<{
@@ -27,12 +28,22 @@ const editTrack = async (track: Track) => {
   const { data, error } = await editTrackAPI(track);
 
   if (error) {
-    alert(error);
+    useToast().addToast({
+      title: "Something went wrong",
+      description: error,
+      color: "red",
+      icon: "warning",
+    });
     tracksStore.updateTrack(track.id, oldTrack);
   }
 
   if (data) {
     tracksStore.updateTrack(track.id, data);
+    useToast().addToast({
+      title: "Track successfully edited",
+      color: "green",
+      icon: "check",
+    });
   }
 };
 </script>
@@ -42,7 +53,7 @@ const editTrack = async (track: Track) => {
     <TrackForm
       @submit="(track) => editTrack(track)"
       @discard="$emit('close')"
-      :initial-data="initialData"
+      :initial-data="track"
     />
   </AppModal>
 </template>

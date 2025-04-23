@@ -4,6 +4,7 @@ import AppModal from "./AppModal.vue";
 import TrackForm from "./TrackForm.vue";
 import { useTrackStore } from "@/stores/tracks";
 import { postTrackAPI } from "@/api";
+import { useToast } from "@/stores/toast";
 
 const emit = defineEmits<{
   close: [];
@@ -20,11 +21,21 @@ const handleCreateTrack = async (track: Track) => {
 
   if (error) {
     tracksStore.deleteTrack(track.id);
-    alert(error);
+    useToast().addToast({
+      title: "Something went wrong",
+      description: error,
+      color: "red",
+      icon: "warning",
+    });
   }
 
   if (data) {
     tracksStore.updateTrack(track.id, data);
+    useToast().addToast({
+      title: "Track successfully created",
+      color: "green",
+      icon: "check",
+    });
   }
 };
 </script>
