@@ -26,7 +26,7 @@
           v-if="placeholder && !selected"
           data-testid="multiselect-placeholder"
           class="text-gray-400 flex gap-2"
-          :class="[Boolean(errorMessage) && 'text-error-300']"
+          :class="[Boolean(errorMessage) && 'text-red-300']"
         >
           <p>{{ placeholder }}</p>
         </div>
@@ -79,7 +79,7 @@
 
       <p
         v-if="errorMessage"
-        class="text-red-400 text-xs mt-2"
+        class="text-red-400 text-xs mt-1"
         data-testid="multiselect-error-message"
       >
         {{ errorMessage }}
@@ -89,7 +89,7 @@
         <DropdownMenuContent
           @interact-outside="(e) => $emit('blur', e)"
           :side-offset="5"
-          class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 bg-white w-[var(--radix-dropdown-menu-trigger-width)] min-w-max"
+          class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 bg-white w-[var(--radix-dropdown-menu-trigger-width)] min-w-max max-h-[150px] overflow-auto"
           :class="isLoading && 'p-0'"
           data-testid="dropdown-menu-content"
         >
@@ -128,32 +128,33 @@
               </div>
             </DropdownMenuItem>
           </template>
-
-          <div
-            v-if="isEmpty"
-            class="flex items-center justify-center gap-2 text-center p-3 flex-1 text-sm"
-          >
-            {{ emptyMessage || "No items" }}
-          </div>
-
-          <div
-            v-if="isLoading"
-            class="flex items-center justify-center gap-2 text-center p-3 flex-1 text-sm"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="animate-spin text-inherit size-4"
+          <template v-else>
+            <div
+              v-if="isEmpty"
+              class="flex items-center justify-center gap-2 text-center p-3 flex-1 text-sm"
             >
-              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-            </svg>
-            {{ loadingMessage || "Loading items" }}
-          </div>
+              {{ emptyMessage || "No items" }}
+            </div>
+
+            <div
+              v-if="isLoading"
+              class="flex items-center justify-center gap-2 text-center p-3 flex-1 text-sm"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="animate-spin text-inherit size-4"
+              >
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+              {{ loadingMessage || "Loading items" }}
+            </div>
+          </template>
         </DropdownMenuContent>
       </DropdownMenuPortal>
     </div>
@@ -170,6 +171,7 @@ import {
   DropdownMenuRoot,
   DropdownMenuTrigger,
 } from "radix-vue";
+import BaseButton from "./BaseButton.vue";
 
 const props = defineProps<{
   label?: string;

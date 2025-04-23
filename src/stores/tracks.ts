@@ -9,8 +9,6 @@ export const useTrackStore = defineStore("tracksStore", () => {
   const initialized = ref(false);
   const tracks = ref<Track[]>([]);
   const tracksMeta = ref<TracksMeta | null>(null);
-  // TODO fix
-  const { genres: tracksGenres } = useFetchGenres();
   const isLoading = ref(false);
   const isError = ref(false);
 
@@ -66,7 +64,6 @@ export const useTrackStore = defineStore("tracksStore", () => {
     isLoading,
     isError,
     tracks: readonly(tracks),
-    tracksMeta,
-    tracksGenres,
+    tracksMeta: readonly(tracksMeta),
   };
 });

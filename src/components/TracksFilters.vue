@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useTrackStore } from "@/stores/tracks";
 import type { QueryParams } from "@/types";
 import { ref } from "vue";
 import BaseInput from "./base/BaseInput.vue";
 import BaseSelect from "./base/BaseSelect.vue";
+import GenresSelect from "./GenresSelect.vue";
 
 defineEmits<{
   filtersChanged: [QueryParams];
@@ -16,8 +16,6 @@ const queryParams = ref<QueryParams>({
   order: "",
   sort: "",
 });
-
-const { tracksGenres } = useTrackStore();
 
 const sortSelectItems = [
   { label: "Artist", value: "artist" },
@@ -41,7 +39,15 @@ const orderSelectItems = [
         @update:model-value="$emit('filtersChanged', queryParams)"
       />
 
-      <BaseSelect
+      <GenresSelect
+        label="Genres"
+        placeholder="Select one"
+        v-model="queryParams.genre"
+        @update:model-value="$emit('filtersChanged', queryParams)"
+        class="min-w-[150px]"
+      />
+
+      <!-- <BaseSelect
         label="Genres"
         placeholder="Select one"
         :items="
@@ -53,7 +59,7 @@ const orderSelectItems = [
         v-model="queryParams.genre"
         @update:model-value="$emit('filtersChanged', queryParams)"
         class="min-w-[150px]"
-      />
+      /> -->
 
       <BaseInput
         label="Artist"

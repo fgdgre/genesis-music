@@ -55,7 +55,7 @@ const id = self.crypto.randomUUID();
       :class="[
         disabled || (loading && 'cursor-not-allowed select-none'),
         Boolean(errorMessage) &&
-          'border-red-400 text-red-400 placeholder:text-red-400/70 focus-visible:ring-red-400',
+          'border-red-400 text-red-400 placeholder:text-red-300 focus-visible:ring-red-400',
       ]"
       :placeholder
       :value="modelValue"
@@ -65,7 +65,7 @@ const id = self.crypto.randomUUID();
       @input="updateModelValue(($event.target as HTMLInputElement).value)"
     />
 
-    <p v-if="errorMessage" class="text-red-400 text-xs mt-2">
+    <p v-if="errorMessage" class="text-red-400 text-xs mt-1">
       {{ errorMessage }}
     </p>
   </div>

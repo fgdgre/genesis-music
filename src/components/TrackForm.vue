@@ -6,6 +6,7 @@ import * as z from "zod";
 import BaseInput from "./base/BaseInput.vue";
 import BaseButton from "./base/BaseButton.vue";
 import BaseMultiselect from "./base/BaseMultiselect.vue";
+import GenresMultiselect from "./GenresMultiselect.vue";
 
 const props = defineProps<{
   initialData?: DeepReadonly<Track>;
@@ -15,8 +16,6 @@ const emit = defineEmits<{
   submit: [DeepReadonly<Track>];
   discard: [];
 }>();
-
-const { tracksGenres } = useTrackStore();
 
 const formData = ref<Track>({
   id: props.initialData?.id || "",
@@ -119,14 +118,9 @@ const handleSubmit = () => {
         v-model="formData.coverImage"
       />
 
-      <BaseMultiselect
+      <GenresMultiselect
         label="Genres"
-        :items="
-          tracksGenres!.map((genre) => ({
-            label: genre,
-            value: genre.toLocaleLowerCase(),
-          }))
-        "
+        placeholder="Select multiple"
         :error-message="errorMessages.genres"
         v-model="formData.genres"
         class="col-span-2"
