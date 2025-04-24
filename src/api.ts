@@ -135,3 +135,42 @@ export const postTrackAPI = async (track: DeepReadonly<Track>) => {
     return { data: null, error: e };
   }
 };
+
+export const postTrackFileAPI = async (id: string, file: File) => {
+  try {
+    const formData = new FormData();
+    formData.append("audioFile", file);
+
+    const response = await fetch(`api/tracks/${id}/upload`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "audio/mpeg",
+      },
+      body: file,
+    });
+
+    if (!response.ok) {
+      let responseError: any = "Unknown error";
+      const contentType = response.headers.get("content-type");
+
+      if (contentType && contentType.includes("application/json")) {
+        const errorBody = await response.json();
+        responseError = errorBody?.error || JSON.stringify(errorBody);
+      } else {
+        responseError = response.statusText;
+      }
+
+      throw {
+        status: response.status,
+        message: responseError,
+      };
+    }
+
+    const data = await response.json();
+
+    return { data, error: null };
+  } catch (e: any) {
+    console.error(e);
+    return { data: null, error: e };
+  }
+};

@@ -15,6 +15,29 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const isError = ref(false);
   const errorMessage = ref("");
 
+  const currentAudioElement = ref<HTMLAudioElement | null>(null);
+
+  const handlePlayTrack = (e: Event) => {
+    const targetAudio = e.target as HTMLAudioElement;
+
+    if (
+      currentAudioElement.value &&
+      currentAudioElement.value !== targetAudio
+    ) {
+      currentAudioElement.value.pause();
+    }
+
+    currentAudioElement.value = targetAudio;
+  };
+
+  const handlePauseTrack = (e: Event) => {
+    const targetAudio = e.target as HTMLAudioElement;
+
+    if (targetAudio === currentAudioElement.value) {
+      currentAudioElement.value = null;
+    }
+  };
+
   const notSubmittedTracks = ref<Track[]>([]);
 
   const addNotSubmittedTrack = (trackData: DeepReadonly<Track>) => {
@@ -104,6 +127,9 @@ export const useTracksStore = defineStore("tracksStore", () => {
     isError: readonly(isError),
     errorMessage: readonly(errorMessage),
     notSubmittedTracks: readonly(notSubmittedTracks),
+    currentAudioElement: readonly(currentAudioElement),
+    handlePlayTrack,
+    handlePauseTrack,
     fetchTracks,
     createTrack,
     updateTrack,
