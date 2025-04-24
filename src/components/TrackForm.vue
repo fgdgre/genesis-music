@@ -27,7 +27,6 @@ const formData = ref<Track>({
   slug: props.initialData?.slug || "",
 });
 
-// validation -----------------------------------------------------------------------------------------------------------
 const schema = z.object({
   title: z.string().trim().nonempty({ message: "Title is required field" }),
   artist: z.string().trim().nonempty({ message: "Artist is required field" }),

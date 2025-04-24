@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useTemplateRef, watch, watchEffect } from "vue";
+import { computed, ref, watch } from "vue";
 import type { QueryParams } from "@/types";
 import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
