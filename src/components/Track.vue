@@ -28,7 +28,9 @@ const isDeleteTrackFileModal = ref(false);
 
 const toggleTrack = () => {
   if (props.track.audioFile) {
-    tracksStore.togglePlayingTrackId(props.track.id);
+    isPlaying.value
+      ? tracksStore.clearPlayingTrackId()
+      : tracksStore.setPlayingTrackId(props.track.id);
   }
 };
 </script>
@@ -105,7 +107,7 @@ const toggleTrack = () => {
         </div>
       </div>
 
-      <div class="flex gap-2">
+      <div class="flex gap-2 items-center h-full">
         <BaseButton
           color="red"
           square
@@ -198,7 +200,6 @@ const toggleTrack = () => {
     <BaseAudioPlay
       v-if="track.audioFile"
       class="self-end"
-      :playingTrackId
       :trackSource="track.audioFile"
       :trackId="track.id"
     />

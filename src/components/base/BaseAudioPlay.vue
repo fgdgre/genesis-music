@@ -36,7 +36,9 @@ const handlePlay = (e: any) => {
     audioPlyerRef.value &&
     currentTime.value >= audioPlyerRef.value.duration
   ) {
-    audioPlyerRef.value.pause();
+    tracksStore.clearPlayingTrackId();
+
+    audioPlyerRef.value.currentTime = 0;
   }
 };
 

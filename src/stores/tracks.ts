@@ -17,41 +17,8 @@ export const useTracksStore = defineStore("tracksStore", () => {
 
   const playingTrackId = ref<string | null>(null);
 
-  const togglePlayingTrackId = (id: string) => {
-    if (playingTrackId.value === id) {
-      playingTrackId.value = null;
-    } else {
-      playingTrackId.value = id;
-    }
-  };
-
-  const trackRefs = ref<any>({});
-
-  const addTrackAudioRef = (id: string, el: HTMLAudioElement) => {
-    trackRefs.value[id] = el;
-  };
-
-  const handlePlayTrack = (trackId: string) => {
-    if (playingTrackId.value && playingTrackId.value !== trackId) {
-      trackRefs.value[playingTrackId.value].pause();
-    }
-
-    handlePauseTrack(trackId);
-  };
-
-  const handlePauseTrack = (trackId: string) => {
-    if (trackId === playingTrackId.value) {
-      trackRefs.value[playingTrackId.value].pause();
-      playingTrackId.value = null;
-    } else {
-      if (playingTrackId.value) {
-        trackRefs.value[playingTrackId.value].pause();
-      }
-
-      trackRefs.value[trackId].play();
-      playingTrackId.value = trackId;
-    }
-  };
+  const setPlayingTrackId = (id: string) => (playingTrackId.value = id);
+  const clearPlayingTrackId = () => (playingTrackId.value = null);
 
   const clearErrors = () => {
     isError.value = false;
@@ -130,11 +97,8 @@ export const useTracksStore = defineStore("tracksStore", () => {
     isError: readonly(isError),
     errorMessage: readonly(errorMessage),
     playingTrackId: readonly(playingTrackId),
-    trackRefs: readonly(trackRefs),
-    togglePlayingTrackId,
-    addTrackAudioRef,
-    handlePlayTrack,
-    handlePauseTrack,
+    setPlayingTrackId,
+    clearPlayingTrackId,
     fetchTracks,
     createTrack,
     updateTrack,
