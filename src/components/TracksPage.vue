@@ -40,6 +40,7 @@ const fetchTracks = () => {
 
 const handleFiltersChanged = (filters: QueryParams) => {
   page.value = 1;
+  tracksStore.clearPlayingTrackId();
 
   search.value = filters.search;
   order.value = filters.order;
@@ -53,6 +54,8 @@ const handleFiltersChanged = (filters: QueryParams) => {
 watch(
   page,
   () => {
+    tracksStore.clearPlayingTrackId();
+
     fetchTracks();
   },
   { immediate: true },

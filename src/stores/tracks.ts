@@ -19,8 +19,6 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const setPlayingTrackId = (id: string) => (playingTrackId.value = id);
   const clearPlayingTrackId = () => (playingTrackId.value = null);
 
-  const counter = ref(0);
-
   const clearErrors = () => {
     isError.value = false;
     errorMessage.value = "";
@@ -58,7 +56,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
         sort: sort?.value,
       });
 
-      if (error || counter.value === 1) {
+      if (error) {
         setErrorMessage("error.message");
 
         if (initialized.value) {
@@ -73,7 +71,6 @@ export const useTracksStore = defineStore("tracksStore", () => {
     } finally {
       initialized.value = true;
       isLoading.value = false;
-      counter.value++;
     }
   };
 
