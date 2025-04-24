@@ -23,10 +23,10 @@ watchEffect(() => {
 });
 
 const currentTime = ref(0);
-const isSeeking = ref(false);
+const isChangingManually = ref(false);
 
 const handlePlay = (e: any) => {
-  if (!isSeeking.value) {
+  if (!isChangingManually.value) {
     currentTime.value = e.target.currentTime;
   }
 
@@ -38,7 +38,7 @@ const handlePlay = (e: any) => {
 const onSliderInput = (e: Event) => {
   const value = parseFloat((e.target as HTMLInputElement).value);
   currentTime.value = value;
-  isSeeking.value = true;
+  isChangingManually.value = true;
 };
 
 const onSliderChange = (e: Event) => {
@@ -46,7 +46,7 @@ const onSliderChange = (e: Event) => {
   if (trackFile.value) {
     trackFile.value.currentTime = value;
   }
-  isSeeking.value = false;
+  isChangingManually.value = false;
 };
 </script>
 
