@@ -144,6 +144,7 @@ const handleSubmit = () => {
         error-message-testid="error-title"
         @update:model-value="handleValidateField('title', formData.title)"
         @blur="handleFieldBlur('title', formData.title)"
+        auto-focus
       />
       <BaseInput
         label="Artist"

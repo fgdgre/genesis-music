@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useTemplateRef, onMounted } from "vue";
+
 defineOptions({
   inheritAttrs: false,
 });
@@ -12,6 +14,7 @@ const props = defineProps<{
   modelValue?: string | number;
   errorMessageTestid?: string;
   withDebounce?: boolean;
+  autoFocus?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -36,6 +39,18 @@ const updateModelValue = (value: string) => {
 };
 
 const id = self.crypto.randomUUID();
+
+const inputFieldRef = useTemplateRef("inputFieldRef");
+
+defineExpose({
+  inputFieldRef,
+});
+
+onMounted(() => {
+  if (inputFieldRef.value && props.autoFocus) {
+    inputFieldRef.value.focus();
+  }
+});
 </script>
 
 <template>
@@ -63,6 +78,7 @@ const id = self.crypto.randomUUID();
         Boolean(errorMessage) &&
           'border-red-400 text-red-400 placeholder:text-red-300 focus-visible:ring-red-400',
       ]"
+      ref="inputFieldRef"
       :placeholder
       :value="modelValue"
       :disabled="disabled || isLoading"
