@@ -84,7 +84,7 @@ const initializedWithEmptyTracks = computed(
     />
 
     <div v-else class="flex flex-col gap-4 flex-1 max-h-full">
-      <div class="flex gap-4 justify-between items-end">
+      <div class="flex gap-4 justify-between items-end px-6 pt-6">
         <TracksFilters @filters-changed="handleFiltersChanged" />
 
         <BaseButton
@@ -106,7 +106,7 @@ const initializedWithEmptyTracks = computed(
 
       <ul
         v-else-if="tracks.length"
-        class="flex-1 flex flex-col overflow-auto gap-4 p-6"
+        class="flex-1 flex flex-col overflow-auto gap-4 px-6"
       >
         <li v-for="track in tracks">
           <Track :track />
@@ -122,6 +122,7 @@ const initializedWithEmptyTracks = computed(
 
       <AppPagination
         v-if="tracksMeta?.totalPages && tracks.length"
+        class="px-2 pb-2"
         v-model="page"
         :total-pages="tracksMeta.totalPages"
         :is-loading="isLoading"
