@@ -6,7 +6,6 @@ import { useTracksStore } from "@/stores/tracks";
 import { postTrackAPI } from "@/api";
 import type { DeepReadonly } from "vue";
 import { useTracksToasts } from "@/composables/useTracksToasts";
-import { storeToRefs } from "pinia";
 
 const emit = defineEmits<{
   close: [];
@@ -24,7 +23,7 @@ const handleCreateTrack = async (newTrack: DeepReadonly<Track>) => {
   const { data, error } = await postTrackAPI(newTrack);
 
   if (error) {
-    tracksStore.addNotSubmittedTrack(newTrack);
+    tracksStore.deleteTrack(newTrack.id);
 
     addErrorToast(error);
     return;

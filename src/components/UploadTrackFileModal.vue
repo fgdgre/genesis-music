@@ -36,8 +36,8 @@ const validateUploadedFile = (file?: File) => {
     trackFileInputErrorMessage.value = "This is required field";
     return;
   }
-  if (!file.type.includes("audio")) {
-    trackFileInputErrorMessage.value = "File should be with audio format";
+  if (!["audio/mpeg", "audio/wav"].includes(file.type)) {
+    trackFileInputErrorMessage.value = "File should be in MP3 or WAV format";
     return;
   }
   if (file.size > MAX_FILES_SIZE) {
@@ -80,13 +80,23 @@ const handleUploadTrackFile = async () => {
     <div class="flex flex-col gap-2">
       <p class="text-gray-400">Please upload audio file for this track</p>
 
-      <BaseInput
-        type="file"
-        accept="audio/*"
-        @change="onFileChange"
-        placeholder="Upload your file here"
-        :error-message="trackFileInputErrorMessage"
-      />
+      <div>
+        <input
+          type="file"
+          accept="audio/*"
+          placeholder="Upload your file here"
+          @change="onFileChange"
+          class="px-3 py-1 bg-transparent rounded-md border border-border text-base md:text-sm font-normal placeholder:text-placeholder focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-focus text-foreground w-full h-9"
+          :class="[
+            Boolean(trackFileInputErrorMessage) &&
+              'border-red-400 text-red-400 placeholder:text-red-300 focus-visible:ring-red-400',
+          ]"
+        />
+
+        <p v-if="trackFileInputErrorMessage" class="text-red-400 text-xs mt-1">
+          {{ trackFileInputErrorMessage }}
+        </p>
+      </div>
     </div>
 
     <template #actions>

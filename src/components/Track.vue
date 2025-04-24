@@ -16,36 +16,27 @@ const props = defineProps<{
 
 const tracksStore = useTracksStore();
 
-// TODO: rename currentAudioElementId to playingTrackId
-const { notSubmittedTracks, currentAudioElementId, trackRefs } =
-  storeToRefs(tracksStore);
+const { playingTrackId } = storeToRefs(tracksStore);
 
-const isTrackSubmitted = computed(
-  () => !notSubmittedTracks.value.find((t) => t.id === props.track.id),
-);
-
-const isTrackHaveIncorrectTitle = computed(
-  () =>
-    props.track.title.trim().toLowerCase().replace(/\s+/g, "-") !==
-      props.track.slug && !isTrackSubmitted.value,
-);
-
-const isPlaying = computed(
-  () => currentAudioElementId.value === props.track.id,
-);
+const isPlaying = computed(() => playingTrackId.value === props.track.id);
 
 const isEditTrackModalOpen = ref(false);
 const isDeleteTrackModalOpen = ref(false);
 const isUploadTrackFileModalOpen = ref(false);
 
 const toggleTrack = () => {
-  tracksStore.handlePauseTrack(props.track.id);
+  if (props.track.audioFile) {
+    tracksStore.handlePauseTrack(props.track.id);
+  }
 };
 </script>
 
 <template>
   <div
-    class="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-1 rounded-md cursor-pointer border p-1 hover:bg-gray-100 transition-colors"
+    class="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-1 rounded-md border border-gray-400 p-1 select-none"
+    :class="[
+      track.audioFile && 'hover:bg-gray-100 transition-colors cursor-pointer',
+    ]"
     @click="toggleTrack"
     :data-testid="`track-item-${track.id}`"
   >
@@ -53,6 +44,7 @@ const toggleTrack = () => {
       class="size-20 shrink-0 rounded-md col-start-1 row-span-2 relative select-none"
     >
       <div
+        v-if="track.audioFile"
         class="absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] text-orange-400"
       >
         <svg
@@ -91,11 +83,7 @@ const toggleTrack = () => {
     <div class="flex gap-4 items-center col-start-2 row-start-1">
       <div class="flex gap-4 w-full">
         <div class="flex flex-col">
-          <p
-            class="font-medium"
-            :class="isTrackHaveIncorrectTitle && 'text-red-400'"
-            :data-testid="`track-item-${track.id}-title`"
-          >
+          <p class="font-medium" :data-testid="`track-item-${track.id}-title`">
             {{ track.title }}
           </p>
           <p class="text-gray-400 text-xs">
@@ -119,7 +107,7 @@ const toggleTrack = () => {
         <BaseButton
           color="red"
           square
-          @click="isDeleteTrackModalOpen = true"
+          @click.stop="isDeleteTrackModalOpen = true"
           :data-testid="`delete-track-${track.id}`"
         >
           <svg
@@ -140,7 +128,7 @@ const toggleTrack = () => {
         <BaseButton
           color="yellow"
           square
-          @click="isEditTrackModalOpen = true"
+          @click.stop="isEditTrackModalOpen = true"
           :data-testid="`edit-track-${track.id}`"
         >
           <svg
@@ -159,11 +147,10 @@ const toggleTrack = () => {
           </svg>
         </BaseButton>
         <BaseButton
-          v-if="isTrackSubmitted"
           color="green"
           square
           :data-testid="`upload-track-${track.id}`"
-          @click="isUploadTrackFileModalOpen = true"
+          @click.stop="isUploadTrackFileModalOpen = true"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -181,28 +168,12 @@ const toggleTrack = () => {
       </div>
     </div>
 
-    <div v-if="track.audioFile" class="self-end">
-      <BaseAudioPlay :trackSource="track.audioFile" :trackId="track.id" />
-
-      <!-- <div v-if="track.audioFile" class="self-end"> -->
-      <!-- <audio
-        :src="`/api/files/${track.audioFile}`"
-        :ref="
-          (el) => tracksStore.addTrackAudioRef(track.id, el as HTMLAudioElement)
-        "
-        class="hidden"
-        preload="metadata"
-      ></audio>
-
-      <input
-        v-if="trackRefs[track.id]"
-        type="range"
-        @click.stop
-        :max="trackRefs[track.id].duration"
-        v-model.lazy="trackRefs[track.id].currentTime"
-        @input="trackRefs[track.id].seekAudio"
-      /> -->
-    </div>
+    <BaseAudioPlay
+      v-if="track.audioFile"
+      class="self-end"
+      :trackSource="track.audioFile"
+      :trackId="track.id"
+    />
   </div>
 
   <EditTrackModal

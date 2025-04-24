@@ -64,7 +64,7 @@ const onSliderChange = (e: Event) => {
     <input
       v-if="trackFile"
       type="range"
-      class="w-full transition-all"
+      class="w-full transition-all duration-300 ease-linear"
       :step="0.1"
       :max="trackFile.duration"
       :value="currentTime"

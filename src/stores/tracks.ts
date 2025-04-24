@@ -16,7 +16,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const isError = ref(false);
   const errorMessage = ref("");
 
-  const currentAudioElementId = ref<string | null>(null);
+  const playingTrackId = ref<string | null>(null);
   const trackRefs = ref<Record<string, any>>({});
 
   const addTrackAudioRef = (id: string, el: HTMLAudioElement) => {
@@ -24,40 +24,25 @@ export const useTracksStore = defineStore("tracksStore", () => {
   };
 
   const handlePlayTrack = (trackId: string) => {
-    if (
-      currentAudioElementId.value &&
-      currentAudioElementId.value !== trackId
-    ) {
-      trackRefs.value[currentAudioElementId.value].pause();
+    if (playingTrackId.value && playingTrackId.value !== trackId) {
+      trackRefs.value[playingTrackId.value].pause();
     }
 
     handlePauseTrack(trackId);
   };
 
   const handlePauseTrack = (trackId: string) => {
-    if (trackId === currentAudioElementId.value) {
-      trackRefs.value[currentAudioElementId.value].pause();
-      currentAudioElementId.value = null;
+    if (trackId === playingTrackId.value) {
+      trackRefs.value[playingTrackId.value].pause();
+      playingTrackId.value = null;
     } else {
-      if (currentAudioElementId.value) {
-        trackRefs.value[currentAudioElementId.value].pause();
+      if (playingTrackId.value) {
+        trackRefs.value[playingTrackId.value].pause();
       }
 
       trackRefs.value[trackId].play();
-      currentAudioElementId.value = trackId;
+      playingTrackId.value = trackId;
     }
-  };
-
-  const notSubmittedTracks = ref<Track[]>([]);
-
-  const addNotSubmittedTrack = (trackData: DeepReadonly<Track>) => {
-    notSubmittedTracks.value?.push(trackData as Track);
-  };
-
-  const deleteNotSubmittedTrack = (id: string) => {
-    notSubmittedTracks.value = notSubmittedTracks.value?.filter(
-      (t) => t.id !== id,
-    );
   };
 
   const clearErrors = () => {
@@ -136,8 +121,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
     isLoading: readonly(isLoading),
     isError: readonly(isError),
     errorMessage: readonly(errorMessage),
-    notSubmittedTracks: readonly(notSubmittedTracks),
-    currentAudioElementId: readonly(currentAudioElementId),
+    playingTrackId: readonly(playingTrackId),
     trackRefs: readonly(trackRefs),
     addTrackAudioRef,
     handlePlayTrack,
@@ -148,7 +132,5 @@ export const useTracksStore = defineStore("tracksStore", () => {
     deleteTrack,
     setErrorMessage,
     clearErrors,
-    addNotSubmittedTrack,
-    deleteNotSubmittedTrack,
   };
 });

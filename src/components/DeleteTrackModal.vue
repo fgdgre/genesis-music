@@ -36,8 +36,6 @@ const handleDeleteTrack = async () => {
     }
 
     if (data) {
-      tracksStore.deleteNotSubmittedTrack(props.track.id);
-
       addSuccessToast("delete");
     }
   }
