@@ -106,7 +106,7 @@ const initializedWithEmptyTracks = computed(
 
       <ul
         v-else-if="tracks.length"
-        class="flex-1 flex flex-col overflow-auto gap-4 px-6 pr-2.5"
+        class="flex-1 flex flex-col overflow-auto gap-2 px-6 pr-2.5"
       >
         <li v-for="track in tracks">
           <Track :track />
