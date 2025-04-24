@@ -12,10 +12,10 @@ export const useTracksToasts = () => {
       case 500:
         message = "Server error, try again";
         break;
-      case 409:
-        message =
-          "Edit or delete last changed track(s), because they won't be save";
-        break;
+      // case 409:
+      //   message =
+      //     "Edit or delete last changed track(s), because they won't be save";
+      //   break;
       default:
         message = "Something went wrong";
         break;
@@ -29,7 +29,9 @@ export const useTracksToasts = () => {
     });
   };
 
-  const addSuccessToast = (action: "create" | "delete" | "edit") => {
+  const addSuccessToast = (
+    action: "create" | "delete" | "edit" | "uploadFile" | "deleteFile",
+  ) => {
     toastsStore.clearToasts();
 
     let title: string;
@@ -43,6 +45,12 @@ export const useTracksToasts = () => {
         break;
       case "delete":
         title = "Track successfully deleted";
+        break;
+      case "uploadFile":
+        title = "Track file successfully added";
+        break;
+      case "deleteFile":
+        title = "Track file successfully deleted";
         break;
       default:
         title = "Success";

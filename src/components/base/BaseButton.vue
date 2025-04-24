@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    color?: "red" | "black" | "yellow" | "green";
+    color?: "red" | "black" | "yellow" | "green" | "orange";
     disabled?: boolean;
     transparent?: boolean;
     type?: "button" | "submit";
@@ -24,6 +24,7 @@ defineEmits<{
     class="flex gap-x-[5px] items-center justify-center rounded-md w-fit select-none transition-colors pointer-events-auto font-medium text-sm cursor-pointer h-9"
     :class="[
       color === 'red' && 'bg-red-400 text-[#18181b] hover:bg-red-400/80',
+      color === 'orange' && 'bg-orange-400 text-black hover:bg-orange-400/80',
       color === 'black' && 'bg-black text-white hover:bg-black/80',
       color === 'yellow' && 'bg-yellow-400 text-black hover:bg-yellow-400/80',
       color === 'green' && 'bg-green-400 text-black hover:bg-green-400/80',

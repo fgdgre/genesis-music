@@ -70,7 +70,7 @@ const initializedWithEmptyTracks = computed(
 <template>
   <AppHeader title="Tracks page" :is-loading="isLoading && !initialized" />
 
-  <main v-if="initialized" class="flex flex-col h-[calc(100svh-61px)] p-6">
+  <main v-if="initialized" class="flex flex-col h-[calc(100svh-61px)]">
     <AppErrorPage
       v-if="initializedWithEmptyTracks && isError"
       :error-message="errorMessage"
@@ -106,7 +106,7 @@ const initializedWithEmptyTracks = computed(
 
       <ul
         v-else-if="tracks.length"
-        class="flex-1 flex flex-col overflow-auto gap-4"
+        class="flex-1 flex flex-col overflow-auto gap-4 p-6"
       >
         <li v-for="track in tracks">
           <Track :track />

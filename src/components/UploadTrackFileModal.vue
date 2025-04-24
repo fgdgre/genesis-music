@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import AppModal from "./app/AppModal.vue";
 import BaseButton from "./base/BaseButton.vue";
-import BaseInput from "./base/BaseInput.vue";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 import { ref, type DeepReadonly } from "vue";
 import { MAX_FILES_SIZE } from "@/consts";
@@ -67,7 +66,7 @@ const handleUploadTrackFile = async () => {
     }
 
     if (data) {
-      addSuccessToast("delete");
+      addSuccessToast("uploadFile");
 
       useTracksStore().updateTrack(props.track.id, data);
     }
@@ -76,7 +75,7 @@ const handleUploadTrackFile = async () => {
 </script>
 
 <template>
-  <AppModal title="Upload track file" data-testid="confirm-dialog">
+  <AppModal title="Upload track file">
     <div class="flex flex-col gap-2">
       <p class="text-gray-400">Please upload audio file for this track</p>
 
@@ -106,7 +105,7 @@ const handleUploadTrackFile = async () => {
           class="w-full"
           type="button"
           @click="$emit('close')"
-          data-testid="cancel-delete"
+          data-testid="cancel-upload-file"
         >
           Cancel
         </BaseButton>
@@ -114,7 +113,7 @@ const handleUploadTrackFile = async () => {
           class="w-full"
           type="submit"
           @click="handleUploadTrackFile"
-          data-testid="confirm-delete"
+          data-testid="confirm-upload-file"
         >
           Upload
         </BaseButton>

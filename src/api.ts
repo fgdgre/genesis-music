@@ -1,7 +1,6 @@
 import type { Track } from "@/types";
 import type { DeepReadonly } from "vue";
 import { buildQueryForAPI } from "@/utils/buildQueryForAPI";
-// import { BASE_URL } from "./consts";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -147,6 +146,38 @@ export const postTrackFileAPI = async (id: string, file: any) => {
     const response = await fetch(BASE_URL + `/api/tracks/${id}/upload`, {
       method: "POST",
       body: file,
+    });
+
+    if (!response.ok) {
+      let responseError: any = "Unknown error";
+      const contentType = response.headers.get("content-type");
+
+      if (contentType && contentType.includes("application/json")) {
+        const errorBody = await response.json();
+        responseError = errorBody?.error || JSON.stringify(errorBody);
+      } else {
+        responseError = response.statusText;
+      }
+
+      throw {
+        status: response.status,
+        message: responseError,
+      };
+    }
+
+    const data = await response.json();
+
+    return { data, error: null };
+  } catch (e: any) {
+    console.error(e);
+    return { data: null, error: e };
+  }
+};
+
+export const deleteTrackFileAPI = async (id: string) => {
+  try {
+    const response = await fetch(BASE_URL + `/api/tracks/${id}/file`, {
+      method: "DELETE",
     });
 
     if (!response.ok) {

@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { watchEffect } from "vue";
-import BaseInput from "./BaseInput.vue";
 
 const props = defineProps<{
   trackSource: string;
   trackId: string;
 }>();
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const tracksStore = useTracksStore();
 
@@ -53,7 +54,7 @@ const onSliderChange = (e: Event) => {
 <template>
   <div class="w-full">
     <audio
-      :src="`/api/files/${trackSource}`"
+      :src="BASE_URL + `/api/files/${trackSource}`"
       preload="metadata"
       :ref="
         (el) => tracksStore.addTrackAudioRef(trackId, el as HTMLAudioElement)

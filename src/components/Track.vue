@@ -9,6 +9,7 @@ import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 import UploadTrackFileModal from "./UploadTrackFileModal.vue";
 import BaseAudioPlay from "./base/BaseAudioPlay.vue";
+import DeleteTrackFileModal from "./DeleteTrackFileModal.vue";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -23,6 +24,7 @@ const isPlaying = computed(() => playingTrackId.value === props.track.id);
 const isEditTrackModalOpen = ref(false);
 const isDeleteTrackModalOpen = ref(false);
 const isUploadTrackFileModalOpen = ref(false);
+const isDeleteTrackFileModal = ref(false);
 
 const toggleTrack = () => {
   if (props.track.audioFile) {
@@ -147,6 +149,7 @@ const toggleTrack = () => {
           </svg>
         </BaseButton>
         <BaseButton
+          v-if="!track.audioFile"
           color="green"
           square
           :data-testid="`upload-track-${track.id}`"
@@ -162,6 +165,30 @@ const toggleTrack = () => {
             <path
               fill="currentColor"
               d="M11 14.825V18q0 .425.288.713T12 19t.713-.288T13 18v-3.175l.9.9q.15.15.338.225t.375.063t.362-.088t.325-.225q.275-.3.288-.7t-.288-.7l-2.6-2.6q-.15-.15-.325-.212T12 11.425t-.375.063t-.325.212l-2.6 2.6q-.3.3-.287.7t.312.7q.3.275.7.288t.7-.288zM6 22q-.825 0-1.412-.587T4 20V4q0-.825.588-1.412T6 2h7.175q.4 0 .763.15t.637.425l4.85 4.85q.275.275.425.638t.15.762V20q0 .825-.587 1.413T18 22zm7-14V4H6v16h12V9h-4q-.425 0-.712-.288T13 8M6 4v5zv16z"
+            />
+          </svg>
+        </BaseButton>
+        <BaseButton
+          v-else
+          color="orange"
+          square
+          :data-testid="`delete-track-${track.id}`"
+          @click.stop="isDeleteTrackFileModal = true"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            class="size-5 shrink-0"
+          >
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M2.5 7V1.5a1 1 0 0 1 1-1H10L13.5 4v8.5a1 1 0 0 1-1 1H8M4.74 9.26L.5 13.5m0-4.24l4.24 4.24"
+              stroke-width="1"
             />
           </svg>
         </BaseButton>
@@ -192,5 +219,11 @@ const toggleTrack = () => {
     v-if="isUploadTrackFileModalOpen"
     :track
     @close="isUploadTrackFileModalOpen = false"
+  />
+
+  <DeleteTrackFileModal
+    v-if="isDeleteTrackFileModal"
+    :track
+    @close="isDeleteTrackFileModal = false"
   />
 </template>
