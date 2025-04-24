@@ -8,12 +8,15 @@ import { DEFAULT_TRACK_COVER } from "@/consts";
 import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 import UploadTrackFileModal from "./UploadTrackFileModal.vue";
+import BaseAudioPlay from "./base/BaseAudioPlay.vue";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
 }>();
 
 const tracksStore = useTracksStore();
+
+// TODO: rename currentAudioElementId to playingTrackId
 const { notSubmittedTracks, currentAudioElementId, trackRefs } =
   storeToRefs(tracksStore);
 
@@ -27,7 +30,7 @@ const isTrackHaveIncorrectTitle = computed(
       props.track.slug && !isTrackSubmitted.value,
 );
 
-const isTrackPlay = computed(
+const isPlaying = computed(
   () => currentAudioElementId.value === props.track.id,
 );
 
@@ -53,7 +56,7 @@ const toggleTrack = () => {
         class="absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] text-orange-400"
       >
         <svg
-          v-if="!isTrackPlay"
+          v-if="!isPlaying"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
           height="24"
@@ -179,7 +182,10 @@ const toggleTrack = () => {
     </div>
 
     <div v-if="track.audioFile" class="self-end">
-      <audio
+      <BaseAudioPlay :trackSource="track.audioFile" :trackId="track.id" />
+
+      <!-- <div v-if="track.audioFile" class="self-end"> -->
+      <!-- <audio
         :src="`/api/files/${track.audioFile}`"
         :ref="
           (el) => tracksStore.addTrackAudioRef(track.id, el as HTMLAudioElement)
@@ -191,19 +197,10 @@ const toggleTrack = () => {
       <input
         v-if="trackRefs[track.id]"
         type="range"
+        @click.stop
         :max="trackRefs[track.id].duration"
         v-model.lazy="trackRefs[track.id].currentTime"
         @input="trackRefs[track.id].seekAudio"
-      />
-      <!-- <input
-        v-if="trackRefs[track.id]"
-        type="range"
-        class="w-full focus:outline-none"
-        @click.stop
-        :max="trackRefs[track.id].duration"
-        @input=""
-        v-model="trackRefs[track.id].currentTime"
-        @change="trackRefs[track.id].seekAudio"
       /> -->
     </div>
   </div>
