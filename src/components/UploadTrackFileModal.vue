@@ -7,6 +7,7 @@ import { ref, type DeepReadonly } from "vue";
 import { MAX_FILES_SIZE } from "@/consts";
 import { postTrackFileAPI } from "@/api";
 import type { Track } from "@/types";
+import { useTracksStore } from "@/stores/tracks";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -54,10 +55,11 @@ const handleUploadTrackFile = async () => {
     !trackFileInputErrorMessage.value
   ) {
     emit("close");
-    const { data, error } = await postTrackFileAPI(
-      props.track.id,
-      trackFile.value,
-    );
+
+    const formData = new FormData();
+    formData.append("file", trackFile.value);
+
+    const { data, error } = await postTrackFileAPI(props.track.id, formData);
 
     if (error) {
       addErrorToast(error);
@@ -66,6 +68,8 @@ const handleUploadTrackFile = async () => {
 
     if (data) {
       addSuccessToast("delete");
+
+      useTracksStore().updateTrack(props.track.id, data);
     }
   }
 };

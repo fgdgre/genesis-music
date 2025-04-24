@@ -35,10 +35,6 @@ const isEditTrackModalOpen = ref(false);
 const isDeleteTrackModalOpen = ref(false);
 const isUploadTrackFileModalOpen = ref(false);
 
-// const handleToggleTrack = () => {
-//   isTrackPlay.value ?
-// }
-
 const toggleTrack = () => {
   tracksStore.handlePauseTrack(props.track.id);
 };
@@ -182,23 +178,33 @@ const toggleTrack = () => {
       </div>
     </div>
 
-    <div class="self-end">
+    <div v-if="track.audioFile" class="self-end">
       <audio
+        :src="`/api/files/${track.audioFile}`"
         :ref="
           (el) => tracksStore.addTrackAudioRef(track.id, el as HTMLAudioElement)
         "
         class="hidden"
-        src="music/Heartbeat-Childish-Gambino.m4a"
+        preload="metadata"
       ></audio>
+
       <input
+        v-if="trackRefs[track.id]"
+        type="range"
+        :max="trackRefs[track.id].duration"
+        v-model.lazy="trackRefs[track.id].currentTime"
+        @input="trackRefs[track.id].seekAudio"
+      />
+      <!-- <input
         v-if="trackRefs[track.id]"
         type="range"
         class="w-full focus:outline-none"
         @click.stop
         :max="trackRefs[track.id].duration"
+        @input=""
         v-model="trackRefs[track.id].currentTime"
         @change="trackRefs[track.id].seekAudio"
-      />
+      /> -->
     </div>
   </div>
 

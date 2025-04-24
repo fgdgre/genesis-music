@@ -136,16 +136,10 @@ export const postTrackAPI = async (track: DeepReadonly<Track>) => {
   }
 };
 
-export const postTrackFileAPI = async (id: string, file: File) => {
+export const postTrackFileAPI = async (id: string, file: any) => {
   try {
-    const formData = new FormData();
-    formData.append("audioFile", file);
-
     const response = await fetch(`api/tracks/${id}/upload`, {
       method: "POST",
-      headers: {
-        "Content-Type": "audio/mpeg",
-      },
       body: file,
     });
 
