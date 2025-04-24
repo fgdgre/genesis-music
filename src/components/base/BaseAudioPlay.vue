@@ -29,6 +29,10 @@ const handlePlay = (e: any) => {
   if (!isSeeking.value) {
     currentTime.value = e.target.currentTime;
   }
+
+  if (currentTime.value >= trackFile.value.duration) {
+    tracksStore.handlePauseTrack(props.trackId);
+  }
 };
 
 const onSliderInput = (e: Event) => {
@@ -56,6 +60,7 @@ const onSliderChange = (e: Event) => {
       "
       @timeupdate="handlePlay"
     ></audio>
+
     <input
       v-if="trackFile"
       type="range"
