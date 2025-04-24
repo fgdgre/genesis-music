@@ -10,10 +10,11 @@ export const useTracksToasts = () => {
 
     switch (error.status) {
       case 500:
-        message = "Something vent wrong, try again";
+        message = "Server error, try again";
         break;
       case 409:
-        message = "Edit or delete, because his will not save";
+        message =
+          "Edit or delete last changed track(s), because they won't be save";
         break;
       default:
         message = "Something went wrong";

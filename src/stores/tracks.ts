@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import type { Track, TracksMeta } from "@/types";
-import { ref, watchEffect, type DeepReadonly } from "vue";
+import { ref, type DeepReadonly } from "vue";
 import { readonly, type Ref } from "vue";
-import * as api from "@/api";
+import { fetchTracksAPI } from "@/api";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 
 export const useTracksStore = defineStore("tracksStore", () => {
@@ -14,9 +14,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const isLoading = ref(false);
   const isError = ref(false);
   const errorMessage = ref("");
-  const conunt = ref(0);
 
-  // not submitted tracks logic ------------------------------------
   const notSubmittedTracks = ref<Track[]>([]);
 
   const addNotSubmittedTrack = (trackData: DeepReadonly<Track>) => {
@@ -28,7 +26,6 @@ export const useTracksStore = defineStore("tracksStore", () => {
       (t) => t.id !== id,
     );
   };
-  // ---------------------------------------------------------------
 
   const clearErrors = () => {
     isError.value = false;
@@ -58,7 +55,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
     try {
       isLoading.value = true;
 
-      const { data, error } = await api.fetchTracksAPI({
+      const { data, error } = await fetchTracksAPI({
         page: page.value,
         search: search?.value,
         genre: genre?.value,
@@ -82,7 +79,6 @@ export const useTracksStore = defineStore("tracksStore", () => {
     } finally {
       initialized.value = true;
       isLoading.value = false;
-      conunt.value++;
     }
   };
 
@@ -107,16 +103,13 @@ export const useTracksStore = defineStore("tracksStore", () => {
     isLoading: readonly(isLoading),
     isError: readonly(isError),
     errorMessage: readonly(errorMessage),
-    // not submitted
     notSubmittedTracks: readonly(notSubmittedTracks),
-    // -------------
     fetchTracks,
     createTrack,
     updateTrack,
     deleteTrack,
     setErrorMessage,
     clearErrors,
-    // not submitted
     addNotSubmittedTrack,
     deleteNotSubmittedTrack,
   };

@@ -27,6 +27,7 @@ const handleCreateTrack = async (newTrack: DeepReadonly<Track>) => {
     tracksStore.addNotSubmittedTrack(newTrack);
 
     addErrorToast(error);
+    return;
   }
 
   if (data) {

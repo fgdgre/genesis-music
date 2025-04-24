@@ -6,7 +6,6 @@ import { useTracksStore } from "@/stores/tracks";
 import { deleteTrackAPI } from "@/api";
 import type { DeepReadonly } from "vue";
 import { useTracksToasts } from "@/composables/useTracksToasts";
-import { storeToRefs } from "pinia";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -17,7 +16,6 @@ const emit = defineEmits<{
 }>();
 
 const tracksStore = useTracksStore();
-const { notSubmittedTracks } = storeToRefs(tracksStore);
 
 const { addErrorToast, addSuccessToast } = useTracksToasts();
 

@@ -1,6 +1,6 @@
 import type { Toast } from "@/types";
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { readonly, ref } from "vue";
 
 export const useToast = defineStore("toasts", () => {
   const toasts = ref<Toast[]>([]);
@@ -27,7 +27,7 @@ export const useToast = defineStore("toasts", () => {
   };
 
   return {
-    toasts,
+    toasts: readonly(toasts),
     addToast,
     removeToast,
     clearToasts,
