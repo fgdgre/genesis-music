@@ -1,6 +1,9 @@
 import type { Track } from "@/types";
 import type { DeepReadonly } from "vue";
 import { buildQueryForAPI } from "@/utils/buildQueryForAPI";
+// import { BASE_URL } from "./consts";
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const fetchTracksAPI = async ({
   page,
@@ -19,7 +22,8 @@ export const fetchTracksAPI = async ({
 }) => {
   try {
     const response = await fetch(
-      `api/tracks?${buildQueryForAPI({ page, search, genre, artist, order, sort })}`,
+      BASE_URL +
+        `/api/tracks?${buildQueryForAPI({ page, search, genre, artist, order, sort })}`,
     );
 
     if (!response.ok) {
@@ -49,7 +53,9 @@ export const fetchTracksAPI = async ({
 
 export const deleteTrackAPI = async (id: string) => {
   try {
-    const response = await fetch(`api/tracks/${id}`, { method: "DELETE" });
+    const response = await fetch(BASE_URL + `/api/tracks/${id}`, {
+      method: "DELETE",
+    });
 
     if (!response.ok) {
       const responseError = await response.json();
@@ -68,7 +74,7 @@ export const deleteTrackAPI = async (id: string) => {
 
 export const editTrackAPI = async (track: DeepReadonly<Track>) => {
   try {
-    const response = await fetch(`api/tracks/${track.id}`, {
+    const response = await fetch(BASE_URL + `/api/tracks/${track.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -94,7 +100,7 @@ export const editTrackAPI = async (track: DeepReadonly<Track>) => {
 
 export const fetchGenresAPI = async () => {
   try {
-    const response = await fetch("api/genres");
+    const response = await fetch(BASE_URL + "/api/genres");
 
     if (!response.ok) {
       const responseError = await response.json();
@@ -114,7 +120,7 @@ export const fetchGenresAPI = async () => {
 
 export const postTrackAPI = async (track: DeepReadonly<Track>) => {
   try {
-    const response = await fetch("api/tracks", {
+    const response = await fetch(BASE_URL + "/api/tracks", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -138,7 +144,7 @@ export const postTrackAPI = async (track: DeepReadonly<Track>) => {
 
 export const postTrackFileAPI = async (id: string, file: any) => {
   try {
-    const response = await fetch(`api/tracks/${id}/upload`, {
+    const response = await fetch(BASE_URL + `/api/tracks/${id}/upload`, {
       method: "POST",
       body: file,
     });

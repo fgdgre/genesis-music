@@ -18,7 +18,7 @@ const currentPage = defineModel<number>({ default: 1 });
       data-testid="pagination-next"
       :disabled="isLoading"
     >
-      -
+      Previous
     </BaseButton>
     <BaseButton
       v-if="currentPage < totalPages"
@@ -27,7 +27,7 @@ const currentPage = defineModel<number>({ default: 1 });
       data-testid="pagination-prev"
       :disabled="isLoading"
     >
-      +
+      Next
     </BaseButton>
   </div>
 </template>

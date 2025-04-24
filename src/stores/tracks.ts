@@ -1,10 +1,9 @@
 import { defineStore } from "pinia";
 import type { Track, TracksMeta } from "@/types";
-import { ref, useTemplateRef, type DeepReadonly } from "vue";
+import { ref, type DeepReadonly } from "vue";
 import { readonly, type Ref } from "vue";
 import { fetchTracksAPI } from "@/api";
 import { useTracksToasts } from "@/composables/useTracksToasts";
-import { useTemplateRefsList } from "@vueuse/core";
 
 export const useTracksStore = defineStore("tracksStore", () => {
   const { addErrorToast } = useTracksToasts();
@@ -17,7 +16,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const errorMessage = ref("");
 
   const playingTrackId = ref<string | null>(null);
-  const trackRefs = ref<Record<string, any>>({});
+  const trackRefs = ref<any>({});
 
   const addTrackAudioRef = (id: string, el: HTMLAudioElement) => {
     trackRefs.value[id] = el;

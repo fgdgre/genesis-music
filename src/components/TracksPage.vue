@@ -83,7 +83,6 @@ const initializedWithEmptyTracks = computed(
       @create-track="isCreateTrackModalOpen = true"
     />
 
-    <!-- tracks list ------------------------------------------------------------------ -->
     <div v-else class="flex flex-col gap-4 flex-1 max-h-full">
       <div class="flex gap-4 justify-between items-end">
         <TracksFilters @filters-changed="handleFiltersChanged" />
@@ -96,7 +95,6 @@ const initializedWithEmptyTracks = computed(
         </BaseButton>
       </div>
 
-      <!-- track list loading -->
       <div
         v-if="isLoading"
         class="flex flex-col gap-4 justify-center items-center h-full"
