@@ -42,7 +42,7 @@ const schema = z.object({
     .optional(),
 });
 
-const errorMessages = ref({
+const errorMessages = ref<Record<keyof (typeof schema)["shape"], string>>({
   title: "",
   artist: "",
   album: "",
@@ -54,31 +54,21 @@ const handleValidateField = (
   fieldKey: keyof typeof errorMessages.value,
   value: any,
 ) => {
-  const { error } = validateField(value, schema.shape[fieldKey]);
-
-  if (error) {
-    errorMessages.value[fieldKey] = error.errors[0].message;
-  } else {
-    errorMessages.value[fieldKey] = "";
-  }
+  const result = schema.shape[fieldKey].safeParse(value);
+  errorMessages.value[fieldKey] = result.success
+    ? ""
+    : result.error.errors[0].message;
 };
 
-const validateField = (value: any, schema: any) => {
-  return schema.safeParse(value);
-};
-
-const handleValidateForm = (formData: Track, schema: any) => {
-  Object.entries(formData).forEach(([fieldKey, fieldValue]) => {
-    if (Object.keys(schema.shape).includes(fieldKey))
-      handleValidateField(
-        fieldKey as keyof typeof errorMessages.value,
-        fieldValue,
-      );
+const validateForm = (formData: Track) => {
+  Object.keys(schema.shape).forEach((fieldKey) => {
+    const value = formData[fieldKey as keyof Track];
+    handleValidateField(fieldKey as keyof typeof errorMessages.value, value);
   });
 };
 
 const handleSubmit = () => {
-  handleValidateForm(formData.value, schema);
+  validateForm(formData.value);
 
   if (Object.values(errorMessages.value).some((val) => val !== "")) {
     return;
