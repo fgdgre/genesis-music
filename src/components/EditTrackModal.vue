@@ -4,7 +4,7 @@ import type { DeepReadonly } from "vue";
 import AppModal from "./app/AppModal.vue";
 import TrackForm from "./TrackForm.vue";
 import { useTracksStore } from "@/stores/tracks";
-import { postTrackAPI } from "@/api";
+import { editTrackAPI, postTrackAPI } from "@/api";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 
 const props = defineProps<{
@@ -22,11 +22,9 @@ const { addErrorToast, addSuccessToast } = useTracksToasts();
 const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
   emit("close");
 
-  tracksStore.clearPlayingTrackId();
-
   tracksStore.updateTrack(updatedTrack.id, updatedTrack);
 
-  const { data, error } = await postTrackAPI(updatedTrack);
+  const { data, error } = await editTrackAPI(updatedTrack);
 
   if (error) {
     tracksStore.updateTrack(updatedTrack.id, props.track);

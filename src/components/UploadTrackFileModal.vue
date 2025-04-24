@@ -55,8 +55,6 @@ const handleUploadTrackFile = async () => {
   ) {
     emit("close");
 
-    useTracksStore().clearPlayingTrackId();
-
     const formData = new FormData();
     formData.append("file", trackFile.value);
 
