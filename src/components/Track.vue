@@ -28,7 +28,7 @@ const isDeleteTrackFileModal = ref(false);
 
 const toggleTrack = () => {
   if (props.track.audioFile) {
-    tracksStore.handlePauseTrack(props.track.id);
+    tracksStore.togglePlayingTrackId(props.track.id);
   }
 };
 </script>
@@ -198,6 +198,7 @@ const toggleTrack = () => {
     <BaseAudioPlay
       v-if="track.audioFile"
       class="self-end"
+      :playingTrackId
       :trackSource="track.audioFile"
       :trackId="track.id"
     />

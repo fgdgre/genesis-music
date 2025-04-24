@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
-import { ref } from "vue";
-import { watchEffect } from "vue";
+import { ref, useTemplateRef, watch } from "vue";
 
 const props = defineProps<{
   trackSource: string;
@@ -13,13 +12,15 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const tracksStore = useTracksStore();
 
-const { trackRefs } = storeToRefs(tracksStore);
+const { playingTrackId } = storeToRefs(tracksStore);
 
-const trackFile = ref<any>(null);
+const audioPlyerRef = useTemplateRef("audioPlyerRef");
 
-watchEffect(() => {
-  if (trackRefs.value[props.trackId]) {
-    trackFile.value = trackRefs.value[props.trackId];
+watch(playingTrackId, () => {
+  if (playingTrackId.value === props.trackId) {
+    audioPlyerRef.value?.play();
+  } else {
+    audioPlyerRef.value?.pause();
   }
 });
 
@@ -31,8 +32,11 @@ const handlePlay = (e: any) => {
     currentTime.value = e.target.currentTime;
   }
 
-  if (currentTime.value >= trackFile.value.duration) {
-    tracksStore.handlePauseTrack(props.trackId);
+  if (
+    audioPlyerRef.value &&
+    currentTime.value >= audioPlyerRef.value.duration
+  ) {
+    audioPlyerRef.value.pause();
   }
 };
 
@@ -44,8 +48,8 @@ const onSliderInput = (e: Event) => {
 
 const onSliderChange = (e: Event) => {
   const value = parseFloat((e.target as HTMLInputElement).value);
-  if (trackFile.value) {
-    trackFile.value.currentTime = value;
+  if (audioPlyerRef.value) {
+    audioPlyerRef.value.currentTime = value;
   }
   isChangingManually.value = false;
 };
@@ -56,18 +60,16 @@ const onSliderChange = (e: Event) => {
     <audio
       :src="BASE_URL + `/api/files/${trackSource}`"
       preload="metadata"
-      :ref="
-        (el) => tracksStore.addTrackAudioRef(trackId, el as HTMLAudioElement)
-      "
+      ref="audioPlyerRef"
       @timeupdate="handlePlay"
     ></audio>
 
     <input
-      v-if="trackFile"
+      v-if="audioPlyerRef"
       type="range"
       class="w-full transition-all duration-300 ease-linear"
       :step="0.1"
-      :max="trackFile.duration"
+      :max="audioPlyerRef?.duration"
       :value="currentTime"
       @input="onSliderInput"
       @change="onSliderChange"

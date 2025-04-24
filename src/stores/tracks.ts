@@ -16,6 +16,15 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const errorMessage = ref("");
 
   const playingTrackId = ref<string | null>(null);
+
+  const togglePlayingTrackId = (id: string) => {
+    if (playingTrackId.value === id) {
+      playingTrackId.value = null;
+    } else {
+      playingTrackId.value = id;
+    }
+  };
+
   const trackRefs = ref<any>({});
 
   const addTrackAudioRef = (id: string, el: HTMLAudioElement) => {
@@ -122,6 +131,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
     errorMessage: readonly(errorMessage),
     playingTrackId: readonly(playingTrackId),
     trackRefs: readonly(trackRefs),
+    togglePlayingTrackId,
     addTrackAudioRef,
     handlePlayTrack,
     handlePauseTrack,
