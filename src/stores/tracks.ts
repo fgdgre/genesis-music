@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
 import type { Track, TracksMeta } from "@/types";
-import { ref, type DeepReadonly } from "vue";
+import { ref, useTemplateRef, type DeepReadonly } from "vue";
 import { readonly, type Ref } from "vue";
 import { fetchTracksAPI } from "@/api";
 import { useTracksToasts } from "@/composables/useTracksToasts";
+import { useTemplateRefsList } from "@vueuse/core";
 
 export const useTracksStore = defineStore("tracksStore", () => {
   const { addErrorToast } = useTracksToasts();
@@ -15,26 +16,28 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const isError = ref(false);
   const errorMessage = ref("");
 
-  const currentAudioElement = ref<HTMLAudioElement | null>(null);
+  const currentAudioElementId = ref<string | null>(null);
+  const trackRefs = ref<Record<string, any>>({});
 
-  const handlePlayTrack = (e: Event) => {
-    const targetAudio = e.target as HTMLAudioElement;
-
-    if (
-      currentAudioElement.value &&
-      currentAudioElement.value !== targetAudio
-    ) {
-      currentAudioElement.value.pause();
-    }
-
-    currentAudioElement.value = targetAudio;
+  const addTrackAudioRef = (id: string, el: HTMLAudioElement) => {
+    trackRefs.value[id] = el;
   };
 
-  const handlePauseTrack = (e: Event) => {
-    const targetAudio = e.target as HTMLAudioElement;
+  const handlePlayTrack = (trackId: string) => {
+    if (
+      currentAudioElementId.value &&
+      currentAudioElementId.value !== trackId
+    ) {
+      trackRefs.value[currentAudioElementId.value].pause();
+    }
 
-    if (targetAudio === currentAudioElement.value) {
-      currentAudioElement.value = null;
+    trackRefs.value[trackId].play();
+    currentAudioElementId.value = trackId;
+  };
+
+  const handlePauseTrack = (trackId: string) => {
+    if (trackId === currentAudioElementId.value) {
+      currentAudioElementId.value = null;
     }
   };
 
@@ -127,7 +130,9 @@ export const useTracksStore = defineStore("tracksStore", () => {
     isError: readonly(isError),
     errorMessage: readonly(errorMessage),
     notSubmittedTracks: readonly(notSubmittedTracks),
-    currentAudioElement: readonly(currentAudioElement),
+    currentAudioElementId: readonly(currentAudioElementId),
+    trackRefs: readonly(trackRefs),
+    addTrackAudioRef,
     handlePlayTrack,
     handlePauseTrack,
     fetchTracks,

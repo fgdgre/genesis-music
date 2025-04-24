@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, useTemplateRef, watch, watchEffect } from "vue";
 import type { QueryParams } from "@/types";
 import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
@@ -69,6 +69,7 @@ const initializedWithEmptyTracks = computed(
 
 <template>
   <AppHeader title="Tracks page" :is-loading="isLoading && !initialized" />
+
   <main v-if="initialized" class="flex flex-col h-[calc(100svh-61px)] p-6">
     <AppErrorPage
       v-if="initializedWithEmptyTracks && isError"

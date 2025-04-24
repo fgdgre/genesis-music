@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, onMounted } from "vue";
+import { useId, useTemplateRef, onMounted } from "vue";
 
 defineOptions({
   inheritAttrs: false,
@@ -38,7 +38,7 @@ const updateModelValue = (value: string) => {
   }
 };
 
-const id = self.crypto.randomUUID();
+const id = useId();
 
 const inputFieldRef = useTemplateRef("inputFieldRef");
 

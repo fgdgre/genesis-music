@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import type { Track } from "@/types";
 import EditTrackModal from "./EditTrackModal.vue";
-import { computed, ref, type DeepReadonly } from "vue";
+import {
+  computed,
+  ref,
+  useTemplateRef,
+  watch,
+  watchEffect,
+  type DeepReadonly,
+} from "vue";
 import DeleteTrackModal from "./DeleteTrackModal.vue";
 import BaseButton from "./base/BaseButton.vue";
 import { DEFAULT_TRACK_COVER } from "@/consts";
@@ -14,7 +21,7 @@ const props = defineProps<{
 }>();
 
 const tracksStore = useTracksStore();
-const { notSubmittedTracks, currentAudioElement } = storeToRefs(tracksStore);
+const { notSubmittedTracks, currentAudioElementId } = storeToRefs(tracksStore);
 
 const isTrackSubmitted = computed(
   () => !notSubmittedTracks.value.find((t) => t.id === props.track.id),
@@ -26,28 +33,66 @@ const isTrackHaveIncorrectTitle = computed(
       props.track.slug && !isTrackSubmitted.value,
 );
 
+const isTrackPlay = computed(
+  () => currentAudioElementId.value === props.track.id,
+);
+
 const isEditTrackModalOpen = ref(false);
 const isDeleteTrackModalOpen = ref(false);
 const isUploadTrackFileModalOpen = ref(false);
 
-const handlePlayTrack = (e: Event) => {
-  tracksStore.handlePlayTrack(e);
+const handlePlayTrack = () => {
+  tracksStore.handlePlayTrack(props.track.id);
 };
 
-const handlePauseTrack = (e: Event) => {
-  tracksStore.handlePauseTrack(e);
+const handlePauseTrack = () => {
+  tracksStore.handlePauseTrack(props.track.id);
 };
 </script>
 
 <template>
   <div
-    class="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-1"
+    class="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-1 rounded-md cursor-pointer border p-1"
+    @click="handlePlayTrack"
     :data-testid="`track-item-${track.id}`"
   >
-    <img
-      :src="track.coverImage || DEFAULT_TRACK_COVER"
-      class="size-20 shrink-0 rounded-md col-start-1 row-span-2"
-    />
+    <div class="size-20 shrink-0 rounded-md col-start-1 row-span-2 relative">
+      <div
+        class="absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] text-orange-400"
+      >
+        <svg
+          v-if="!isTrackPlay"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          class="size-4"
+        >
+          <path
+            fill="currentColor"
+            d="M21.409 9.353a2.998 2.998 0 0 1 0 5.294L8.597 21.614C6.534 22.737 4 21.277 4 18.968V5.033c0-2.31 2.534-3.769 4.597-2.648z"
+          />
+        </svg>
+
+        <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            d="M16 19q-.825 0-1.412-.587T14 17V7q0-.825.588-1.412T16 5t1.413.588T18 7v10q0 .825-.587 1.413T16 19m-8 0q-.825 0-1.412-.587T6 17V7q0-.825.588-1.412T8 5t1.413.588T10 7v10q0 .825-.587 1.413T8 19"
+          />
+        </svg>
+      </div>
+      <img
+        :src="track.coverImage || DEFAULT_TRACK_COVER"
+        class="h-full rounded-md"
+      />
+    </div>
+
     <div class="flex gap-4 items-center col-start-2 row-start-1">
       <div class="flex gap-4 w-full">
         <div class="flex flex-col">
@@ -140,12 +185,16 @@ const handlePauseTrack = (e: Event) => {
         </BaseButton>
       </div>
     </div>
+
     <audio
+      :ref="
+        (el) => tracksStore.addTrackAudioRef(track.id, el as HTMLAudioElement)
+      "
       class="h-[25px] w-full col-start-2 row-start-2 col-span-full"
       controls
       @play="handlePlayTrack"
       @pause="handlePauseTrack"
-      src="../../public/music/Heartbeat - Childish Gambino.m4a"
+      src="music/Heartbeat-Childish-Gambino.m4a"
     ></audio>
   </div>
 
