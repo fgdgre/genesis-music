@@ -3,12 +3,12 @@ import { useToast } from "@/stores/toast";
 export const useTracksToasts = () => {
   const toastsStore = useToast();
 
-  const addErrorToast = (error: { status: number; message: string }) => {
+  const addErrorToast = (error: { status?: number; message?: string }) => {
     toastsStore.clearToasts();
 
     let message: string;
 
-    switch (error.status) {
+    switch (error?.status) {
       case 500:
         message = "Server error, try again";
         break;
@@ -18,7 +18,7 @@ export const useTracksToasts = () => {
     }
 
     toastsStore.addToast({
-      title: error.message || "Error",
+      title: error?.message || "Error",
       description: message,
       color: "red",
       icon: "warning",

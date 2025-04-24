@@ -18,22 +18,20 @@ const emit = defineEmits<{
 const handleDeleteTrackFile = async () => {
   emit("close");
 
-  if (props.track.audioFile) {
-    const { data, error } = await deleteTrackFileAPI(props.track.id);
+  useTracksStore().updateTrack(props.track.id, {
+    ...props.track,
+    audioFile: undefined,
+  });
 
-    if (error) {
-      useTracksToasts().addErrorToast(error);
-    }
+  const { data, error } = await deleteTrackFileAPI(props.track.id);
 
-    if (data) {
-      console.log(data);
-      useTracksStore().updateTrack(props.track.id, {
-        ...data,
-        audioFile: null,
-      });
+  if (error) {
+    useTracksToasts().addErrorToast(error);
+    useTracksStore().updateTrack(props.track.id, props.track);
+  }
 
-      useTracksToasts().addSuccessToast("deleteFile");
-    }
+  if (data) {
+    useTracksToasts().addSuccessToast("deleteFile");
   }
 };
 </script>
