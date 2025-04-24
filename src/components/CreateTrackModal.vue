@@ -18,6 +18,8 @@ const { addErrorToast, addSuccessToast } = useTracksToasts();
 const handleCreateTrack = async (newTrack: DeepReadonly<Track>) => {
   emit("close");
 
+  tracksStore.clearPlayingTrackId();
+
   tracksStore.createTrack(newTrack);
 
   const { data, error } = await postTrackAPI(newTrack);

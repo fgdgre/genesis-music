@@ -22,6 +22,8 @@ const { addErrorToast, addSuccessToast } = useTracksToasts();
 const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
   emit("close");
 
+  tracksStore.clearPlayingTrackId();
+
   tracksStore.updateTrack(updatedTrack.id, updatedTrack);
 
   const { data, error } = await postTrackAPI(updatedTrack);

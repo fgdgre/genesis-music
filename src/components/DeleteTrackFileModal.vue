@@ -18,6 +18,8 @@ const emit = defineEmits<{
 const handleDeleteTrackFile = async () => {
   emit("close");
 
+  useTracksStore().clearPlayingTrackId();
+
   useTracksStore().updateTrack(props.track.id, {
     ...props.track,
     audioFile: undefined,

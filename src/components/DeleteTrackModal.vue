@@ -22,22 +22,20 @@ const { addErrorToast, addSuccessToast } = useTracksToasts();
 const handleDeleteTrack = async () => {
   emit("close");
 
-  const isExisting = Boolean(props.track.slug);
+  tracksStore.clearPlayingTrackId();
 
   tracksStore.deleteTrack(props.track.id);
 
-  if (isExisting) {
-    const { data, error } = await deleteTrackAPI(props.track.id);
+  const { data, error } = await deleteTrackAPI(props.track.id);
 
-    if (error) {
-      tracksStore.createTrack(props.track);
+  if (error) {
+    tracksStore.createTrack(props.track);
 
-      addErrorToast(error);
-    }
+    addErrorToast(error);
+  }
 
-    if (data) {
-      addSuccessToast("delete");
-    }
+  if (data) {
+    addSuccessToast("delete");
   }
 };
 </script>
