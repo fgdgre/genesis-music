@@ -13,6 +13,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const tracksMeta = ref<TracksMeta | null>(null);
   const isLoading = ref(false);
   const isError = ref(false);
+  const errorMessage = ref("");
 
   // not submitted tracks logic ------------------------------------
   const notSubmittedTracks = ref<Track[]>([]);
@@ -27,6 +28,16 @@ export const useTracksStore = defineStore("tracksStore", () => {
     );
   };
   // ---------------------------------------------------------------
+
+  const clearErrors = () => {
+    isError.value = false;
+    errorMessage.value = "";
+  };
+
+  const setErrorMessage = (message: string) => {
+    isError.value = true;
+    errorMessage.value = message;
+  };
 
   const fetchTracks = async ({
     page,
@@ -46,8 +57,6 @@ export const useTracksStore = defineStore("tracksStore", () => {
     try {
       isLoading.value = true;
 
-      isError.value = false;
-
       const { data, error } = await api.fetchTracksAPI({
         page: page.value,
         search: search?.value,
@@ -58,12 +67,14 @@ export const useTracksStore = defineStore("tracksStore", () => {
       });
 
       if (error) {
-        isError.value = true;
+        setErrorMessage(error.message);
 
         if (initialized.value) {
           addErrorToast(error);
         }
       } else {
+        clearErrors();
+
         tracks.value = data.data;
         tracksMeta.value = data.meta;
       }
@@ -87,22 +98,23 @@ export const useTracksStore = defineStore("tracksStore", () => {
     tracks.value = tracks.value?.filter((t) => t.id !== id);
   };
 
-  watchEffect(() => {
-    console.log(notSubmittedTracks.value);
-  });
-
   return {
+    tracks: readonly(tracks),
+    tracksMeta: readonly(tracksMeta),
+    initialized: readonly(initialized),
+    isLoading: readonly(isLoading),
+    isError: readonly(isError),
+    errorMessage: readonly(errorMessage),
+    // not submitted
+    notSubmittedTracks: readonly(notSubmittedTracks),
+    // -------------
     fetchTracks,
     createTrack,
     updateTrack,
     deleteTrack,
-    initialized,
-    isLoading,
-    isError,
-    tracks: readonly(tracks),
-    tracksMeta: readonly(tracksMeta),
+    setErrorMessage,
+    clearErrors,
     // not submitted
-    notSubmittedTracks: readonly(notSubmittedTracks),
     addNotSubmittedTrack,
     deleteNotSubmittedTrack,
   };

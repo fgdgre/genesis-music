@@ -38,10 +38,6 @@ const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
     } else {
       tracksStore.deleteNotSubmittedTrack(updatedTrack.id);
 
-      if (!notSubmittedTracks.value.length) {
-        tracksStore.isError = false;
-      }
-
       addSuccessToast("edit");
       return;
     }
@@ -51,8 +47,6 @@ const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
   }
 
   if (response?.error) {
-    tracksStore.isError = true;
-
     tracksStore.addNotSubmittedTrack(updatedTrack);
 
     addErrorToast(response.error);
@@ -61,10 +55,6 @@ const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
 
   if (response?.data) {
     tracksStore.deleteNotSubmittedTrack(updatedTrack.id);
-
-    if (!notSubmittedTracks.value.length) {
-      tracksStore.isError = false;
-    }
 
     tracksStore.updateTrack(updatedTrack.id, response.data);
 

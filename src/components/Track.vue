@@ -14,12 +14,13 @@ const props = defineProps<{
 }>();
 
 const tracksStore = useTracksStore();
-const { isError } = storeToRefs(tracksStore);
+const { notSubmittedTracks } = storeToRefs(tracksStore);
 
 const isTrackHaveIncorrectTitle = computed(
   () =>
     props.track.title.trim().toLowerCase().replace(/\s+/g, "-") !==
-      props.track.slug && isError.value,
+      props.track.slug &&
+    notSubmittedTracks.value.find((t) => t.id === props.track.id),
 );
 
 const isEditTrackModalOpen = ref(false);

@@ -14,7 +14,7 @@ import BaseButton from "./base/BaseButton.vue";
 
 const tracksStore = useTracksStore();
 
-const { isLoading, isError, initialized, tracks, tracksMeta } =
+const { isLoading, isError, errorMessage, initialized, tracks, tracksMeta } =
   storeToRefs(tracksStore);
 
 const isCreateTrackModalOpen = ref(false);
@@ -66,9 +66,12 @@ const noFiltersSelected = computed(
 
 <template>
   <AppHeader title="Tracks page" :is-loading="isLoading && !initialized" />
-
   <main v-if="initialized" class="flex flex-col h-[calc(100svh-61px)] p-6">
-    <AppErrorPage v-if="isError && !initialized" @refetch="fetchTracks" />
+    <AppErrorPage
+      v-if="isError"
+      :error-message="errorMessage"
+      @refetch="fetchTracks"
+    />
 
     <AppEmptyScreen
       v-else-if="noFiltersSelected && !isLoading && tracks?.length === 0"

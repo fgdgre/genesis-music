@@ -32,8 +32,6 @@ const handleDeleteTrack = async () => {
     const { data, error } = await deleteTrackAPI(props.track.id);
 
     if (error) {
-      tracksStore.isError = true;
-
       tracksStore.createTrack(props.track);
 
       addErrorToast(error);
@@ -41,10 +39,6 @@ const handleDeleteTrack = async () => {
 
     if (data) {
       tracksStore.deleteNotSubmittedTrack(props.track.id);
-
-      if (!notSubmittedTracks.value.length) {
-        tracksStore.isError = false;
-      }
 
       addSuccessToast("delete");
     }

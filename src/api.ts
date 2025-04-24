@@ -23,10 +23,19 @@ export const fetchTracksAPI = async ({
     );
 
     if (!response.ok) {
-      const responseError = await response.json();
+      let responseError: any = "Unknown error";
+      const contentType = response.headers.get("content-type");
+
+      if (contentType && contentType.includes("application/json")) {
+        const errorBody = await response.json();
+        responseError = errorBody?.error || JSON.stringify(errorBody);
+      } else {
+        responseError = response.statusText;
+      }
+
       throw {
         status: response.status,
-        message: responseError.error || "Unknown error",
+        message: responseError,
       };
     }
 

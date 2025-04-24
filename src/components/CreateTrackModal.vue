@@ -24,8 +24,6 @@ const handleCreateTrack = async (newTrack: DeepReadonly<Track>) => {
   const { data, error } = await postTrackAPI(newTrack);
 
   if (error) {
-    tracksStore.isError = true;
-
     tracksStore.addNotSubmittedTrack(newTrack);
 
     addErrorToast(error);
