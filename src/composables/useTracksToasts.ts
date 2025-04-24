@@ -57,5 +57,9 @@ export const useTracksToasts = () => {
     });
   };
 
-  return { addErrorToast, addSuccessToast };
+  const clearToasts = () => {
+    useToast().clearToasts();
+  };
+
+  return { addErrorToast, addSuccessToast, clearToasts };
 };

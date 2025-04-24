@@ -276,33 +276,31 @@ const toggleItem = (item: string) => {
             </div>
           </template>
 
-          <template v-else>
-            <div
-              v-if="isEmpty"
-              class="flex items-center justify-center gap-2 text-center p-3 flex-1 text-sm"
-            >
-              {{ emptyMessage || "No items" }}
-            </div>
+          <div
+            v-if="isEmpty"
+            class="flex items-center justify-center gap-2 text-center p-3 flex-1 text-sm"
+          >
+            {{ emptyMessage || "No items" }}
+          </div>
 
-            <div
-              v-if="isLoading"
-              class="flex items-center justify-center gap-2 text-center p-3 flex-1 text-sm"
+          <div
+            v-if="isLoading"
+            class="flex items-center justify-center gap-2 text-center p-3 flex-1 text-sm"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="animate-spin text-inherit size-4"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="animate-spin text-inherit size-4"
-              >
-                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-              </svg>
-              {{ loadingMessage || "Loading items" }}
-            </div>
-          </template>
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+            {{ loadingMessage || "Loading items" }}
+          </div>
         </DropdownMenuContent>
       </DropdownMenuPortal>
     </div>

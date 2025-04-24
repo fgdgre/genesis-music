@@ -1,4 +1,4 @@
-import { onMounted, ref, watchEffect } from "vue";
+import { ref, watchEffect } from "vue";
 import { fetchGenresAPI } from "@/api";
 
 export const useFetchGenres = () => {

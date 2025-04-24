@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { fetchGenresAPI } from "@/api";
 import { ref, watchEffect } from "vue";
 import BaseSelect from "./base/BaseSelect.vue";
+import { useFetchGenres } from "@/composables/useFetchGenres";
+import type { DropdownItem } from "@/types";
 
 defineProps<{
   label?: string;
@@ -21,26 +22,17 @@ defineEmits<{
 
 const genres = defineModel<string>({ required: true });
 
-const trackGenresItems = ref([]);
-const isLoading = ref(false);
+const { genres: genresItems, isLoading } = useFetchGenres();
 
-const fetchTackGenres = async () => {
-  try {
-    isLoading.value = true;
+const trackGenresItems = ref<DropdownItem[]>([]);
 
-    const { data: genres } = await fetchGenresAPI();
-
-    trackGenresItems.value = genres?.map((genre: string) => ({
+watchEffect(() => {
+  if (genresItems.value) {
+    trackGenresItems.value = genresItems.value.map((genre: string) => ({
       label: genre,
       value: genre.toLowerCase(),
     }));
-  } finally {
-    isLoading.value = false;
   }
-};
-
-watchEffect(() => {
-  fetchTackGenres();
 });
 </script>
 
@@ -51,6 +43,7 @@ watchEffect(() => {
     @update:modelValue="(v) => $emit('update:modelValue', v)"
     @blur="(e) => $emit('blur', e)"
     :error-message="errorMessage"
+    :empty-message="emptyMessage"
     :is-loading="isLoading"
     :is-empty="trackGenresItems?.length === 0 && !isLoading"
     :label
