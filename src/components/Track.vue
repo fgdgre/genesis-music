@@ -1,14 +1,7 @@
 <script setup lang="ts">
 import type { Track } from "@/types";
 import EditTrackModal from "./EditTrackModal.vue";
-import {
-  computed,
-  ref,
-  useTemplateRef,
-  watch,
-  watchEffect,
-  type DeepReadonly,
-} from "vue";
+import { computed, ref, type DeepReadonly } from "vue";
 import DeleteTrackModal from "./DeleteTrackModal.vue";
 import BaseButton from "./base/BaseButton.vue";
 import { DEFAULT_TRACK_COVER } from "@/consts";
@@ -21,7 +14,8 @@ const props = defineProps<{
 }>();
 
 const tracksStore = useTracksStore();
-const { notSubmittedTracks, currentAudioElementId } = storeToRefs(tracksStore);
+const { notSubmittedTracks, currentAudioElementId, trackRefs } =
+  storeToRefs(tracksStore);
 
 const isTrackSubmitted = computed(
   () => !notSubmittedTracks.value.find((t) => t.id === props.track.id),
@@ -41,22 +35,24 @@ const isEditTrackModalOpen = ref(false);
 const isDeleteTrackModalOpen = ref(false);
 const isUploadTrackFileModalOpen = ref(false);
 
-const handlePlayTrack = () => {
-  tracksStore.handlePlayTrack(props.track.id);
-};
+// const handleToggleTrack = () => {
+//   isTrackPlay.value ?
+// }
 
-const handlePauseTrack = () => {
+const toggleTrack = () => {
   tracksStore.handlePauseTrack(props.track.id);
 };
 </script>
 
 <template>
   <div
-    class="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-1 rounded-md cursor-pointer border p-1"
-    @click="handlePlayTrack"
+    class="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-1 rounded-md cursor-pointer border p-1 hover:bg-gray-100 transition-colors"
+    @click="toggleTrack"
     :data-testid="`track-item-${track.id}`"
   >
-    <div class="size-20 shrink-0 rounded-md col-start-1 row-span-2 relative">
+    <div
+      class="size-20 shrink-0 rounded-md col-start-1 row-span-2 relative select-none"
+    >
       <div
         class="absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] text-orange-400"
       >
@@ -186,16 +182,24 @@ const handlePauseTrack = () => {
       </div>
     </div>
 
-    <audio
-      :ref="
-        (el) => tracksStore.addTrackAudioRef(track.id, el as HTMLAudioElement)
-      "
-      class="h-[25px] w-full col-start-2 row-start-2 col-span-full"
-      controls
-      @play="handlePlayTrack"
-      @pause="handlePauseTrack"
-      src="music/Heartbeat-Childish-Gambino.m4a"
-    ></audio>
+    <div class="self-end">
+      <audio
+        :ref="
+          (el) => tracksStore.addTrackAudioRef(track.id, el as HTMLAudioElement)
+        "
+        class="hidden"
+        src="music/Heartbeat-Childish-Gambino.m4a"
+      ></audio>
+      <input
+        v-if="trackRefs[track.id]"
+        type="range"
+        class="w-full focus:outline-none"
+        @click.stop
+        :max="trackRefs[track.id].duration"
+        v-model="trackRefs[track.id].currentTime"
+        @change="trackRefs[track.id].seekAudio"
+      />
+    </div>
   </div>
 
   <EditTrackModal

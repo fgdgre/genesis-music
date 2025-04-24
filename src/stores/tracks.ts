@@ -31,13 +31,20 @@ export const useTracksStore = defineStore("tracksStore", () => {
       trackRefs.value[currentAudioElementId.value].pause();
     }
 
-    trackRefs.value[trackId].play();
-    currentAudioElementId.value = trackId;
+    handlePauseTrack(trackId);
   };
 
   const handlePauseTrack = (trackId: string) => {
     if (trackId === currentAudioElementId.value) {
+      trackRefs.value[currentAudioElementId.value].pause();
       currentAudioElementId.value = null;
+    } else {
+      if (currentAudioElementId.value) {
+        trackRefs.value[currentAudioElementId.value].pause();
+      }
+
+      trackRefs.value[trackId].play();
+      currentAudioElementId.value = trackId;
     }
   };
 
