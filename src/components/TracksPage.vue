@@ -65,10 +65,13 @@ const noFiltersSelected = computed(
 </script>
 
 <template>
+  {{ isError }}
+  {{ noFiltersSelected }}
+  {{ !isLoading }}
   <AppHeader title="Tracks page" :is-loading="isLoading && !initialized" />
   <main v-if="initialized" class="flex flex-col h-[calc(100svh-61px)] p-6">
     <AppErrorPage
-      v-if="isError"
+      v-if="isError && noFiltersSelected"
       :error-message="errorMessage"
       @refetch="fetchTracks"
     />

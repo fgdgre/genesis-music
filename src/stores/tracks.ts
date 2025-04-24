@@ -14,6 +14,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const isLoading = ref(false);
   const isError = ref(false);
   const errorMessage = ref("");
+  const conunt = ref(0);
 
   // not submitted tracks logic ------------------------------------
   const notSubmittedTracks = ref<Track[]>([]);
@@ -66,11 +67,11 @@ export const useTracksStore = defineStore("tracksStore", () => {
         sort: sort?.value,
       });
 
-      if (error) {
-        setErrorMessage(error.message);
+      if (error || conunt.value === 1) {
+        setErrorMessage("error.message");
 
         if (initialized.value) {
-          addErrorToast(error);
+          addErrorToast({ status: 500, message: "error" });
         }
       } else {
         clearErrors();
@@ -81,6 +82,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
     } finally {
       initialized.value = true;
       isLoading.value = false;
+      conunt.value++;
     }
   };
 
