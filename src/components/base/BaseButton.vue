@@ -6,6 +6,7 @@ withDefaults(
     transparent?: boolean;
     type?: "button" | "submit";
     isLoading?: boolean;
+    square?: boolean;
   }>(),
   {
     type: "button",
@@ -20,13 +21,14 @@ defineEmits<{
 
 <template>
   <button
-    class="flex gap-x-[5px] items-center justify-center rounded-md w-fit select-none transition-colors px-4 py-2 h-9 pointer-events-auto font-medium text-sm cursor-pointer"
+    class="flex gap-x-[5px] items-center justify-center rounded-md w-fit select-none transition-colors pointer-events-auto font-medium text-sm cursor-pointer h-9"
     :class="[
       color === 'red' && 'bg-red-400 text-[#18181b] hover:bg-red-400/80',
       color === 'black' && 'bg-black text-white hover:bg-black/80',
       color === 'yellow' && 'bg-yellow-400 text-black hover:bg-yellow-400/80',
       color === 'green' && 'bg-green-400 text-black hover:bg-green-400/80',
       transparent && 'bg-transparent !text-black hover:bg-transparent',
+      square ? 'p-2' : 'px-4 py-2',
       (disabled || isLoading) && 'opacity-70',
     ]"
     :disabled="disabled || isLoading"

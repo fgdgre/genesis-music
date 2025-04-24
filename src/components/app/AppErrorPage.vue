@@ -3,6 +3,7 @@ import BaseButton from "../base/BaseButton.vue";
 
 defineProps<{
   errorMessage?: string;
+  isLoading?: boolean;
 }>();
 
 defineEmits<{
@@ -13,6 +14,6 @@ defineEmits<{
 <template>
   <div class="flex flex-col gap-4 justify-center items-center h-full">
     <p class="text-red-400">{{ errorMessage || "Something went wrong" }}</p>
-    <BaseButton @click="$emit('refetch')"> Refetch </BaseButton>
+    <BaseButton @click="$emit('refetch')" :isLoading> Refetch </BaseButton>
   </div>
 </template>

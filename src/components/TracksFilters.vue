@@ -43,7 +43,6 @@ const orderSelectItems = [
         v-model="queryParams.search"
         @update:model-value="$emit('filtersChanged', queryParams)"
         data-testid="search-input"
-        :disabled="isLoading"
       />
 
       <GenresSelect
@@ -53,7 +52,6 @@ const orderSelectItems = [
         @update:model-value="$emit('filtersChanged', queryParams)"
         class="min-w-[150px]"
         data-testid="filter-genre"
-        :disabled="isLoading"
       />
 
       <BaseInput
@@ -63,7 +61,6 @@ const orderSelectItems = [
         v-model="queryParams.artist"
         @update:model-value="$emit('filtersChanged', queryParams)"
         data-testid="filter-artist"
-        :disabled="isLoading"
       />
 
       <BaseSelect
@@ -74,7 +71,6 @@ const orderSelectItems = [
         @update:model-value="$emit('filtersChanged', queryParams)"
         class="min-w-[150px]"
         data-testid="sort-select"
-        :disabled="isLoading"
       />
 
       <BaseSelect
@@ -84,7 +80,6 @@ const orderSelectItems = [
         v-model="queryParams.order"
         @update:model-value="$emit('filtersChanged', queryParams)"
         class="min-w-[150px]"
-        :disabled="isLoading"
       />
     </div>
   </div>

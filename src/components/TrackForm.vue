@@ -67,7 +67,7 @@ const validateField = (value: any, schema: any) => {
   return schema.safeParse(value);
 };
 
-const validateForm = (formData: Track, schema: any) => {
+const handleValidateForm = (formData: Track, schema: any) => {
   Object.entries(formData).forEach(([fieldKey, fieldValue]) => {
     if (Object.keys(schema.shape).includes(fieldKey))
       handleValidateField(
@@ -78,7 +78,7 @@ const validateForm = (formData: Track, schema: any) => {
 };
 
 const handleSubmit = () => {
-  validateForm(formData.value, schema);
+  handleValidateForm(formData.value, schema);
 
   if (Object.values(errorMessages.value).some((val) => val !== "")) {
     return;

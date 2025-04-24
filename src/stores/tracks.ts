@@ -67,11 +67,11 @@ export const useTracksStore = defineStore("tracksStore", () => {
         sort: sort?.value,
       });
 
-      if (error || conunt.value === 1) {
-        setErrorMessage("error.message");
+      if (error) {
+        setErrorMessage(error.message);
 
         if (initialized.value) {
-          addErrorToast({ status: 500, message: "error" });
+          addErrorToast(error);
         }
       } else {
         clearErrors();

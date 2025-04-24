@@ -25,11 +25,11 @@ const artist = ref("");
 const genre = ref("");
 const sort = ref<"title" | "artist" | "album" | "createdAt" | "">("");
 
-const currentPage = ref(1);
+const page = ref(1);
 
 const fetchTracks = () => {
   tracksStore.fetchTracks({
-    page: currentPage,
+    page,
     search,
     order,
     artist,
@@ -39,7 +39,7 @@ const fetchTracks = () => {
 };
 
 const handleFiltersChanged = (filters: QueryParams) => {
-  currentPage.value = 1;
+  page.value = 1;
 
   search.value = filters.search;
   order.value = filters.order;
@@ -51,33 +51,34 @@ const handleFiltersChanged = (filters: QueryParams) => {
 };
 
 watch(
-  currentPage,
+  page,
   () => {
     fetchTracks();
   },
   { immediate: true },
 );
 
-const noFiltersSelected = computed(
-  () =>
-    !search.value && !artist.value && !genre.value && currentPage.value === 1,
+const filtersEmpty = computed(
+  () => !search.value && !artist.value && !genre.value && page.value === 1,
+);
+
+const initializedWithEmptyTracks = computed(
+  () => filtersEmpty.value && tracks.value?.length === 0,
 );
 </script>
 
 <template>
-  {{ isError }}
-  {{ noFiltersSelected }}
-  {{ !isLoading }}
   <AppHeader title="Tracks page" :is-loading="isLoading && !initialized" />
   <main v-if="initialized" class="flex flex-col h-[calc(100svh-61px)] p-6">
     <AppErrorPage
-      v-if="isError && noFiltersSelected"
+      v-if="initializedWithEmptyTracks && isError"
       :error-message="errorMessage"
       @refetch="fetchTracks"
+      :is-loading="isLoading"
     />
 
     <AppEmptyScreen
-      v-else-if="noFiltersSelected && !isLoading && tracks?.length === 0"
+      v-else-if="initializedWithEmptyTracks && !isLoading"
       @create-track="isCreateTrackModalOpen = true"
     />
 
@@ -122,7 +123,7 @@ const noFiltersSelected = computed(
 
       <AppPagination
         v-if="tracksMeta?.totalPages && tracks.length"
-        v-model="currentPage"
+        v-model="page"
         :total-pages="tracksMeta.totalPages"
         :is-loading="isLoading"
       />

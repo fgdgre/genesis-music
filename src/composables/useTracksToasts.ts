@@ -9,6 +9,9 @@ export const useTracksToasts = () => {
     let message: string;
 
     switch (error.status) {
+      case 500:
+        message = "Something vent wrong, try again";
+        break;
       case 409:
         message = "Edit or delete, because his will not save";
         break;
@@ -18,7 +21,7 @@ export const useTracksToasts = () => {
     }
 
     toastsStore.addToast({
-      title: error.message,
+      title: error.message || "Error",
       description: message,
       color: "red",
       icon: "warning",
