@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import type { Track, TracksMeta } from "@/types";
 import { ref, type DeepReadonly } from "vue";
 import { readonly, type Ref } from "vue";
-import { fetchTracksAPI } from "@/api";
+import { fetchTracksAPI } from "@/entities/tracks";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 
 export const useTracksStore = defineStore("tracksStore", () => {
@@ -47,7 +47,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
     try {
       isLoading.value = true;
 
-      const { data, error } = await fetchTracksAPI({
+      const tracksResponse = await fetchTracksAPI({
         page: page.value,
         search: search?.value,
         genre: genre?.value,
@@ -56,17 +56,17 @@ export const useTracksStore = defineStore("tracksStore", () => {
         sort: sort?.value,
       });
 
-      if (error) {
-        setErrorMessage("error.message");
+      if (!tracksResponse.ok) {
+        setErrorMessage(tracksResponse.error.message);
 
         if (initialized.value) {
-          addErrorToast(error);
+          addErrorToast(tracksResponse.error);
         }
       } else {
         clearErrors();
 
-        tracks.value = data.data;
-        tracksMeta.value = data.meta;
+        tracks.value = tracksResponse.data.data;
+        tracksMeta.value = tracksResponse.data.meta;
       }
     } finally {
       initialized.value = true;

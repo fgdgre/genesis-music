@@ -8,6 +8,6 @@ export const api = createApiClient(BASE_URL, {
     retries: 2,
     minDelayMs: 300,
     maxDelayMs: 1000,
-    retryOn: "network-or-5xx",
+    retryOn: "NETWORK",
   },
 });

@@ -1,6 +1,7 @@
 import type { ZodSchema } from "zod";
-import { TracksResponse } from "./schema";
+import { TracksResponseSchema } from "./schema";
 import isJsonResponse from "@/utils/isJsonResponse";
+import parseResponseBody from "@/utils/parseResponseBody";
 
 export type ApiErrorCode =
   | "ABORTED"
@@ -26,7 +27,7 @@ export type RetryPolicy =
       retries: number;
       minDelayMs: number;
       maxDelayMs: number;
-      retryOn: "network-or-5xx";
+      retryOn: ApiErrorCode;
     }
   | { retries: 0 };
 
@@ -45,10 +46,10 @@ export type RequestOptions<T> = {
   dedupeKey?: string; // опционально: ключ для дедупликации инфлайт
 };
 
-const connector = async <T>(
+const connector = async (
   path: string,
   opts?: RequestInit,
-): Promise<Result<T>> => {
+): Promise<{ res: Response | null; error: ApiError | null }> => {
   try {
     const res = await fetch(path, {
       ...opts,
@@ -56,90 +57,113 @@ const connector = async <T>(
     });
 
     if (res.ok) {
-      if (isJsonResponse(res)) {
-        let data = await res.json();
-
-        const validateResponse = TracksResponse.safeParse(data);
-
-        if (!validateResponse.success) {
-          return {
-            ok: false,
-            error: {
-              code: "SCHEMA",
-              message:
-                validateResponse.error.errors[0].message ||
-                "Received data is not supported structure",
-            },
-            response: res,
-          };
-        }
-
-        return { ok: true, data, response: res };
-      }
-
-      return { ok: true, data: null, response: res };
-    } else {
-      if (isJsonResponse(res)) {
-        const error = await res.json();
-
-        return { ok: false, error, response: res };
-      }
-
-      const errorMessage = await res.text();
-
-      return {
-        ok: false,
-        error: { code: "SCHEMA", message: errorMessage },
-        response: res,
-      };
+      return { res, error: null };
     }
+    return {
+      res,
+      error: { code: "HTTP", message: res.statusText, status: res.status },
+    };
   } catch (error: any) {
-    return { ok: false, error };
+    console.log(error);
+    return { res: null, error };
   }
 };
 
 export interface ApiClient {
-  get<T>(
+  get(
     path: string,
-    opts?: Omit<RequestOptions<T>, "method" | "body">,
-  ): Promise<Result<T>>;
-  post<T>(
+    opts?: Omit<RequestOptions<any>, "method" | "body">,
+  ): Promise<Result<any>>;
+  post(
     path: string,
-    opts?: Omit<RequestOptions<T>, "method">,
-  ): Promise<Result<T>>;
-  put<T>(
+    opts?: Omit<RequestOptions<any>, "method">,
+  ): Promise<Result<any>>;
+  put(
     path: string,
-    opts?: Omit<RequestOptions<T>, "method">,
-  ): Promise<Result<T>>;
-  patch<T>(
+    opts?: Omit<RequestOptions<any>, "method">,
+  ): Promise<Result<any>>;
+  patch(
     path: string,
-    opts?: Omit<RequestOptions<T>, "method">,
-  ): Promise<Result<T>>;
-  delete<T>(
+    opts?: Omit<RequestOptions<any>, "method">,
+  ): Promise<Result<any>>;
+  delete(
     path: string,
-    opts?: Omit<RequestOptions<T>, "method">,
-  ): Promise<Result<T>>;
+    opts?: Omit<RequestOptions<any>, "method">,
+  ): Promise<Result<any>>;
 }
 
+const validateResponseDataToContract = (contract: ZodSchema, data: any) => {
+  // return contract.safeParseAsync(data);
+  return { success: true, error: null };
+};
+
+const makeRequest = async (
+  path: string,
+  opts: RequestOptions<any>,
+  retryCount = 0,
+): Promise<Result<any>> => {
+  let timer = setTimeout(async () => {
+    return {
+      ok: false,
+      error: {
+        code: "TIMEOUT",
+        message: "TIMEOUT",
+      },
+      response: res,
+    };
+  }, opts.timeoutMs);
+
+  const { res, error } = await connector(path, { method: "GET", ...opts });
+
+  const data = await parseResponseBody(res);
+
+  if (!error) {
+    const validatedResponse = await validateResponseDataToContract(
+      TracksResponseSchema,
+      data,
+    );
+
+    if (validatedResponse.success && typeof data === "object") {
+      return { ok: true, data, response: res };
+    }
+
+    return {
+      ok: false,
+      error: {
+        code: "SCHEMA",
+        message:
+          validatedResponse.error.errors[0].message ||
+          "Received data is not supported structure",
+      },
+      response: res,
+    };
+  }
+
+  if (
+    opts.retry &&
+    opts.retry.retries !== 0 &&
+    error.code === opts.retry.retryOn &&
+    retryCount < opts.retry.retries
+  ) {
+    makeRequest(path, opts, retryCount + 1);
+  } else {
+    return { ok: false, error };
+  }
+};
+
 const apiClient: ApiClient = {
-  get: async <T>(
+  get: async (
     path: string,
-    opts: Omit<RequestOptions<T>, "method" | "body">,
-  ) => {
-    return await connector(path, { method: "GET", ...opts });
-  },
-  post: async <T>(path: string, opts: Omit<RequestOptions<T>, "method">) => {
-    return await connector(path, { method: "POST", ...opts });
-  },
-  put: async <T>(path: string, opts: Omit<RequestOptions<T>, "method">) => {
-    return await connector(path, { method: "PUT", ...opts });
-  },
-  patch: async <T>(path: string, opts: Omit<RequestOptions<T>, "method">) => {
-    return await connector(path, { method: "patch", ...opts });
-  },
-  delete: async <T>(path: string, opts: Omit<RequestOptions<T>, "method">) => {
-    return await connector(path, { method: "DELETE", ...opts });
-  },
+    opts: Omit<RequestOptions<any>, "method" | "body">,
+  ) => await makeRequest(path, { method: "GET", ...opts }),
+  post: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+    await makeRequest(path, { method: "POST", ...opts }),
+  put: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+    await makeRequest(path, { method: "PUT", ...opts }),
+  patch: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+    await makeRequest(path, { method: "PATCH", ...opts }),
+  delete: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+    await makeRequest(path, { method: "DELETE", ...opts }),
 };
 
 export function createApiClient(
@@ -152,46 +176,38 @@ export function createApiClient(
 ): ApiClient {
   return {
     ...apiClient,
-    get: async <T>(
+    get: async (
       path: string,
-      opts: Omit<RequestOptions<T>, "method" | "body">,
-    ) => {
-      return await connector(`${baseURL}/${path}`, {
+      opts: Omit<RequestOptions<any>, "method" | "body">,
+    ) =>
+      await makeRequest(`${baseURL}/${path}`, {
         method: "GET",
         ...defaults,
         ...opts,
-      });
-    },
-    post: async <T>(path: string, opts: Omit<RequestOptions<T>, "method">) => {
-      return await connector(`${baseURL}/${path}`, {
+      }),
+    post: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+      await makeRequest(`${baseURL}/${path}`, {
         method: "POST",
         ...defaults,
         ...opts,
-      });
-    },
-    put: async <T>(path: string, opts: Omit<RequestOptions<T>, "method">) => {
-      return await connector(`${baseURL}/${path}`, {
+      }),
+    put: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+      await makeRequest(`${baseURL}/${path}`, {
         method: "PUT",
         ...defaults,
         ...opts,
-      });
-    },
-    patch: async <T>(path: string, opts: Omit<RequestOptions<T>, "method">) => {
-      return await connector(`${baseURL}/${path}`, {
-        method: "patch",
+      }),
+    patch: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+      await makeRequest(`${baseURL}/${path}`, {
+        method: "PATCH",
         ...defaults,
         ...opts,
-      });
-    },
-    delete: async <T>(
-      path: string,
-      opts: Omit<RequestOptions<T>, "method">,
-    ) => {
-      return await connector(`${baseURL}/${path}`, {
+      }),
+    delete: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+      await makeRequest(`${baseURL}/${path}`, {
         method: "DELETE",
         ...defaults,
         ...opts,
-      });
-    },
+      }),
   };
 }

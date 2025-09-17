@@ -1,6 +1,7 @@
-import { z } from "zod";
+import Track from "@/components/Track.vue";
+import * as z from "zod";
 
-export const Track = z.object({
+export const TrackSchema = z.object({
   id: z.string(),
   title: z.string(),
   artist: z.string(),
@@ -9,7 +10,7 @@ export const Track = z.object({
   coverImage: z.string().url().or(z.string().startsWith("data:")),
 });
 
-export const TracksResponse = z.object({
+export const TracksResponseSchema = z.object({
   data: z.array(Track),
   meta: z.object({
     total: z.number(),
@@ -18,4 +19,4 @@ export const TracksResponse = z.object({
   }),
 });
 
-export type TracksResponseT = z.infer<typeof TracksResponse>;
+export type TracksResponseT = z.infer<typeof TracksResponseSchema>;
