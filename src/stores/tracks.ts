@@ -59,7 +59,9 @@ export const useTracksStore = defineStore("tracksStore", () => {
       if (!tracksResponse.ok) {
         setErrorMessage(tracksResponse.error.message);
 
+        page.value = 0;
         if (initialized.value) {
+          page.value = 0;
           addErrorToast(tracksResponse.error);
         }
       } else {

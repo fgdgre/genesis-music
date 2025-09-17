@@ -65,21 +65,16 @@ const connector = async (
       ...(opts?.body ? { body: JSON.stringify(opts.body) } : {}),
     });
 
-    console.log(res);
-
     if (res.ok) {
       console.log(1);
       return { res, error: null };
     }
 
-    console.log(res);
-    console.log(2);
     return {
       res,
       error: { code: getErrorCode(res.status), message: res.statusText },
     };
   } catch (error: any) {
-    console.log(3);
     console.log(error);
     return { res: null, error };
   }
@@ -162,19 +157,19 @@ async function makeRequest(
       if (validatedResponse.success && typeof data === "object") {
         clearTimeout(timer);
         return { ok: true, data, response: res };
+      } else {
+        clearTimeout(timer);
+        return {
+          ok: false,
+          error: {
+            code: "SCHEMA",
+            message:
+              validatedResponse.error?.errors[0].message ||
+              "Received data is not supported structure",
+          },
+          response: res,
+        };
       }
-
-      clearTimeout(timer);
-      return {
-        ok: false,
-        error: {
-          code: "SCHEMA",
-          message:
-            validatedResponse.error?.errors[0].message ||
-            "Received data is not supported structure",
-        },
-        response: res,
-      };
     }
   }
 }
