@@ -1,9 +1,11 @@
 import isJsonResponse from "./isJsonResponse";
 
 export default async function parseResponseBody<T>(
-  res: Response,
+  res: Response | null,
   mode: "json" | "text" | "blob" = "json",
-): Promise<string | T | Blob> {
+): Promise<string | T | Blob | null> {
+  if (!res) return null;
+
   if (res.status === 204 || res.status === 205) return null;
 
   if (mode === "json") {

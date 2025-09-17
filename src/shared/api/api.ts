@@ -1,6 +1,5 @@
 import type { ZodSchema } from "zod";
 import { TracksResponseSchema } from "./schema";
-import isJsonResponse from "@/utils/isJsonResponse";
 import parseResponseBody from "@/utils/parseResponseBody";
 
 export type ApiErrorCode =
@@ -18,22 +17,20 @@ export type ApiError = {
   details?: unknown; // например, ZodIssue[] для SCHEMA
 };
 
-export type Ok<T> = { ok: true; data: T; response: Response };
+export type Ok = { ok: true; data: any; response?: Response };
 export type Fail = { ok: false; error: ApiError; response?: Response };
-export type Result<T> = Ok<T> | Fail;
+export type Result = Ok | Fail;
 
-export type RetryPolicy =
-  | {
-      retries: number;
-      minDelayMs: number;
-      maxDelayMs: number;
-      retryOn: ApiErrorCode;
-    }
-  | { retries: 0 };
+export type RetryPolicy = {
+  retries: number;
+  minDelayMs: number;
+  maxDelayMs: number;
+  retryOn: ApiErrorCode[];
+};
 
 export type ParseMode = "json" | "text" | "blob"; // default: 'json'
 
-export type RequestOptions<T> = {
+export type RequestOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   query?: Record<string, unknown>; // сериализуй корректно: массивы, null/undefined
   body?: any; // если передан объект — JSON.stringify + header
@@ -41,29 +38,48 @@ export type RequestOptions<T> = {
   timeoutMs?: number; // default: 8000
   signal?: AbortSignal; // должен учитываться
   retry?: RetryPolicy; // см. поведение ниже
-  schema?: ZodSchema<T>; // если задана — валидируй data через schema
+  schema?: ZodSchema<any>; // если задана — валидируй data через schema
   parse?: ParseMode; // default: 'json'
   dedupeKey?: string; // опционально: ключ для дедупликации инфлайт
+};
+
+const getErrorCode = (errorCode: number) => {
+  console.log(errorCode);
+  const errorCodeString = errorCode?.toString();
+  if (errorCodeString?.startsWith("5")) {
+    return "NETWORK";
+  } else if (errorCodeString?.startsWith("4")) {
+    return "HTTP";
+  } else if (errorCodeString?.startsWith("2")) {
+    return "";
+  }
 };
 
 const connector = async (
   path: string,
   opts?: RequestInit,
-): Promise<{ res: Response | null; error: ApiError | null }> => {
+): Promise<{ res: Response | null; error: any | null }> => {
   try {
     const res = await fetch(path, {
       ...opts,
-      ...(opts.body ? { body: JSON.stringify(opts.body) } : {}),
+      ...(opts?.body ? { body: JSON.stringify(opts.body) } : {}),
     });
 
+    console.log(res);
+
     if (res.ok) {
+      console.log(1);
       return { res, error: null };
     }
+
+    console.log(res);
+    console.log(2);
     return {
       res,
-      error: { code: "HTTP", message: res.statusText, status: res.status },
+      error: { code: getErrorCode(res.status), message: res.statusText },
     };
   } catch (error: any) {
+    console.log(3);
     console.log(error);
     return { res: null, error };
   }
@@ -72,97 +88,107 @@ const connector = async (
 export interface ApiClient {
   get(
     path: string,
-    opts?: Omit<RequestOptions<any>, "method" | "body">,
-  ): Promise<Result<any>>;
-  post(
-    path: string,
-    opts?: Omit<RequestOptions<any>, "method">,
-  ): Promise<Result<any>>;
-  put(
-    path: string,
-    opts?: Omit<RequestOptions<any>, "method">,
-  ): Promise<Result<any>>;
-  patch(
-    path: string,
-    opts?: Omit<RequestOptions<any>, "method">,
-  ): Promise<Result<any>>;
-  delete(
-    path: string,
-    opts?: Omit<RequestOptions<any>, "method">,
-  ): Promise<Result<any>>;
+    opts?: Omit<RequestOptions, "method" | "body">,
+  ): Promise<Result>;
+  post(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
+  put(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
+  patch(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
+  delete(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
 }
 
 const validateResponseDataToContract = (contract: ZodSchema, data: any) => {
-  // return contract.safeParseAsync(data);
-  return { success: true, error: null };
+  return contract.safeParse(data);
 };
 
-const makeRequest = async (
+async function makeRequest(
   path: string,
-  opts: RequestOptions<any>,
-  retryCount = 0,
-): Promise<Result<any>> => {
+  opts: RequestOptions,
+  retryCount?: number,
+): Promise<Ok>;
+
+async function makeRequest(
+  path: string,
+  opts: RequestOptions,
+  retryCount?: number,
+): Promise<Fail>;
+
+async function makeRequest(
+  path: string,
+  opts: RequestOptions,
+  retryCount: number = 0,
+): Promise<Result> {
+  const controller = new AbortController();
+
   let timer = setTimeout(async () => {
-    return {
-      ok: false,
-      error: {
-        code: "TIMEOUT",
-        message: "TIMEOUT",
-      },
-      response: res,
-    };
+    controller.abort({ code: "TIMEOUT", message: "TIMEOUT" });
   }, opts.timeoutMs);
 
-  const { res, error } = await connector(path, { method: "GET", ...opts });
+  const { res, error } = await connector(path, {
+    signal: controller.signal,
+    ...opts,
+  });
 
-  const data = await parseResponseBody(res);
-
-  if (!error) {
-    const validatedResponse = await validateResponseDataToContract(
-      TracksResponseSchema,
-      data,
-    );
-
-    if (validatedResponse.success && typeof data === "object") {
-      return { ok: true, data, response: res };
+  if (error) {
+    console.log(res, error);
+    if (
+      opts.retry &&
+      opts.retry.retries !== 0 &&
+      opts.retry.retryOn.includes(error.code) &&
+      retryCount <= opts.retry.retries
+    ) {
+      clearTimeout(timer);
+      makeRequest(path, opts, retryCount + 1);
+    } else {
+      clearTimeout(timer);
+      return {
+        ok: false,
+        error,
+      };
+    }
+  } else {
+    if (!res) {
+      clearTimeout(timer);
+      return { ok: false, error: { code: "ABORTED", message: "" } };
     }
 
-    return {
-      ok: false,
-      error: {
-        code: "SCHEMA",
-        message:
-          validatedResponse.error.errors[0].message ||
-          "Received data is not supported structure",
-      },
-      response: res,
-    };
-  }
+    const data = await parseResponseBody(res);
 
-  if (
-    opts.retry &&
-    opts.retry.retries !== 0 &&
-    error.code === opts.retry.retryOn &&
-    retryCount < opts.retry.retries
-  ) {
-    makeRequest(path, opts, retryCount + 1);
-  } else {
-    return { ok: false, error };
+    if (!error) {
+      const validatedResponse = validateResponseDataToContract(
+        TracksResponseSchema,
+        data,
+      );
+
+      if (validatedResponse.success && typeof data === "object") {
+        clearTimeout(timer);
+        return { ok: true, data, response: res };
+      }
+
+      clearTimeout(timer);
+      return {
+        ok: false,
+        error: {
+          code: "SCHEMA",
+          message:
+            validatedResponse.error?.errors[0].message ||
+            "Received data is not supported structure",
+        },
+        response: res,
+      };
+    }
   }
-};
+}
 
 const apiClient: ApiClient = {
-  get: async (
-    path: string,
-    opts: Omit<RequestOptions<any>, "method" | "body">,
-  ) => await makeRequest(path, { method: "GET", ...opts }),
-  post: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+  get: async (path: string, opts: Omit<RequestOptions, "method" | "body">) =>
+    await makeRequest(path, { method: "GET", ...opts }),
+  post: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await makeRequest(path, { method: "POST", ...opts }),
-  put: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+  put: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await makeRequest(path, { method: "PUT", ...opts }),
-  patch: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+  patch: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await makeRequest(path, { method: "PATCH", ...opts }),
-  delete: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+  delete: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await makeRequest(path, { method: "DELETE", ...opts }),
 };
 
@@ -176,34 +202,31 @@ export function createApiClient(
 ): ApiClient {
   return {
     ...apiClient,
-    get: async (
-      path: string,
-      opts: Omit<RequestOptions<any>, "method" | "body">,
-    ) =>
+    get: async (path: string, opts: Omit<RequestOptions, "method" | "body">) =>
       await makeRequest(`${baseURL}/${path}`, {
         method: "GET",
         ...defaults,
         ...opts,
       }),
-    post: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+    post: async (path: string, opts: Omit<RequestOptions, "method">) =>
       await makeRequest(`${baseURL}/${path}`, {
         method: "POST",
         ...defaults,
         ...opts,
       }),
-    put: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+    put: async (path: string, opts: Omit<RequestOptions, "method">) =>
       await makeRequest(`${baseURL}/${path}`, {
         method: "PUT",
         ...defaults,
         ...opts,
       }),
-    patch: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+    patch: async (path: string, opts: Omit<RequestOptions, "method">) =>
       await makeRequest(`${baseURL}/${path}`, {
         method: "PATCH",
         ...defaults,
         ...opts,
       }),
-    delete: async (path: string, opts: Omit<RequestOptions<any>, "method">) =>
+    delete: async (path: string, opts: Omit<RequestOptions, "method">) =>
       await makeRequest(`${baseURL}/${path}`, {
         method: "DELETE",
         ...defaults,
