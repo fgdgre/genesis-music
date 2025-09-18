@@ -4,7 +4,7 @@ import BaseButton from "./base/BaseButton.vue";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 import { ref, type DeepReadonly } from "vue";
 import { MAX_FILES_SIZE } from "@/consts";
-import { postTrackFileAPI } from "@/api";
+import { postTrackFileAPI } from "@/entities/tracks";
 import type { Track } from "@/types";
 import { useTracksStore } from "@/stores/tracks";
 
@@ -55,10 +55,10 @@ const handleUploadTrackFile = async () => {
   ) {
     emit("close");
 
-    const formData = new FormData();
-    formData.append("file", trackFile.value);
-
-    const { data, error } = await postTrackFileAPI(props.track.id, formData);
+    const { data, error } = await postTrackFileAPI(
+      props.track.id,
+      trackFile.value,
+    );
 
     if (error) {
       addErrorToast(error);

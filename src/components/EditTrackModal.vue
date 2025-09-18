@@ -4,7 +4,7 @@ import type { DeepReadonly } from "vue";
 import AppModal from "./app/AppModal.vue";
 import TrackForm from "./TrackForm.vue";
 import { useTracksStore } from "@/stores/tracks";
-import { editTrackAPI, postTrackAPI } from "@/api";
+import { editTrackAPI } from "@/entities/tracks";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 
 const props = defineProps<{

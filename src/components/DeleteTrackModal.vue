@@ -3,7 +3,7 @@ import AppModal from "./app/AppModal.vue";
 import BaseButton from "./base/BaseButton.vue";
 import type { Track } from "@/types";
 import { useTracksStore } from "@/stores/tracks";
-import { deleteTrackAPI } from "@/api";
+import { deleteTrackAPI } from "@/entities/tracks";
 import type { DeepReadonly } from "vue";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 
@@ -26,15 +26,13 @@ const handleDeleteTrack = async () => {
 
   tracksStore.deleteTrack(props.track.id);
 
-  const { data, error } = await deleteTrackAPI(props.track.id);
+  const { error } = await deleteTrackAPI(props.track.id);
 
   if (error) {
     tracksStore.createTrack(props.track);
 
     addErrorToast(error);
-  }
-
-  if (data) {
+  } else {
     addSuccessToast("delete");
   }
 };

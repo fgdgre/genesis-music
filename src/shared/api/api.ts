@@ -17,10 +17,7 @@ const connector = async (
   opts?: RequestInit,
 ): Promise<{ res: Response | null; error: any | null }> => {
   try {
-    const res = await fetch(path, {
-      ...opts,
-      ...(opts?.body ? { body: JSON.stringify(opts.body) } : {}),
-    });
+    const res = await fetch(path, opts);
 
     if (res.ok) {
       return { res, error: null };
@@ -111,13 +108,36 @@ const apiClient: ApiClient = {
   get: async (path: string, opts: Omit<RequestOptions, "method" | "body">) =>
     await makeRequest(path, { method: "GET", ...opts }),
   post: async (path: string, opts: Omit<RequestOptions, "method">) =>
-    await makeRequest(path, { method: "POST", ...opts }),
+    await makeRequest(path, {
+      method: "POST",
+      ...opts,
+      body: handleBodySerialize(opts.body, opts.bodySerialize),
+    }),
   put: async (path: string, opts: Omit<RequestOptions, "method">) =>
-    await makeRequest(path, { method: "PUT", ...opts }),
+    await makeRequest(path, {
+      method: "PUT",
+      ...opts,
+      body: handleBodySerialize(opts.body, opts.bodySerialize),
+    }),
   patch: async (path: string, opts: Omit<RequestOptions, "method">) =>
-    await makeRequest(path, { method: "PATCH", ...opts }),
+    await makeRequest(path, {
+      method: "PATCH",
+      ...opts,
+      body: handleBodySerialize(opts.body, opts.bodySerialize),
+    }),
   delete: async (path: string, opts: Omit<RequestOptions, "method">) =>
-    await makeRequest(path, { method: "DELETE", ...opts }),
+    await makeRequest(path, {
+      method: "DELETE",
+      ...opts,
+      body: handleBodySerialize(opts.body, opts.bodySerialize),
+    }),
+};
+
+const handleBodySerialize = (data: any, bodySerialize?: boolean) => {
+  if (data) {
+    return bodySerialize ? JSON.stringify(data) : data;
+  }
+  return {};
 };
 
 const injectApiClientOptions = (
