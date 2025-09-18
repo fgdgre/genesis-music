@@ -1,5 +1,4 @@
 import { apiClient } from "@/shared/api";
-import { buildQuery } from "@/utils/buildQuery";
 import { TracksResponseSchema } from "@/shared/api";
 import type { Track } from "@/types";
 import type { DeepReadonly } from "vue";
