@@ -1,5 +1,6 @@
 import { apiClient } from "@/shared/api";
 import { buildQueryForAPI } from "@/utils/buildQueryForAPI";
+import { TracksResponseSchema } from "@/shared/api";
 
 export const fetchTracksAPI = async ({
   page,
@@ -18,4 +19,5 @@ export const fetchTracksAPI = async ({
 }) =>
   await apiClient.get(
     `api/tracks?${buildQueryForAPI({ page, search, genre, artist, order, sort })}`,
+    { schema: TracksResponseSchema },
   );

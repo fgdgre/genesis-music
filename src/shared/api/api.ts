@@ -1,5 +1,4 @@
 import type { ZodSchema } from "zod";
-import { TracksResponseSchema } from "./schema";
 import parseResponseBody from "@/utils/parseResponseBody";
 import type { Result, RetryPolicy, RequestOptions, ApiClient } from "./types";
 
@@ -83,24 +82,28 @@ async function makeRequest(
     const data = await parseResponseBody(res);
     console.log(data);
 
+    if (!opts.schema) {
+      return { ok: true, data, error: null, response: res };
+    }
+
     const { success: validationSuccess, message: errorMessage } =
-      validateResponseDataToContract(TracksResponseSchema, data);
+      validateResponseDataToContract(opts.schema, data);
 
     if (validationSuccess && typeof data === "object") {
       clearTimeout(timer);
       return { ok: true, data, error: null, response: res };
-    } else {
-      clearTimeout(timer);
-      return {
-        ok: false,
-        data: null,
-        error: {
-          code: "SCHEMA",
-          message: errorMessage || "Received data is not supported structure",
-        },
-        response: res,
-      };
     }
+
+    clearTimeout(timer);
+    return {
+      ok: false,
+      data: null,
+      error: {
+        code: "SCHEMA",
+        message: errorMessage || "Received data is not supported structure",
+      },
+      response: res,
+    };
   }
 }
 

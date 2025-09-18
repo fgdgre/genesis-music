@@ -39,7 +39,7 @@ export type RequestOptions = {
   timeoutMs?: number;
   signal?: AbortSignal;
   retry?: RetryPolicy;
-  schema?: ZodSchema<any>;
+  schema?: ZodSchema;
   parse?: ParseMode;
   dedupeKey?: string;
 };
