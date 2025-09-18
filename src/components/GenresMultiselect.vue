@@ -16,7 +16,7 @@ defineProps<{
 }>();
 
 defineEmits<{
-  "update:modelValue": [string[]];
+  "update:modelValue": string[];
   blur: [Event];
 }>();
 
@@ -42,7 +42,6 @@ watchEffect(() => {
   <BaseMultiselect
     :items="trackGenresItems"
     v-model="genres"
-    @update:modelValue="(v) => $emit('update:modelValue', v)"
     @blur="(e) => $emit('blur', e)"
     :error-message="errorMessage"
     :empty-message="emptyMessage"

@@ -1,5 +1,5 @@
 import { apiClient } from "@/shared/api";
-import { buildQueryForAPI } from "@/utils/buildQueryForAPI";
+import { buildQuery } from "@/utils/buildQuery";
 import { TracksResponseSchema } from "@/shared/api";
 import type { Track } from "@/types";
 import type { DeepReadonly } from "vue";
@@ -19,10 +19,10 @@ export const fetchTracksAPI = async ({
   order?: "asc" | "desc" | "";
   sort?: "title" | "artist" | "album" | "createdAt" | "";
 }) =>
-  await apiClient.get(
-    `api/tracks?${buildQueryForAPI({ page, search, genre, artist, order, sort })}`,
-    { schema: TracksResponseSchema },
-  );
+  await apiClient.get("api/tracks", {
+    schema: TracksResponseSchema,
+    query: { page, search, genre, artist, order, sort },
+  });
 
 export const postTrackAPI = async (track: Track | DeepReadonly<Track>) =>
   await apiClient.post("api/tracks", {

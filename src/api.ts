@@ -1,6 +1,6 @@
 import type { Track } from "@/types";
 import type { DeepReadonly } from "vue";
-import { buildQueryForAPI } from "@/utils/buildQueryForAPI";
+import { buildQuery } from "@/utils/buildQuery";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -22,7 +22,7 @@ export const fetchTracksAPI = async ({
   try {
     const response = await fetch(
       BASE_URL +
-        `/api/tracks?${buildQueryForAPI({ page, search, genre, artist, order, sort })}`,
+        `/api/tracks?${buildQuery({ page, search, genre, artist, order, sort })}`,
     );
 
     if (!response.ok) {

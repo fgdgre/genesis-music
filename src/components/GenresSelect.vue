@@ -15,12 +15,13 @@ defineProps<{
   errorMessageTestid?: string;
 }>();
 
-defineEmits<{
-  "update:modelValue": [string[]];
+const emit = defineEmits<{
+  select: string;
+  "update:modelValue": string;
   blur: [Event];
 }>();
 
-const genres = defineModel<string>({ required: true });
+const genre = defineModel<string>({ required: true });
 
 const { data: genresItems } = await fetchGenresAPI();
 
@@ -41,8 +42,7 @@ watchEffect(() => {
   <!-- :is-empty="trackGenresItems?.length === 0 && !isLoading" -->
   <BaseSelect
     :items="trackGenresItems"
-    v-model="genres"
-    @update:modelValue="(v) => $emit('update:modelValue', v)"
+    v-model="genre"
     @blur="(e) => $emit('blur', e)"
     :error-message="errorMessage"
     :empty-message="emptyMessage"

@@ -1,6 +1,7 @@
 import type { ZodSchema } from "zod";
 import parseResponseBody from "@/utils/parseResponseBody";
 import type { Result, RetryPolicy, RequestOptions, ApiClient } from "./types";
+import { buildQuery } from "@/utils/buildQuery";
 
 // TODO: FIX
 const getErrorCode = (errorCode: number) => {
@@ -52,7 +53,7 @@ async function makeRequest(
     controller.abort({ code: "TIMEOUT", message: "TIMEOUT" });
   }, opts.timeoutMs);
 
-  const { res, error } = await connector(path, {
+  const { res, error } = await connector(`${path}?${buildQuery(opts.query)}`, {
     signal: controller.signal,
     ...opts,
   });

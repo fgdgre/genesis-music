@@ -26,7 +26,7 @@ const props = defineProps<{
 }>();
 
 defineEmits<{
-  "update:modelValue": [string];
+  "update:modelValue": string;
   blur: [Event];
 }>();
 

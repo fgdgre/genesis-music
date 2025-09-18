@@ -47,7 +47,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
     try {
       isLoading.value = true;
 
-      const tracksResponse = await fetchTracksAPI({
+      const { ok, data, error } = await fetchTracksAPI({
         page: page.value,
         search: search?.value,
         genre: genre?.value,
@@ -56,17 +56,17 @@ export const useTracksStore = defineStore("tracksStore", () => {
         sort: sort?.value,
       });
 
-      if (!tracksResponse.ok) {
-        setErrorMessage(tracksResponse.error.message);
+      if (!ok) {
+        setErrorMessage(error.message);
 
         if (initialized.value) {
-          addErrorToast(tracksResponse.error);
+          addErrorToast(error);
         }
       } else {
         clearErrors();
 
-        tracks.value = tracksResponse.data.data;
-        tracksMeta.value = tracksResponse.data.meta;
+        tracks.value = data.data;
+        tracksMeta.value = data.meta;
       }
     } finally {
       initialized.value = true;

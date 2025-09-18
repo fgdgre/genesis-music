@@ -39,6 +39,8 @@ const fetchTracks = () => {
 };
 
 const handleFiltersChanged = (filters: QueryParams) => {
+  console.log(1);
+
   page.value = 1;
   tracksStore.clearPlayingTrackId();
 
