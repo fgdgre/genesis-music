@@ -77,7 +77,6 @@ async function makeRequest(
     }
   } else {
     const data = await parseResponseBody(res);
-    console.log(data);
 
     if (!opts.schema) {
       return { ok: true, data, error: null, response: res };
@@ -111,33 +110,26 @@ const apiClient: ApiClient = {
     await makeRequest(path, {
       method: "POST",
       ...opts,
-      body: handleBodySerialize(opts.body, opts.bodySerialize),
     }),
   put: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await makeRequest(path, {
       method: "PUT",
       ...opts,
-      body: handleBodySerialize(opts.body, opts.bodySerialize),
     }),
   patch: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await makeRequest(path, {
       method: "PATCH",
       ...opts,
-      body: handleBodySerialize(opts.body, opts.bodySerialize),
     }),
   delete: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await makeRequest(path, {
       method: "DELETE",
       ...opts,
-      body: handleBodySerialize(opts.body, opts.bodySerialize),
     }),
 };
 
-const handleBodySerialize = (data: any, bodySerialize?: boolean) => {
-  if (data) {
-    return bodySerialize ? JSON.stringify(data) : data;
-  }
-  return {};
+const serializeBody = (data: any, bodySerialize: boolean = true) => {
+  return bodySerialize ? JSON.stringify(data) : data;
 };
 
 const injectApiClientOptions = (
@@ -147,6 +139,7 @@ const injectApiClientOptions = (
     headers?: Record<string, string>;
     timeoutMs?: number;
     retry?: RetryPolicy;
+    bodySerialize?: boolean;
   },
 ): ApiClient => {
   const httpMethods = ["get", "post", "patch", "put", "delete"] as const;
@@ -160,6 +153,9 @@ const injectApiClientOptions = (
         method: httpMethod,
         ...defaults,
         ...opts,
+        ...(k !== "get" && opts?.body
+          ? { body: serializeBody(opts.body, opts.bodySerialize) }
+          : {}),
       });
   }
   return apiClient;
@@ -171,6 +167,7 @@ export function createApiClient(
     headers?: Record<string, string>;
     timeoutMs?: number;
     retry?: RetryPolicy;
+    bodySerialize?: boolean;
   },
 ): ApiClient {
   return injectApiClientOptions(apiClient, baseURL, defaults);

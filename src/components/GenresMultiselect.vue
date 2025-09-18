@@ -27,7 +27,6 @@ const { data: genresItems } = await fetchGenresAPI();
 const trackGenresItems = ref<DropdownItem[]>([]);
 
 watchEffect(() => {
-  console.log(genresItems);
   if (genresItems) {
     trackGenresItems.value = genresItems.map((genre: string) => ({
       label: genre,

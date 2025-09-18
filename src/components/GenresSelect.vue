@@ -22,15 +22,13 @@ defineEmits<{
 
 const genres = defineModel<string>({ required: true });
 
-// const { data: genresItems } = await fetchGenresAPI();
-const response = await fetchGenresAPI();
+const { data: genresItems } = await fetchGenresAPI();
 
 const trackGenresItems = ref<DropdownItem[]>([]);
 
 watchEffect(() => {
-  console.log(response);
-  if (response.data) {
-    trackGenresItems.value = response.data.map((genre: string) => ({
+  if (genresItems) {
+    trackGenresItems.value = genresItems.map((genre: string) => ({
       label: genre,
       value: genre.toLowerCase(),
     }));

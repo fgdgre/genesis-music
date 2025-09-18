@@ -52,3 +52,6 @@ export const postTrackFileAPI = async (id: string, file: any) => {
     bodySerialize: false,
   });
 };
+
+export const deleteTrackFileAPI = async (id: string) =>
+  await apiClient.delete(`api/tracks/${id}/file`);
