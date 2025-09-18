@@ -3,11 +3,10 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const api = createApiClient(BASE_URL, {
   timeoutMs: 1500,
-  // headers: { "X-App": "genesis-music" },
   retry: {
     retries: 2,
     minDelayMs: 300,
     maxDelayMs: 1000,
-    retryOn: ["NETWORK", "TIMEOUT"],
+    retryOn: ["NETWORK"],
   },
 });

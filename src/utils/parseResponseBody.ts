@@ -3,7 +3,7 @@ import isJsonResponse from "./isJsonResponse";
 export default async function parseResponseBody<T>(
   res: Response | null,
   mode: "json" | "text" | "blob" = "json",
-): Promise<string | T | Blob | null> {
+): Promise<string | T | Blob | null | undefined> {
   if (!res) return null;
 
   if (res.status === 204 || res.status === 205) return null;
