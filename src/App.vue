@@ -9,7 +9,11 @@ const { toasts } = storeToRefs(store);
 </script>
 
 <template>
-  <TracksPage />
+  <Suspense>
+    <div>
+      <TracksPage />
 
-  <BaseToastsGroup :toasts @close-toast="(id) => store.removeToast(id)" />
+      <BaseToastsGroup :toasts @close-toast="(id) => store.removeToast(id)" />
+    </div>
+  </Suspense>
 </template>

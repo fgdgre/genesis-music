@@ -1,57 +1,15 @@
 import type { ZodSchema } from "zod";
 import { TracksResponseSchema } from "./schema";
 import parseResponseBody from "@/utils/parseResponseBody";
+import type { Result, RetryPolicy, RequestOptions, ApiClient } from "./types";
 
-export type ApiErrorCode =
-  | "ABORTED"
-  | "TIMEOUT"
-  | "NETWORK"
-  | "HTTP"
-  | "SCHEMA";
-
-export type ApiError = {
-  code: ApiErrorCode;
-  message: string;
-  status?: number; // есть только для HTTP-ошибок
-  aborted?: boolean; // true для ABORTED
-  details?: unknown; // например, ZodIssue[] для SCHEMA
-};
-
-export type Ok = { ok: true; data: any; response?: Response | null };
-export type Fail = { ok: false; error: ApiError; response?: Response | null };
-export type Result = Ok | Fail;
-
-export type RetryPolicy = {
-  retries: number;
-  minDelayMs: number;
-  maxDelayMs: number;
-  retryOn: ApiErrorCode[];
-};
-
-export type ParseMode = "json" | "text" | "blob"; // default: 'json'
-
-export type RequestOptions = {
-  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  query?: Record<string, unknown>; // сериализуй корректно: массивы, null/undefined
-  body?: any; // если передан объект — JSON.stringify + header
-  headers?: Record<string, string>;
-  timeoutMs?: number; // default: 8000
-  signal?: AbortSignal; // должен учитываться
-  retry?: RetryPolicy; // см. поведение ниже
-  schema?: ZodSchema<any>; // если задана — валидируй data через schema
-  parse?: ParseMode; // default: 'json'
-  dedupeKey?: string; // опционально: ключ для дедупликации инфлайт
-};
-
+// TODO: FIX
 const getErrorCode = (errorCode: number) => {
-  console.log(errorCode);
   const errorCodeString = errorCode?.toString();
   if (errorCodeString?.startsWith("5")) {
     return "NETWORK";
   } else if (errorCodeString?.startsWith("4")) {
     return "HTTP";
-  } else if (errorCodeString?.startsWith("2")) {
-    return "";
   }
 };
 
@@ -65,11 +23,7 @@ const connector = async (
       ...(opts?.body ? { body: JSON.stringify(opts.body) } : {}),
     });
 
-    console.log(res);
-
     if (res.ok) {
-      console.log("res.ok");
-      console.log(res);
       return { res, error: null };
     }
 
@@ -83,32 +37,13 @@ const connector = async (
   }
 };
 
-export interface ApiClient {
-  get(
-    path: string,
-    opts?: Omit<RequestOptions, "method" | "body">,
-  ): Promise<Result>;
-  post(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
-  put(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
-  patch(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
-  delete(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
-}
-
 const validateResponseDataToContract = (contract: ZodSchema, data: any) => {
-  return contract.safeParse(data);
+  const res = contract.safeParse(data);
+  if (res.error) {
+    return { success: false, message: res.error?.errors[0].message };
+  }
+  return { success: true, message: "" };
 };
-
-async function makeRequest(
-  path: string,
-  opts: RequestOptions,
-  retryCount?: number,
-): Promise<Ok>;
-
-async function makeRequest(
-  path: string,
-  opts: RequestOptions,
-  retryCount?: number,
-): Promise<Fail>;
 
 async function makeRequest(
   path: string,
@@ -121,13 +56,10 @@ async function makeRequest(
     controller.abort({ code: "TIMEOUT", message: "TIMEOUT" });
   }, opts.timeoutMs);
 
-  console.log(retryCount);
-
   const { res, error } = await connector(path, {
     signal: controller.signal,
     ...opts,
   });
-  console.log(res, error);
 
   if (error) {
     if (
@@ -138,11 +70,12 @@ async function makeRequest(
     ) {
       clearTimeout(timer);
       makeRequest(path, opts, retryCount + 1);
-      return { ok: false, error };
+      return { ok: false, data: null, error };
     } else {
       clearTimeout(timer);
       return {
         ok: false,
+        data: null,
         error,
       };
     }
@@ -150,23 +83,20 @@ async function makeRequest(
     const data = await parseResponseBody(res);
     console.log(data);
 
-    const validatedResponse = validateResponseDataToContract(
-      TracksResponseSchema,
-      data,
-    );
+    const { success: validationSuccess, message: errorMessage } =
+      validateResponseDataToContract(TracksResponseSchema, data);
 
-    if (validatedResponse.success && typeof data === "object") {
+    if (validationSuccess && typeof data === "object") {
       clearTimeout(timer);
-      return { ok: true, data, response: res };
+      return { ok: true, data, error: null, response: res };
     } else {
       clearTimeout(timer);
       return {
         ok: false,
+        data: null,
         error: {
           code: "SCHEMA",
-          message:
-            validatedResponse.error?.errors[0].message ||
-            "Received data is not supported structure",
+          message: errorMessage || "Received data is not supported structure",
         },
         response: res,
       };
@@ -188,19 +118,20 @@ const apiClient: ApiClient = {
 };
 
 const injectApiClientOptions = (
-  baseURL: string,
   baseApiClient: ApiClient,
+  baseURL: string,
   defaults?: {
     headers?: Record<string, string>;
     timeoutMs?: number;
     retry?: RetryPolicy;
   },
 ): ApiClient => {
+  const httpMethods = ["get", "post", "patch", "put", "delete"] as const;
   const apiClient = { ...baseApiClient } as ApiClient;
 
-  for (const k of Object.keys(baseApiClient)) {
+  for (const k of httpMethods) {
     const httpMethod = k.toUpperCase();
-    const original = baseApiClient[k as keyof ApiClient];
+    const original = baseApiClient[k];
     (apiClient as any)[k] = (path: string, opts: any) =>
       original(`${baseURL}/${path}`, {
         method: httpMethod,
@@ -219,5 +150,5 @@ export function createApiClient(
     retry?: RetryPolicy;
   },
 ): ApiClient {
-  return injectApiClientOptions(baseURL, apiClient, defaults);
+  return injectApiClientOptions(apiClient, baseURL, defaults);
 }

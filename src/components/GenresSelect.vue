@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
 import BaseSelect from "./base/BaseSelect.vue";
-import { useFetchGenres } from "@/composables/useFetchGenres";
+import { fetchGenresAPI } from "@/entities/genres";
 import type { DropdownItem } from "@/types";
 
 defineProps<{
@@ -22,13 +22,15 @@ defineEmits<{
 
 const genres = defineModel<string>({ required: true });
 
-const { genres: genresItems, isLoading } = useFetchGenres();
+// const { data: genresItems } = await fetchGenresAPI();
+const response = await fetchGenresAPI();
 
 const trackGenresItems = ref<DropdownItem[]>([]);
 
 watchEffect(() => {
-  if (genresItems.value) {
-    trackGenresItems.value = genresItems.value.map((genre: string) => ({
+  console.log(response);
+  if (response.data) {
+    trackGenresItems.value = response.data.map((genre: string) => ({
       label: genre,
       value: genre.toLowerCase(),
     }));
@@ -37,6 +39,8 @@ watchEffect(() => {
 </script>
 
 <template>
+  <!-- :is-loading="isLoading" -->
+  <!-- :is-empty="trackGenresItems?.length === 0 && !isLoading" -->
   <BaseSelect
     :items="trackGenresItems"
     v-model="genres"
@@ -44,8 +48,7 @@ watchEffect(() => {
     @blur="(e) => $emit('blur', e)"
     :error-message="errorMessage"
     :empty-message="emptyMessage"
-    :is-loading="isLoading"
-    :is-empty="trackGenresItems?.length === 0 && !isLoading"
+    :is-empty="trackGenresItems?.length === 0"
     :label
     :placeholder
     :trigger-testid

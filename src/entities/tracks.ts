@@ -1,4 +1,4 @@
-import { api } from "@/shared/api/client";
+import { apiClient } from "@/shared/api";
 import { buildQueryForAPI } from "@/utils/buildQueryForAPI";
 
 export const fetchTracksAPI = async ({
@@ -16,6 +16,6 @@ export const fetchTracksAPI = async ({
   order?: "asc" | "desc" | "";
   sort?: "title" | "artist" | "album" | "createdAt" | "";
 }) =>
-  await api.get(
+  await apiClient.get(
     `api/tracks?${buildQueryForAPI({ page, search, genre, artist, order, sort })}`,
   );
