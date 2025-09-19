@@ -58,17 +58,21 @@ async function makeRequest(
     ...opts,
   });
 
+  clearTimeout(timer);
+
   if (error) {
+    console.log(1);
     if (
       opts.retry &&
       opts.retry.retries !== 0 &&
       opts.retry.retryOn.includes(error.code) &&
-      retryCount <= opts.retry.retries
+      retryCount < opts.retry.retries
     ) {
       clearTimeout(timer);
-      makeRequest(path, opts, retryCount + 1);
-      return { ok: false, data: null, error };
+      console.log(2);
+      return await makeRequest(path, opts, retryCount + 1); // TODO: fix, not working
     } else {
+      console.log(3);
       clearTimeout(timer);
       return {
         ok: false,
@@ -147,11 +151,9 @@ const injectApiClientOptions = (
   const apiClient = { ...baseApiClient } as ApiClient;
 
   for (const k of httpMethods) {
-    const httpMethod = k.toUpperCase();
     const original = baseApiClient[k];
     (apiClient as any)[k] = (path: string, opts: any) =>
       original(`${baseURL}/${path}`, {
-        method: httpMethod,
         ...defaults,
         ...opts,
         ...(k !== "get" && opts?.body
