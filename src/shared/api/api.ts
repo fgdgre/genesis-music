@@ -6,14 +6,38 @@ import type {
   RequestOptions,
   ApiClient,
   ApiError,
+  ApiErrorCode,
 } from "./types";
 import { buildQuery } from "@/utils/buildQuery";
+
+// HELPERS ----------------------------------------------------------------------
+const validateResponseDataToContract = (contract: ZodSchema, data: any) => {
+  const res = contract.safeParse(data);
+  if (res.error) {
+    return { success: false, message: res.error?.errors[0].message };
+  }
+  return { success: true, message: "" };
+};
 
 function isAbortError(e: unknown) {
   return e instanceof DOMException
     ? e.name === "AbortError"
     : (e as any)?.name === "AbortError";
 }
+
+const getApiCode = (
+  error: Error,
+  timeoutController: AbortSignal,
+  signal: AbortSignal,
+): ApiErrorCode => {
+  console.log(error);
+  console.log(isAbortError(error));
+  console.log(isAbortError(error) || (signal as any)?.aborted);
+  console.log(timeoutController.aborted);
+  if (isAbortError(error) || (signal as any)?.aborted) {
+    return timeoutController.aborted ? "TIMEOUT" : "ABORTED";
+  }
+};
 
 function combineSignals(inner: AbortSignal, outer?: AbortSignal) {
   if (!outer) return inner;
@@ -27,10 +51,30 @@ function combineSignals(inner: AbortSignal, outer?: AbortSignal) {
   return combo.signal;
 }
 
+const getApiError = (
+  error: any,
+  timeoutController: AbortSignal,
+  signal: AbortSignal,
+): ApiError => {
+  const errorCode: ApiErrorCode = getApiCode(error, timeoutController, signal);
+  console.log({
+    code: errorCode,
+    message: error.message,
+    status: error.status,
+    aborted: errorCode === "ABORTED",
+  });
+  return {
+    code: errorCode,
+    message: error.statusText,
+    aborted: errorCode === "ABORTED",
+  };
+};
+// -----------------------------------------------------------------------------------------
+
 const connector = async (
   path: string,
   opts?: RequestInit,
-): Promise<{ res: Response | null; error: ApiError | null }> => {
+): Promise<{ res: Response | null; error: any | null }> => {
   try {
     const res = await fetch(path, opts);
 
@@ -38,36 +82,16 @@ const connector = async (
       return { res, error: null };
     }
 
+    const error = await res.json();
+    console.log(res, error);
     return {
       res,
-      error: { code: "HTTP", message: res.statusText },
+      error,
     };
   } catch (error: any) {
     console.log(error);
-
-    if (isAbortError(error) || (opts?.signal as any)?.aborted) {
-      return {
-        res: null,
-        error: { code: "TIMEOUT", message: "Request timed out", aborted: true },
-      };
-    }
-
-    return {
-      res: null,
-      error: {
-        code: "NETWORK",
-        message: String((error as any)?.message ?? error),
-      },
-    };
+    return { res: null, error };
   }
-};
-
-const validateResponseDataToContract = (contract: ZodSchema, data: any) => {
-  const res = contract.safeParse(data);
-  if (res.error) {
-    return { success: false, message: res.error?.errors[0].message };
-  }
-  return { success: true, message: "" };
 };
 
 async function makeRequest(
@@ -75,15 +99,13 @@ async function makeRequest(
   opts: RequestOptions,
   retryCount: number = 0,
 ): Promise<Result> {
-  const controller = new AbortController();
-  let timerOut = false;
+  const timeoutController = new AbortController();
 
   let timer = setTimeout(async () => {
-    controller.abort();
-    timerOut = true;
+    timeoutController.abort();
   }, opts.timeoutMs);
 
-  const signal = combineSignals(controller.signal, opts.signal);
+  const signal = combineSignals(timeoutController.signal, opts.signal);
 
   const { res, error } = await connector(`${path}?${buildQuery(opts.query)}`, {
     ...opts,
@@ -93,35 +115,25 @@ async function makeRequest(
   clearTimeout(timer);
 
   if (error) {
+    const apiError = getApiError(error, timeoutController.signal, signal);
+
     if (
+      opts.method === "GET" &&
       opts.retry &&
       opts.retry.retries !== 0 &&
-      opts.retry.retryOn.includes(error.code) &&
+      opts.retry.retryOn.includes(apiError.code) &&
       retryCount < opts.retry.retries
     ) {
-      clearTimeout(timer);
       return await makeRequest(path, opts, retryCount + 1);
-    } else {
-      clearTimeout(timer);
-
-      if (isAbortError(error) || (opts?.signal as any)?.aborted) {
-        return {
-          ok: false,
-          data: null,
-          error: timerOut
-            ? { code: "TIMEOUT", message: "Request timed out", aborted: true }
-            : { code: "ABORTED", message: "Request aborted", aborted: true },
-        };
-      }
-
-      return {
-        ok: false,
-        data: null,
-        error,
-      };
     }
+
+    return {
+      ok: false,
+      data: null,
+      error: apiError,
+    };
   } else {
-    const data = await parseResponseBody(res);
+    const data = await parseResponseBody(res, opts.parse);
 
     if (!opts.schema) {
       return { ok: true, data, error: null, response: res };
@@ -131,11 +143,9 @@ async function makeRequest(
       validateResponseDataToContract(opts.schema, data);
 
     if (validationSuccess && typeof data === "object") {
-      clearTimeout(timer);
       return { ok: true, data, error: null, response: res };
     }
 
-    clearTimeout(timer);
     return {
       ok: false,
       data: null,
