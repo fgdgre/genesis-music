@@ -1,25 +1,15 @@
+import type { ApiError } from "@/shared/api";
 import { useToast } from "@/stores/toast";
 
 export const useTracksToasts = () => {
   const toastsStore = useToast();
 
-  const addErrorToast = (error: { status?: number; message?: string }) => {
+  const addErrorToast = (error: ApiError) => {
     toastsStore.clearToasts();
-
-    let message: string;
-
-    switch (error?.status) {
-      case 500:
-        message = "Server error, try again";
-        break;
-      default:
-        message = "Something went wrong";
-        break;
-    }
 
     toastsStore.addToast({
       title: error?.message || "Error",
-      description: message,
+      description: error.details,
       color: "red",
       icon: "warning",
     });

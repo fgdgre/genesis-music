@@ -25,17 +25,27 @@ function isAbortError(e: unknown) {
     : (e as any)?.name === "AbortError";
 }
 
+function isOffline() {
+  return typeof navigator !== "undefined" && navigator.onLine === false;
+}
+
 const getApiCode = (
-  error: Error,
+  error: any,
   timeoutController: AbortSignal,
   signal: AbortSignal,
-): ApiErrorCode => {
-  console.log(error);
-  console.log(isAbortError(error));
-  console.log(isAbortError(error) || (signal as any)?.aborted);
+): ApiErrorCode | undefined => {
   console.log(timeoutController.aborted);
   if (isAbortError(error) || (signal as any)?.aborted) {
     return timeoutController.aborted ? "TIMEOUT" : "ABORTED";
+  }
+  if (
+    error.statusCode?.toString().startsWith(4) ||
+    error.statusCode?.toString().startsWith(5)
+  ) {
+    return "HTTP";
+  }
+  if (isOffline()) {
+    return "NETWORK";
   }
 };
 
@@ -51,24 +61,46 @@ function combineSignals(inner: AbortSignal, outer?: AbortSignal) {
   return combo.signal;
 }
 
+const getErrorMessage = (
+  error: any,
+  errorCode: ApiErrorCode | undefined,
+): string => {
+  if (errorCode === "NETWORK") return "Your offline check your internet";
+  if (errorCode === "TIMEOUT") return "Timeout";
+  return error.error || error.message;
+};
+
 const getApiError = (
   error: any,
   timeoutController: AbortSignal,
   signal: AbortSignal,
-): ApiError => {
-  const errorCode: ApiErrorCode = getApiCode(error, timeoutController, signal);
+): Omit<ApiError, "code"> & { code: ApiErrorCode | undefined } => {
+  const errorCode: ApiErrorCode | undefined = getApiCode(
+    error,
+    timeoutController,
+    signal,
+  );
   console.log({
     code: errorCode,
-    message: error.message,
-    status: error.status,
+    status: error.statusCode,
+    details: error.message,
+    message: getErrorMessage(error, errorCode),
     aborted: errorCode === "ABORTED",
   });
+
   return {
     code: errorCode,
-    message: error.statusText,
+    status: error.statusCode,
+    details: error.message,
+    message: getErrorMessage(error, errorCode),
     aborted: errorCode === "ABORTED",
   };
 };
+
+const serializeBody = (data: any, bodySerialize: boolean = true) => {
+  return bodySerialize ? JSON.stringify(data) : data;
+};
+
 // -----------------------------------------------------------------------------------------
 
 const connector = async (
@@ -115,6 +147,7 @@ async function makeRequest(
   clearTimeout(timer);
 
   if (error) {
+    console.log(error);
     const apiError = getApiError(error, timeoutController.signal, signal);
 
     if (
@@ -181,10 +214,6 @@ const apiClient: ApiClient = {
       method: "DELETE",
       ...opts,
     }),
-};
-
-const serializeBody = (data: any, bodySerialize: boolean = true) => {
-  return bodySerialize ? JSON.stringify(data) : data;
 };
 
 const injectApiClientOptions = (
