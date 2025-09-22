@@ -82,12 +82,6 @@ const getApiError = (
   };
 };
 
-const serializeBody = (data: any) => {
-  return data instanceof FormData || data instanceof Blob
-    ? data
-    : JSON.stringify(data);
-};
-
 const injectApiClientOptions = (
   baseApiClient: ApiClient,
   baseURL: string,
@@ -104,17 +98,28 @@ const injectApiClientOptions = (
   for (const k of httpMethods) {
     const original = baseApiClient[k];
     (apiClient as any)[k] = (path: string, opts: any) =>
-      original(`${baseURL}/${path}`, {
+      original(baseURL.replace(/\/+$/, "") + "/" + path.replace(/^\/+/, ""), {
         ...defaults,
         ...opts,
-        ...(k !== "get" && opts?.body
-          ? { body: serializeBody(opts?.body) }
-          : {}),
       });
   }
   return apiClient;
 };
 
+const configureRequestOptions = (body: any) => {
+  if (body) {
+    if (body instanceof FormData || body instanceof Blob) {
+      return { body: body };
+    } else {
+      return {
+        body: JSON.stringify(body),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+    }
+  }
+};
 // -----------------------------------------------------------------------------------------
 
 const connector = async (
@@ -155,6 +160,7 @@ async function makeRequest(
 
   const { res, error } = await connector(`${path}?${buildQuery(opts.query)}`, {
     ...opts,
+    ...configureRequestOptions(opts.body),
     signal,
   });
 
@@ -211,25 +217,16 @@ const apiClient: ApiClient = {
   post: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await makeRequest(path, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       ...opts,
     }),
   put: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await makeRequest(path, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
       ...opts,
     }),
   patch: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await makeRequest(path, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
       ...opts,
     }),
   delete: async (path: string, opts: Omit<RequestOptions, "method">) =>
