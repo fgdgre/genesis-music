@@ -11,19 +11,20 @@ import type {
 import { buildQuery } from "@/utils/buildQuery";
 
 // HELPERS ----------------------------------------------------------------------
-const validateResponseDataToContract = (contract: ZodSchema, data: any) => {
-  const res = contract.safeParse(data);
-  if (res.error) {
-    return { success: false, message: res.error?.errors[0].message };
-  }
-  return { success: true, message: "" };
-};
-
 function isAbortError(e: unknown) {
   return e instanceof DOMException
     ? e.name === "AbortError"
     : (e as any)?.name === "AbortError";
 }
+
+const getErrorMessage = (
+  error: any,
+  errorCode: ApiErrorCode | undefined,
+): string => {
+  if (errorCode === "NETWORK") return "Your offline check your internet";
+  if (errorCode === "TIMEOUT") return "Timeout";
+  return error.error || error.message;
+};
 
 function isOffline() {
   return typeof navigator !== "undefined" && navigator.onLine === false;
@@ -61,15 +62,6 @@ function combineSignals(inner: AbortSignal, outer?: AbortSignal) {
   return combo.signal;
 }
 
-const getErrorMessage = (
-  error: any,
-  errorCode: ApiErrorCode | undefined,
-): string => {
-  if (errorCode === "NETWORK") return "Your offline check your internet";
-  if (errorCode === "TIMEOUT") return "Timeout";
-  return error.error || error.message;
-};
-
 const getApiError = (
   error: any,
   timeoutController: AbortSignal,
@@ -80,13 +72,6 @@ const getApiError = (
     timeoutController,
     signal,
   );
-  console.log({
-    code: errorCode,
-    status: error.statusCode,
-    details: error.message,
-    message: getErrorMessage(error, errorCode),
-    aborted: errorCode === "ABORTED",
-  });
 
   return {
     code: errorCode,
@@ -99,6 +84,33 @@ const getApiError = (
 
 const serializeBody = (data: any, bodySerialize: boolean = true) => {
   return bodySerialize ? JSON.stringify(data) : data;
+};
+
+const injectApiClientOptions = (
+  baseApiClient: ApiClient,
+  baseURL: string,
+  defaults?: {
+    headers?: Record<string, string>;
+    timeoutMs?: number;
+    retry?: RetryPolicy;
+    bodySerialize?: boolean;
+  },
+): ApiClient => {
+  const httpMethods = ["get", "post", "patch", "put", "delete"] as const;
+  const apiClient = { ...baseApiClient } as ApiClient;
+
+  for (const k of httpMethods) {
+    const original = baseApiClient[k];
+    (apiClient as any)[k] = (path: string, opts: any) =>
+      original(`${baseURL}/${path}`, {
+        ...defaults,
+        ...opts,
+        ...(k !== "get" && opts?.body
+          ? { body: serializeBody(opts.body, opts.bodySerialize) }
+          : {}),
+      });
+  }
+  return apiClient;
 };
 
 // -----------------------------------------------------------------------------------------
@@ -172,10 +184,9 @@ async function makeRequest(
       return { ok: true, data, error: null, response: res };
     }
 
-    const { success: validationSuccess, message: errorMessage } =
-      validateResponseDataToContract(opts.schema, data);
+    const { success, error } = opts.schema.safeParse(data);
 
-    if (validationSuccess && typeof data === "object") {
+    if (success) {
       return { ok: true, data, error: null, response: res };
     }
 
@@ -184,7 +195,8 @@ async function makeRequest(
       data: null,
       error: {
         code: "SCHEMA",
-        message: errorMessage || "Received data is not supported structure",
+        message: "Received data is not supported structure",
+        details: error.issues,
       },
       response: res,
     };
@@ -197,16 +209,25 @@ const apiClient: ApiClient = {
   post: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await makeRequest(path, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       ...opts,
     }),
   put: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await makeRequest(path, {
       method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
       ...opts,
     }),
   patch: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await makeRequest(path, {
       method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
       ...opts,
     }),
   delete: async (path: string, opts: Omit<RequestOptions, "method">) =>
@@ -214,33 +235,6 @@ const apiClient: ApiClient = {
       method: "DELETE",
       ...opts,
     }),
-};
-
-const injectApiClientOptions = (
-  baseApiClient: ApiClient,
-  baseURL: string,
-  defaults?: {
-    headers?: Record<string, string>;
-    timeoutMs?: number;
-    retry?: RetryPolicy;
-    bodySerialize?: boolean;
-  },
-): ApiClient => {
-  const httpMethods = ["get", "post", "patch", "put", "delete"] as const;
-  const apiClient = { ...baseApiClient } as ApiClient;
-
-  for (const k of httpMethods) {
-    const original = baseApiClient[k];
-    (apiClient as any)[k] = (path: string, opts: any) =>
-      original(`${baseURL}/${path}`, {
-        ...defaults,
-        ...opts,
-        ...(k !== "get" && opts?.body
-          ? { body: serializeBody(opts.body, opts.bodySerialize) }
-          : {}),
-      });
-  }
-  return apiClient;
 };
 
 export function createApiClient(

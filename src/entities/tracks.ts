@@ -25,9 +25,6 @@ export const fetchTracksAPI = async ({
 
 export const postTrackAPI = async (track: Track | DeepReadonly<Track>) =>
   await apiClient.post("api/tracks", {
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: track,
   });
 
@@ -36,9 +33,6 @@ export const deleteTrackAPI = async (id: string) =>
 
 export const editTrackAPI = async (track: Track | DeepReadonly<Track>) =>
   await apiClient.put(`api/tracks/${track.id}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: track,
   });
 
@@ -47,6 +41,7 @@ export const postTrackFileAPI = async (id: string, file: any) => {
   formData.append("file", file);
 
   return await apiClient.post(`api/tracks/${id}/upload`, {
+    headers: {},
     body: formData,
     bodySerialize: false,
   });
