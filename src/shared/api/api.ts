@@ -119,6 +119,7 @@ const configureRequestOptions = (body: any) => {
       };
     }
   }
+  return {};
 };
 // -----------------------------------------------------------------------------------------
 
@@ -134,7 +135,7 @@ const connector = async (
     }
 
     const error = await res.json();
-    console.log(res, error);
+
     return {
       res,
       error,
