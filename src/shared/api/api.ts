@@ -159,7 +159,9 @@ async function makeRequest(
 
   const signal = combineSignals(timeoutController.signal, opts.signal);
 
-  const { res, error } = await connector(`${path}?${buildQuery(opts.query)}`, {
+  const query = buildQuery(opts.query);
+
+  const { res, error } = await connector(`${path}${query ? `?${query}` : ""}`, {
     ...opts,
     ...configureRequestOptions(opts.body),
     signal,
@@ -193,22 +195,26 @@ async function makeRequest(
       return { ok: true, data, error: null, response: res };
     }
 
-    const { success, error } = opts.schema.safeParse(data);
+    if (opts.parse === "json") {
+      const { success, error } = opts.schema.safeParse(data);
 
-    if (success) {
-      return { ok: true, data, error: null, response: res };
+      if (success) {
+        return { ok: true, data, error: null, response: res };
+      }
+
+      return {
+        ok: false,
+        data: null,
+        error: {
+          code: "SCHEMA",
+          message: "Received data is not supported structure",
+          details: error.issues,
+        },
+        response: res,
+      };
     }
 
-    return {
-      ok: false,
-      data: null,
-      error: {
-        code: "SCHEMA",
-        message: "Received data is not supported structure",
-        details: error.issues,
-      },
-      response: res,
-    };
+    return { ok: true, data, error: null, response: res };
   }
 }
 
