@@ -53,10 +53,8 @@ const handleValidateField = (
   fieldKey: keyof typeof errorMessages.value,
   value: any,
 ) => {
-  const result = schema.shape[fieldKey].safeParse(value);
-  errorMessages.value[fieldKey] = result.success
-    ? ""
-    : result.error.errors[0].message;
+  const { success, error } = schema.shape[fieldKey].safeParse(value);
+  errorMessages.value[fieldKey] = success ? "" : error.issues[0].message;
 };
 
 const validateForm = (formData: Track) => {
