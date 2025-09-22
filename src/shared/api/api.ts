@@ -82,8 +82,10 @@ const getApiError = (
   };
 };
 
-const serializeBody = (data: any, bodySerialize: boolean = true) => {
-  return bodySerialize ? JSON.stringify(data) : data;
+const serializeBody = (data: any) => {
+  return data instanceof FormData || data instanceof Blob
+    ? data
+    : JSON.stringify(data);
 };
 
 const injectApiClientOptions = (
@@ -106,7 +108,7 @@ const injectApiClientOptions = (
         ...defaults,
         ...opts,
         ...(k !== "get" && opts?.body
-          ? { body: serializeBody(opts.body, opts.bodySerialize) }
+          ? { body: serializeBody(opts?.body) }
           : {}),
       });
   }
@@ -243,7 +245,6 @@ export function createApiClient(
     headers?: Record<string, string>;
     timeoutMs?: number;
     retry?: RetryPolicy;
-    bodySerialize?: boolean;
   },
 ): ApiClient {
   return injectApiClientOptions(apiClient, baseURL, defaults);

@@ -9,5 +9,4 @@ export default createApiClient(BASE_URL, {
     maxDelayMs: 1000,
     retryOn: ["TIMEOUT"],
   },
-  bodySerialize: true,
 });
