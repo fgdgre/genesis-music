@@ -176,6 +176,24 @@ const shouldRetry = (
 };
 // -----------------------------------------------------------------------------------------
 
+const cash: {
+  values: Record<string, any>;
+  setQuery: (queryKey: string, data: any) => void;
+  invalidateQuery: (queryKey: string) => void;
+  invalidateAll: () => void;
+} = {
+  values: {},
+  setQuery: function (queryKey: string, data: any) {
+    this.values[queryKey] = data;
+  },
+  invalidateQuery: function (queryKey: string) {
+    this.values.delete(queryKey);
+  },
+  invalidateAll: function () {
+    this.values = {};
+  },
+};
+
 async function connector(path: string, opts: RequestOptions): Promise<Result> {
   let retryCount = 0;
   const elapsedTimeoutController = new AbortController();
