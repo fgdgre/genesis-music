@@ -176,101 +176,6 @@ const shouldRetry = (
 };
 // -----------------------------------------------------------------------------------------
 
-// const connector = async (
-//   path: string,n
-//   opts?: RequestInit,
-// ): Promise<{ res: Response | null; error: any | null }> => {
-//   try {
-//     return { res: await fetch(path, opts), error: null };
-//   } catch (error: any) {
-//     console.log(error);
-//     return { res: null, error };
-//   }
-// };
-
-// async function makeRequest(
-//   path: string,
-//   opts: RequestOptions,
-//   retryCount: number = 0,
-// ): Promise<Result> {
-//   const timeoutController = new AbortController();
-//   const signal = combineSignals(timeoutController.signal, opts.signal);
-//   try {
-//     const query = buildQuery(opts.query);
-
-//     let timer = setTimeout(async () => {
-//       timeoutController.abort();
-//     }, opts.timeoutMs);
-
-//     const res = await fetch(`${path}${query ? `?${query}` : ""}`, {
-//       ...opts,
-//       ...configureRequestOptions(opts.body),
-//       signal,
-//     });
-
-//     clearTimeout(timer);
-
-//     console.log(res);
-//     const parsedResponse = await parseResponseBody(res, opts.parse);
-//     console.log(res, parsedResponse);
-
-//     if (!res.ok) {
-//       const apiError = getApiError(
-//         parsedResponse,
-//         timeoutController.signal,
-//         signal,
-//       );
-//       console.log(parsedResponse, apiError);
-
-//       if (
-//         opts.method === "GET" &&
-//         opts.retry &&
-//         opts.retry.retries !== 0 &&
-//         opts.retry.retryOn.includes(apiError.code) &&
-//         retryCount < opts.retry.retries
-//       ) {
-//         return await makeRequest(path, opts, retryCount + 1);
-//       }
-
-//       return {
-//         ok: false,
-//         data: null,
-//         error: apiError,
-//       };
-//     } else {
-//       if (!opts.schema) {
-//         return { ok: true, data: parsedResponse, error: null, response: res };
-//       }
-
-//       if (opts.parse === "json") {
-//         const { success, error } = opts.schema.safeParse(parsedResponse);
-
-//         if (success) {
-//           return { ok: true, data: parsedResponse, error: null, response: res };
-//         }
-
-//         return {
-//           ok: false,
-//           data: null,
-//           error: {
-//             code: "SCHEMA",
-//             message: "Received data is not supported structure",
-//             details: error.issues,
-//           },
-//           response: res,
-//         };
-//       }
-
-//       return { ok: true, data: parsedResponse, error: null, response: res };
-//     }
-//   } catch (e) {
-//     return {
-//       ok: false,
-//       error: getApiError(e, timeoutController.signal, signal),
-//     };
-//   }
-// }
-
 async function connector(path: string, opts: RequestOptions): Promise<Result> {
   let retryCount = 0;
   const elapsedTimeoutController = new AbortController();
@@ -333,7 +238,6 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
 
     console.log(res);
 
-    // TODO: Retries
     if (
       shouldRetry(res, opts, retryCount) &&
       !elapsedTimeoutController.signal.aborted
@@ -342,24 +246,14 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
       continue;
     } else {
       if (!opts.schema) {
-        return {
-          ok: true,
-          data: res.data,
-          error: null,
-          response: res.response,
-        };
+        return res;
       }
 
-      if (opts.parse || "json" === "json") {
+      if ((opts.parse || "json") === "json") {
         const { success, error } = opts.schema.safeParse(res.data);
 
         if (success) {
-          return {
-            ok: true,
-            data: res.data,
-            error: null,
-            response: res.response,
-          };
+          return res;
         }
 
         return {
@@ -376,7 +270,6 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
 
       return res;
     }
-    // TODO: global request timeout includes retries
   }
 }
 
