@@ -22,6 +22,51 @@ export type Result = {
   response?: Response | null;
 };
 
+export type RetryWhen =
+  | Array<"network" | "http-5xx" | "http-429" | "timeout">
+  | number[]
+  | ((ctx: {
+      method: "GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE";
+      attempt: number;
+      error?: unknown;
+      response?: Response;
+    }) => boolean);
+
+/** User-friendly retry options */
+export type RetryOptions = {
+  /** total tries INCLUDING the first attempt. default: 3 (1 + 2 retries) */
+  attempts?: number;
+  /** which methods are eligible. default: ['GET','HEAD'] */
+  methods?: Array<"GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE">;
+  /** conditions for retry. default: ['network','http-5xx'] */
+  when?: RetryWhen;
+  /** optional hard cap across all retries */
+  maxElapsedMs?: number;
+  /** backoff tuning */
+  backoff?: {
+    /** base random window (min..max) multiplied by factor^attempt. default: 300..1000 */
+    minDelayMs?: number;
+    maxDelayMs?: number;
+    /** growth factor. default: 2 */
+    factor?: number;
+    /** jitter strategy. default: 'full' */
+    jitter?: "none" | "full" | "decorrelated";
+  };
+};
+
+export type NormalizedRetry = {
+  attempts: number; // >= 1 (includes first try)
+  methods: Set<"GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE">;
+  shouldRetry: (ctx: {
+    method: "GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE";
+    attempt: number;
+    error?: unknown;
+    response?: Response;
+  }) => boolean;
+  computeDelayMs: (attempt: number, prevDelayMs?: number) => number;
+  maxElapsedMs?: number;
+};
+
 export type RetryPolicy = {
   retries: number;
   minDelayMs: number;

@@ -7,6 +7,7 @@ import type {
   ApiClient,
   ApiError,
   ApiErrorCode,
+  RetryOptions,
 } from "./types";
 import { buildQuery } from "@/utils/buildQuery";
 
@@ -35,7 +36,6 @@ const getApiCode = (
   timeoutController: AbortSignal,
   signal: AbortSignal,
 ): ApiErrorCode | undefined => {
-  console.log(timeoutController.aborted);
   if (isAbortError(error) || (signal as any)?.aborted) {
     return timeoutController.aborted ? "TIMEOUT" : "ABORTED";
   }
@@ -85,11 +85,10 @@ const getApiError = (
 const injectApiClientOptions = (
   baseApiClient: ApiClient,
   baseURL: string,
-  defaults?: {
+  defaults: {
     headers?: Record<string, string>;
     timeoutMs?: number;
-    retry?: RetryPolicy;
-    bodySerialize?: boolean;
+    retry?: RetryOptions;
   },
 ): ApiClient => {
   const httpMethods = ["get", "post", "patch", "put", "delete"] as const;
@@ -123,121 +122,147 @@ const configureRequestOptions = (body: any) => {
 };
 // -----------------------------------------------------------------------------------------
 
-const connector = async (
-  path: string,
-  opts?: RequestInit,
-): Promise<{ res: Response | null; error: any | null }> => {
-  try {
-    const res = await fetch(path, opts);
+// const connector = async (
+//   path: string,
+//   opts?: RequestInit,
+// ): Promise<{ res: Response | null; error: any | null }> => {
+//   try {
+//     return { res: await fetch(path, opts), error: null };
+//   } catch (error: any) {
+//     console.log(error);
+//     return { res: null, error };
+//   }
+// };
 
-    if (res.ok) {
-      return { res, error: null };
-    }
+// async function makeRequest(
+//   path: string,
+//   opts: RequestOptions,
+//   retryCount: number = 0,
+// ): Promise<Result> {
+//   const timeoutController = new AbortController();
+//   const signal = combineSignals(timeoutController.signal, opts.signal);
+//   try {
+//     const query = buildQuery(opts.query);
 
-    const error = await res.json();
+//     let timer = setTimeout(async () => {
+//       timeoutController.abort();
+//     }, opts.timeoutMs);
 
-    return {
-      res,
-      error,
-    };
-  } catch (error: any) {
-    console.log(error);
-    return { res: null, error };
-  }
-};
+//     const res = await fetch(`${path}${query ? `?${query}` : ""}`, {
+//       ...opts,
+//       ...configureRequestOptions(opts.body),
+//       signal,
+//     });
 
-async function makeRequest(
+//     clearTimeout(timer);
+
+//     console.log(res);
+//     const parsedResponse = await parseResponseBody(res, opts.parse);
+//     console.log(res, parsedResponse);
+
+//     if (!res.ok) {
+//       const apiError = getApiError(
+//         parsedResponse,
+//         timeoutController.signal,
+//         signal,
+//       );
+//       console.log(parsedResponse, apiError);
+
+//       if (
+//         opts.method === "GET" &&
+//         opts.retry &&
+//         opts.retry.retries !== 0 &&
+//         opts.retry.retryOn.includes(apiError.code) &&
+//         retryCount < opts.retry.retries
+//       ) {
+//         return await makeRequest(path, opts, retryCount + 1);
+//       }
+
+//       return {
+//         ok: false,
+//         data: null,
+//         error: apiError,
+//       };
+//     } else {
+//       if (!opts.schema) {
+//         return { ok: true, data: parsedResponse, error: null, response: res };
+//       }
+
+//       if (opts.parse === "json") {
+//         const { success, error } = opts.schema.safeParse(parsedResponse);
+
+//         if (success) {
+//           return { ok: true, data: parsedResponse, error: null, response: res };
+//         }
+
+//         return {
+//           ok: false,
+//           data: null,
+//           error: {
+//             code: "SCHEMA",
+//             message: "Received data is not supported structure",
+//             details: error.issues,
+//           },
+//           response: res,
+//         };
+//       }
+
+//       return { ok: true, data: parsedResponse, error: null, response: res };
+//     }
+//   } catch (e) {
+//     return {
+//       ok: false,
+//       error: getApiError(e, timeoutController.signal, signal),
+//     };
+//   }
+// }
+
+async function connector(
   path: string,
   opts: RequestOptions,
   retryCount: number = 0,
 ): Promise<Result> {
-  const timeoutController = new AbortController();
-
-  let timer = setTimeout(async () => {
-    timeoutController.abort();
-  }, opts.timeoutMs);
-
-  const signal = combineSignals(timeoutController.signal, opts.signal);
-
+  // TODO: request !!!
+  // const timeoutController = new AbortController();
+  // const signal = combineSignals(timeoutController.signal, opts.signal);
   const query = buildQuery(opts.query);
 
-  const { res, error } = await connector(`${path}${query ? `?${query}` : ""}`, {
+  const res = await fetch(`${path}${query ? `?${query}` : ""}`, {
     ...opts,
     ...configureRequestOptions(opts.body),
-    signal,
   });
 
-  clearTimeout(timer);
+  const data = await parseResponseBody(res, opts.parse);
 
-  if (error) {
-    console.log(error);
-    const apiError = getApiError(error, timeoutController.signal, signal);
+  console.log(res, data);
 
-    if (
-      opts.method === "GET" &&
-      opts.retry &&
-      opts.retry.retries !== 0 &&
-      opts.retry.retryOn.includes(apiError.code) &&
-      retryCount < opts.retry.retries
-    ) {
-      return await makeRequest(path, opts, retryCount + 1);
-    }
-
-    return {
-      ok: false,
-      data: null,
-      error: apiError,
-    };
-  } else {
-    const data = await parseResponseBody(res, opts.parse);
-
-    if (!opts.schema) {
-      return { ok: true, data, error: null, response: res };
-    }
-
-    if (opts.parse === "json") {
-      const { success, error } = opts.schema.safeParse(data);
-
-      if (success) {
-        return { ok: true, data, error: null, response: res };
-      }
-
-      return {
-        ok: false,
-        data: null,
-        error: {
-          code: "SCHEMA",
-          message: "Received data is not supported structure",
-          details: error.issues,
-        },
-        response: res,
-      };
-    }
-
-    return { ok: true, data, error: null, response: res };
-  }
+  // TODO: Retries
+  // TODO: global request timeout includes retries
+  // TODO: per call timeout
+  // TODO: validation of received data
+  // TODO: build error due to type
 }
 
 const apiClient: ApiClient = {
   get: async (path: string, opts: Omit<RequestOptions, "method" | "body">) =>
-    await makeRequest(path, { method: "GET", ...opts }),
+    await connector(path, { method: "GET", ...opts }),
   post: async (path: string, opts: Omit<RequestOptions, "method">) =>
-    await makeRequest(path, {
+    await connector(path, {
       method: "POST",
       ...opts,
     }),
   put: async (path: string, opts: Omit<RequestOptions, "method">) =>
-    await makeRequest(path, {
+    await connector(path, {
       method: "PUT",
       ...opts,
     }),
   patch: async (path: string, opts: Omit<RequestOptions, "method">) =>
-    await makeRequest(path, {
+    await connector(path, {
       method: "PATCH",
       ...opts,
     }),
   delete: async (path: string, opts: Omit<RequestOptions, "method">) =>
-    await makeRequest(path, {
+    await connector(path, {
       method: "DELETE",
       ...opts,
     }),
@@ -245,10 +270,19 @@ const apiClient: ApiClient = {
 
 export function createApiClient(
   baseURL: string,
-  defaults?: {
+  defaults: {
     headers?: Record<string, string>;
     timeoutMs?: number;
-    retry?: RetryPolicy;
+    retry?: RetryOptions;
+  } = {
+    headers: { contentType: "application/json" },
+    timeoutMs: 8000,
+    retry: {
+      attempts: 3,
+      methods: ["GET", "HEAD"],
+      when: ["network"],
+      maxElapsedMs: 15000,
+    },
   },
 ): ApiClient {
   return injectApiClientOptions(apiClient, baseURL, defaults);
