@@ -342,7 +342,12 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
       continue;
     } else {
       if (!opts.schema) {
-        return { ok: true, data: res, error: null };
+        return {
+          ok: true,
+          data: res.data,
+          error: null,
+          response: res.response,
+        };
       }
 
       if (opts.parse || "json" === "json") {

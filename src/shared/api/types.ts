@@ -54,26 +54,6 @@ export type RetryOptions = {
   };
 };
 
-export type NormalizedRetry = {
-  attempts: number; // >= 1 (includes first try)
-  methods: Set<"GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE">;
-  shouldRetry: (ctx: {
-    method: "GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE";
-    attempt: number;
-    error?: unknown;
-    response?: Response;
-  }) => boolean;
-  computeDelayMs: (attempt: number, prevDelayMs?: number) => number;
-  maxElapsedMs?: number;
-};
-
-// export type RetryPolicy = {
-//   retries: number;
-//   minDelayMs: number;
-//   maxDelayMs: number;
-//   retryOn: ApiErrorCode[];
-// };
-
 export type ParseMode = "json" | "text" | "blob";
 
 export type RequestOptions = {
