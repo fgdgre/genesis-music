@@ -24,13 +24,13 @@ export type Result = {
 
 export type RetryWhen =
   | Array<"network" | "http-5xx" | "http-429" | "timeout">
-  | number[]
-  | ((ctx: {
-      method: "GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE";
-      attempt: number;
-      error?: unknown;
-      response?: Response;
-    }) => boolean);
+  | number[];
+// | ((ctx: {
+//     method: "GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE";
+//     attempt: number;
+//     error?: unknown;
+//     response?: Response;
+//   }) => boolean);
 
 /** User-friendly retry options */
 export type RetryOptions = {
@@ -67,12 +67,12 @@ export type NormalizedRetry = {
   maxElapsedMs?: number;
 };
 
-export type RetryPolicy = {
-  retries: number;
-  minDelayMs: number;
-  maxDelayMs: number;
-  retryOn: ApiErrorCode[];
-};
+// export type RetryPolicy = {
+//   retries: number;
+//   minDelayMs: number;
+//   maxDelayMs: number;
+//   retryOn: ApiErrorCode[];
+// };
 
 export type ParseMode = "json" | "text" | "blob";
 
@@ -83,7 +83,7 @@ export type RequestOptions = {
   headers?: Record<string, string>;
   timeoutMs?: number;
   signal?: AbortSignal;
-  retry?: RetryPolicy;
+  retry?: RetryOptions;
   schema?: ZodSchema;
   parse?: ParseMode;
   dedupeKey?: string;

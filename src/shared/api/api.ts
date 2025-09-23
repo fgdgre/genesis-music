@@ -2,7 +2,6 @@ import type { ZodSchema } from "zod";
 import parseResponseBody from "@/utils/parseResponseBody";
 import type {
   Result,
-  RetryPolicy,
   RequestOptions,
   ApiClient,
   ApiError,
@@ -91,6 +90,7 @@ const injectApiClientOptions = (
     retry?: RetryOptions;
   },
 ): ApiClient => {
+  console.log(defaults.retry);
   const httpMethods = ["get", "post", "patch", "put", "delete"] as const;
   const apiClient = { ...baseApiClient } as ApiClient;
 
@@ -120,10 +120,46 @@ const configureRequestOptions = (body: any) => {
   }
   return {};
 };
+
+const shouldRetry = (
+  res: Result,
+  requestOptions: RequestOptions,
+  retriesCount: number,
+) => {
+  console.log(11);
+  if (!res.error) return false;
+  console.log(12);
+  if (res.ok) return false;
+  console.log(13);
+  if (requestOptions.retry?.attempts === 0) return false;
+  console.log(14);
+  console.log(retriesCount, requestOptions.retry?.attempts || 0);
+  if (retriesCount >= (requestOptions.retry?.attempts || 0)) return false;
+  console.log(15);
+  if (!requestOptions.retry?.methods?.includes(requestOptions.method || "GET"))
+    return false;
+  console.log(16);
+
+  if (requestOptions.retry.when!.includes("http-5xx")) {
+    return res.error.status.toString().startsWith("5");
+  }
+  console.log(17);
+
+  if (requestOptions.retry.when!.includes("http-429")) {
+    return res.error.status === 429;
+  }
+  console.log(18);
+  if (retriesCount === 3) {
+    return false;
+  }
+  return requestOptions.retry.when?.includes(
+    res.error.code?.toLowerCase() || res.error.status,
+  );
+};
 // -----------------------------------------------------------------------------------------
 
 // const connector = async (
-//   path: string,
+//   path: string,n
 //   opts?: RequestInit,
 // ): Promise<{ res: Response | null; error: any | null }> => {
 //   try {
@@ -217,30 +253,50 @@ const configureRequestOptions = (body: any) => {
 //   }
 // }
 
-async function connector(
-  path: string,
-  opts: RequestOptions,
-  retryCount: number = 0,
-): Promise<Result> {
-  // TODO: request !!!
-  // const timeoutController = new AbortController();
-  // const signal = combineSignals(timeoutController.signal, opts.signal);
-  const query = buildQuery(opts.query);
+async function connector(path: string, opts: RequestOptions): Promise<Result> {
+  let retryCount = 0;
+  while (true) {
+    // TODO: request !!!
+    const timeoutController = new AbortController();
+    const signal = combineSignals(timeoutController.signal, opts.signal);
+    const query = buildQuery(opts.query);
 
-  const res = await fetch(`${path}${query ? `?${query}` : ""}`, {
-    ...opts,
-    ...configureRequestOptions(opts.body),
-  });
+    const res: Result = await fetch(`${path}${query ? `?${query}` : ""}`, {
+      ...opts,
+      ...configureRequestOptions(opts.body),
+      signal,
+    })
+      .then(async (res) => {
+        const data = await parseResponseBody(res);
+        return res.ok
+          ? { ok: true, data, error: null, res }
+          : {
+              ok: false,
+              data: null,
+              error: getApiError(data, timeoutController.signal, signal),
+              res,
+            };
+      })
+      .catch((e) => ({
+        ok: false,
+        data: null,
+        error: getApiError(e, timeoutController.signal, signal),
+      }));
 
-  const data = await parseResponseBody(res, opts.parse);
+    console.log(res);
 
-  console.log(res, data);
-
-  // TODO: Retries
-  // TODO: global request timeout includes retries
-  // TODO: per call timeout
-  // TODO: validation of received data
-  // TODO: build error due to type
+    // TODO: Retries
+    if (shouldRetry(res, opts, retryCount)) {
+      retryCount += 1;
+      continue;
+    } else {
+      return res;
+    }
+    // TODO: per call timeout
+    // TODO: global request timeout includes retries
+    // TODO: validation of received data
+    // TODO: build error due to type
+  }
 }
 
 const apiClient: ApiClient = {
@@ -273,16 +329,7 @@ export function createApiClient(
   defaults: {
     headers?: Record<string, string>;
     timeoutMs?: number;
-    retry?: RetryOptions;
-  } = {
-    headers: { contentType: "application/json" },
-    timeoutMs: 8000,
-    retry: {
-      attempts: 3,
-      methods: ["GET", "HEAD"],
-      when: ["network"],
-      maxElapsedMs: 15000,
-    },
+    retry: RetryOptions;
   },
 ): ApiClient {
   return injectApiClientOptions(apiClient, baseURL, defaults);
