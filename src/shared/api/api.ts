@@ -341,12 +341,37 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
       retryCount += 1;
       continue;
     } else {
+      if (!opts.schema) {
+        return { ok: true, data: res, error: null };
+      }
+
+      if (opts.parse || "json" === "json") {
+        const { success, error } = opts.schema.safeParse(res.data);
+
+        if (success) {
+          return {
+            ok: true,
+            data: res.data,
+            error: null,
+            response: res.response,
+          };
+        }
+
+        return {
+          ok: false,
+          data: null,
+          error: {
+            code: "SCHEMA",
+            message: "Received data is not supported structure",
+            details: error.issues,
+          },
+          response: res.response,
+        };
+      }
+
       return res;
     }
     // TODO: global request timeout includes retries
-
-    // TODO: validation of received data
-    // TODO: build error due to type
   }
 }
 
