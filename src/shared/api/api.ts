@@ -30,13 +30,50 @@ function isOffline() {
   return typeof navigator !== "undefined" && navigator.onLine === false;
 }
 
+export function combineSignals(
+  ...signals: Array<AbortSignal | null | undefined>
+): AbortSignal {
+  const list = signals.filter(Boolean) as AbortSignal[];
+  if (list.length <= 1) return list[0] ?? new AbortController().signal;
+
+  const any = (AbortSignal as any).any as
+    | ((i: Iterable<AbortSignal>) => AbortSignal)
+    | undefined;
+  if (typeof any === "function") return any(list);
+
+  const controller = new AbortController();
+
+  // Abort immediately if one is already aborted
+  const firstAborted = list.find((s) => s.aborted);
+  if (firstAborted) {
+    controller.abort(
+      (firstAborted as any).reason ?? new DOMException("Aborted", "AbortError"),
+    );
+    return controller.signal;
+  }
+
+  // Otherwise, abort on the first one that fires (auto-removes with once:true)
+  const onAbort = (e: Event) => {
+    const src = e.target as AbortSignal | null;
+    controller.abort(
+      (src as any)?.reason ?? new DOMException("Aborted", "AbortError"),
+    );
+  };
+  for (const s of list) s.addEventListener("abort", onAbort, { once: true });
+
+  return controller.signal;
+}
+
 const getApiCode = (
   error: any,
-  timeoutController: AbortSignal,
-  signal: AbortSignal,
+  timeoutSignal: AbortSignal,
+  elapsedSignal: AbortSignal,
+  combinedSignals: AbortSignal,
 ): ApiErrorCode | undefined => {
-  if (isAbortError(error) || (signal as any)?.aborted) {
-    return timeoutController.aborted ? "TIMEOUT" : "ABORTED";
+  if (isAbortError(error) || (combinedSignals as any)?.aborted) {
+    return timeoutSignal.aborted || elapsedSignal.aborted
+      ? "TIMEOUT"
+      : "ABORTED";
   }
   if (
     error.statusCode?.toString().startsWith(4) ||
@@ -49,27 +86,17 @@ const getApiCode = (
   }
 };
 
-function combineSignals(inner: AbortSignal, outer?: AbortSignal) {
-  if (!outer) return inner;
-  if ((AbortSignal as any).any) return (AbortSignal as any).any([inner, outer]);
-
-  const combo = new AbortController();
-  const onAbort = () => combo.abort();
-  inner.addEventListener("abort", onAbort);
-  outer.addEventListener("abort", onAbort);
-  if (inner.aborted || outer.aborted) combo.abort();
-  return combo.signal;
-}
-
 const getApiError = (
   error: any,
-  timeoutController: AbortSignal,
-  signal: AbortSignal,
+  timeoutSignal: AbortSignal,
+  elapsedSignal: AbortSignal,
+  combinedSignals: AbortSignal,
 ): Omit<ApiError, "code"> & { code: ApiErrorCode | undefined } => {
   const errorCode: ApiErrorCode | undefined = getApiCode(
     error,
-    timeoutController,
-    signal,
+    timeoutSignal,
+    elapsedSignal,
+    combinedSignals,
   );
 
   return {
@@ -126,29 +153,20 @@ const shouldRetry = (
   requestOptions: RequestOptions,
   retriesCount: number,
 ) => {
-  console.log(11);
   if (!res.error) return false;
-  console.log(12);
   if (res.ok) return false;
-  console.log(13);
   if (requestOptions.retry?.attempts === 0) return false;
-  console.log(14);
-  console.log(retriesCount, requestOptions.retry?.attempts || 0);
   if (retriesCount >= (requestOptions.retry?.attempts || 0)) return false;
-  console.log(15);
   if (!requestOptions.retry?.methods?.includes(requestOptions.method || "GET"))
     return false;
-  console.log(16);
 
   if (requestOptions.retry.when!.includes("http-5xx")) {
     return res.error.status.toString().startsWith("5");
   }
-  console.log(17);
 
   if (requestOptions.retry.when!.includes("http-429")) {
     return res.error.status === 429;
   }
-  console.log(18);
   if (retriesCount === 3) {
     return false;
   }
@@ -255,11 +273,25 @@ const shouldRetry = (
 
 async function connector(path: string, opts: RequestOptions): Promise<Result> {
   let retryCount = 0;
+  const elapsedTimeoutController = new AbortController();
+
+  setTimeout(() => {
+    elapsedTimeoutController.abort();
+  }, opts.retry?.maxElapsedMs || 30000);
+
   while (true) {
     // TODO: request !!!
     const timeoutController = new AbortController();
-    const signal = combineSignals(timeoutController.signal, opts.signal);
+    const signal = combineSignals(
+      timeoutController.signal,
+      opts.signal,
+      elapsedTimeoutController.signal,
+    );
     const query = buildQuery(opts.query);
+
+    const timer = setTimeout(() => {
+      timeoutController.abort();
+    }, opts.timeoutMs);
 
     const res: Result = await fetch(`${path}${query ? `?${query}` : ""}`, {
       ...opts,
@@ -267,33 +299,52 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
       signal,
     })
       .then(async (res) => {
+        clearTimeout(timer);
+
         const data = await parseResponseBody(res);
         return res.ok
           ? { ok: true, data, error: null, res }
           : {
               ok: false,
               data: null,
-              error: getApiError(data, timeoutController.signal, signal),
+              error: getApiError(
+                data,
+                timeoutController.signal,
+                elapsedTimeoutController.signal,
+                signal,
+              ),
               res,
             };
       })
-      .catch((e) => ({
-        ok: false,
-        data: null,
-        error: getApiError(e, timeoutController.signal, signal),
-      }));
+      .catch((e) => {
+        clearTimeout(timer);
+
+        return {
+          ok: false,
+          data: null,
+          error: getApiError(
+            e,
+            timeoutController.signal,
+            elapsedTimeoutController.signal,
+            signal,
+          ),
+        };
+      });
 
     console.log(res);
 
     // TODO: Retries
-    if (shouldRetry(res, opts, retryCount)) {
+    if (
+      shouldRetry(res, opts, retryCount) &&
+      !elapsedTimeoutController.signal.aborted
+    ) {
       retryCount += 1;
       continue;
     } else {
       return res;
     }
-    // TODO: per call timeout
     // TODO: global request timeout includes retries
+
     // TODO: validation of received data
     // TODO: build error due to type
   }
