@@ -168,9 +168,6 @@ const shouldRetry = (
   if (requestOptions.retry.when!.includes("http-429")) {
     return res.error.status === 429;
   }
-  if (retriesCount === 3) {
-    return false;
-  }
   return requestOptions.retry.when?.includes(
     res.error.code?.toLowerCase() || res.error.status,
   );
@@ -283,7 +280,7 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
             message: "Received data is not supported structure",
             details: error.issues,
           },
-          response: res.response,
+          res: res.res,
         };
       }
 

@@ -8,10 +8,8 @@ export const createQueryCache = () => {
     setQuery: (queryKey: string, data: any) => {
       values.value[queryKey] = data;
     },
-    invalidateQuery: (
-      queryParam: string | ((queryKey: string, data: any) => boolean),
-    ) => {
-      values.value.delete(queryParam);
+    invalidateQuery: (queryParam: string) => {
+      delete values.value[queryParam];
     },
     invalidateAll: (queryKey?: string) => {
       if (queryKey) {

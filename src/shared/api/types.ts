@@ -19,7 +19,7 @@ export type Result = {
   ok: boolean;
   data: any | null;
   error: any | null;
-  response?: Response | null;
+  res?: Response | null;
 };
 
 export type RetryWhen =
