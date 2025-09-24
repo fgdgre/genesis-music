@@ -10,6 +10,7 @@ import type {
 import { buildQuery } from "@/utils/buildQuery";
 import { readonly, ref } from "vue";
 import { cloneDeep } from "lodash-es";
+import { createQueryCache } from "../query/queryClient";
 
 // HELPERS ----------------------------------------------------------------------
 function isAbortError(e: unknown) {
@@ -175,35 +176,6 @@ const shouldRetry = (
   );
 };
 // -----------------------------------------------------------------------------------------
-
-// TODO: invalidate after some time
-const createQueryCache = () => {
-  const values = ref<Record<string, any>>({});
-
-  return {
-    values: readonly(values),
-    setQuery: (queryKey: string, data: any) => {
-      values.value[queryKey] = data;
-    },
-    invalidateQuery: (
-      queryParam: string | ((queryKey: string, data: any) => boolean),
-    ) => {
-      values.value.delete(queryParam);
-    },
-    invalidateAll: (queryKey?: string) => {
-      if (queryKey) {
-        values.value = Object.fromEntries(
-          Object.entries(values.value).filter(
-            ([_queryKey, _]) => !_queryKey.includes(queryKey),
-          ),
-        );
-      } else {
-        values.value = {};
-      }
-    },
-  };
-};
-
 export const {
   values: queriesCache,
   invalidateAll,
