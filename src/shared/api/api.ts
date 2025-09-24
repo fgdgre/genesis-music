@@ -9,6 +9,7 @@ import type {
   RetryOptions,
 } from "./types";
 import { buildQuery } from "@/utils/buildQuery";
+import { ref } from "vue";
 
 // HELPERS ----------------------------------------------------------------------
 function isAbortError(e: unknown) {
@@ -117,7 +118,6 @@ const injectApiClientOptions = (
     retry?: RetryOptions;
   },
 ): ApiClient => {
-  console.log(defaults.retry);
   const httpMethods = ["get", "post", "patch", "put", "delete"] as const;
   const apiClient = { ...baseApiClient } as ApiClient;
 
@@ -176,12 +176,12 @@ const shouldRetry = (
 };
 // -----------------------------------------------------------------------------------------
 
-const cash: {
+const queryCache = ref<{
   values: Record<string, any>;
   setQuery: (queryKey: string, data: any) => void;
   invalidateQuery: (queryKey: string) => void;
   invalidateAll: () => void;
-} = {
+}>({
   values: {},
   setQuery: function (queryKey: string, data: any) {
     this.values[queryKey] = data;
@@ -192,9 +192,17 @@ const cash: {
   invalidateAll: function () {
     this.values = {};
   },
-};
+});
 
 async function connector(path: string, opts: RequestOptions): Promise<Result> {
+  const query = buildQuery(opts.query);
+  const queryKey = `${path}${query ? `?${query}` : ""}`;
+
+  if (queryCache.value.values[queryKey]) {
+    console.log("CASSHHHH");
+    return { ok: true, data: queryCache.value.values[queryKey], error: null };
+  }
+
   let retryCount = 0;
   const elapsedTimeoutController = new AbortController();
 
@@ -210,13 +218,12 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
       opts.signal,
       elapsedTimeoutController.signal,
     );
-    const query = buildQuery(opts.query);
 
     const timer = setTimeout(() => {
       timeoutController.abort();
     }, opts.timeoutMs);
 
-    const res: Result = await fetch(`${path}${query ? `?${query}` : ""}`, {
+    const res: Result = await fetch(queryKey, {
       ...opts,
       ...configureRequestOptions(opts.body),
       signal,
@@ -271,6 +278,7 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
         const { success, error } = opts.schema.safeParse(res.data);
 
         if (success) {
+          queryCache.value.setQuery(queryKey, res.data);
           return res;
         }
 
