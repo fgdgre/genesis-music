@@ -1,6 +1,6 @@
 import { apiClient } from "@/shared/api";
 import { TracksResponseSchema } from "@/shared/api";
-import { invalidateQuery } from "@/shared/api/api";
+import { invalidateAll } from "@/shared/api/api";
 import { filtersStore } from "@/stores/filters";
 import type { Track } from "@/types";
 import type { DeepReadonly } from "vue";
@@ -31,30 +31,56 @@ export const postTrackAPI = async (track: Track | DeepReadonly<Track>) => {
   });
 
   if (res.ok) {
-    invalidateQuery((queryKey: string) => !queryKey.includes("tracks"));
+    invalidateAll("tracks");
     filtersStore().refreshFilters();
   }
 
   return res;
 };
 
-export const deleteTrackAPI = async (id: string) =>
-  await apiClient.delete(`api/tracks/${id}`);
+export const deleteTrackAPI = async (id: string) => {
+  const res = await apiClient.delete(`api/tracks/${id}`);
 
-export const editTrackAPI = async (track: Track | DeepReadonly<Track>) =>
-  await apiClient.put(`api/tracks/${track.id}`, {
+  if (res.ok) {
+    invalidateAll("tracks");
+  }
+
+  return res;
+};
+
+export const editTrackAPI = async (track: Track | DeepReadonly<Track>) => {
+  const res = await apiClient.put(`api/tracks/${track.id}`, {
     body: track,
   });
+
+  if (res.ok) {
+    invalidateAll("tracks");
+  }
+
+  return res;
+};
 
 export const postTrackFileAPI = async (id: string, file: any) => {
   const formData = new FormData();
   formData.append("file", file);
 
-  return await apiClient.post(`api/tracks/${id}/upload`, {
-    headers: {},
+  const res = await apiClient.post(`api/tracks/${id}/upload`, {
     body: formData,
   });
+
+  if (res.ok) {
+    invalidateAll("tracks");
+  }
+
+  return res;
 };
 
-export const deleteTrackFileAPI = async (id: string) =>
-  await apiClient.delete(`api/tracks/${id}/file`);
+export const deleteTrackFileAPI = async (id: string) => {
+  const res = await apiClient.delete(`api/tracks/${id}/file`);
+
+  if (res.ok) {
+    invalidateAll("tracks");
+  }
+
+  return res;
+};

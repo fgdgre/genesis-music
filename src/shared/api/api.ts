@@ -176,7 +176,6 @@ const shouldRetry = (
 };
 // -----------------------------------------------------------------------------------------
 
-// TODO: make this values property as readonly
 // TODO: invalidate after some time
 const createQueryCache = () => {
   const values = ref<Record<string, any>>({});
@@ -184,40 +183,22 @@ const createQueryCache = () => {
   return {
     values: readonly(values),
     setQuery: (queryKey: string, data: any) => {
-      console.log(values.value);
       values.value[queryKey] = data;
     },
     invalidateQuery: (
       queryParam: string | ((queryKey: string, data: any) => boolean),
     ) => {
-      console.log(values.value);
-      if (typeof queryParam === "string") {
-        console.log('queryParam === "string"');
-        values.value.delete(queryParam);
-      }
-      if (typeof queryParam === "function") {
-        console.log('queryParam === "function"');
+      values.value.delete(queryParam);
+    },
+    invalidateAll: (queryKey?: string) => {
+      if (queryKey) {
         values.value = Object.fromEntries(
-          Object.entries(values.value).filter(([queryKey, data]) =>
-            queryParam(queryKey, data),
+          Object.entries(values.value).filter(
+            ([_queryKey, _]) => !_queryKey.includes(queryKey),
           ),
         );
-      }
-      console.log(values.value);
-    },
-    invalidateAll: (queryParam?: string | ((queryKey: string) => boolean)) => {
-      console.log(values.value);
-      if (queryParam) {
-        if (typeof queryParam === "string") {
-          values.value.delete(queryParam);
-        }
-        if (typeof queryParam === "function") {
-          Object.fromEntries(
-            Object.entries(values.value).filter(([key, _]) => queryParam(key)),
-          );
-        } else {
-          values.value = {};
-        }
+      } else {
+        values.value = {};
       }
     },
   };

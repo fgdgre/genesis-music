@@ -105,7 +105,7 @@ watch(
       >
         Nothing is found
       </div>
-      {{ page }}
+
       <AppPagination
         v-if="tracksMeta?.totalPages && tracks.length"
         class="px-2 pb-2"
