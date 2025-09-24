@@ -67,7 +67,7 @@ export type RequestOptions = {
   schema?: ZodSchema;
   parse?: ParseMode;
   dedupeKey?: string;
-  bodySerialize?: boolean;
+  queryKey?: string;
 };
 
 export interface ApiClient {

@@ -1,5 +1,6 @@
 import { apiClient } from "@/shared/api";
 import { TracksResponseSchema } from "@/shared/api";
+import { invalidateQuery } from "@/shared/api/api";
 import type { Track } from "@/types";
 import type { DeepReadonly } from "vue";
 
@@ -23,10 +24,18 @@ export const fetchTracksAPI = async ({
     query: { page, search, genre, artist, order, sort },
   });
 
-export const postTrackAPI = async (track: Track | DeepReadonly<Track>) =>
-  await apiClient.post("api/tracks", {
+export const postTrackAPI = async (track: Track | DeepReadonly<Track>) => {
+  const res = await apiClient.post("api/tracks", {
     body: track,
   });
+
+  if (res.ok) {
+    console.log(1);
+    invalidateQuery((queryKey: string) => !queryKey.includes("tracks"));
+  }
+
+  return res;
+};
 
 export const deleteTrackAPI = async (id: string) =>
   await apiClient.delete(`api/tracks/${id}`);
@@ -43,7 +52,6 @@ export const postTrackFileAPI = async (id: string, file: any) => {
   return await apiClient.post(`api/tracks/${id}/upload`, {
     headers: {},
     body: formData,
-    bodySerialize: false,
   });
 };
 

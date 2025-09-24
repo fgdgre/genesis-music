@@ -61,6 +61,8 @@ export const useTracksStore = defineStore("tracksStore", () => {
 
         if (initialized.value) {
           addErrorToast(error);
+
+          page.value = tracksMeta.value?.page || 1; // ???
         }
       } else {
         clearErrors();
@@ -75,6 +77,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
   };
 
   const createTrack = (trackData: DeepReadonly<Track>) => {
+    console.log(trackData);
     tracks.value?.unshift(trackData as Track);
   };
 

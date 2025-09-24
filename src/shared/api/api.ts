@@ -1,4 +1,3 @@
-import type { ZodSchema } from "zod";
 import parseResponseBody from "@/utils/parseResponseBody";
 import type {
   Result,
@@ -9,7 +8,8 @@ import type {
   RetryOptions,
 } from "./types";
 import { buildQuery } from "@/utils/buildQuery";
-import { ref } from "vue";
+import { readonly, ref } from "vue";
+import { cloneDeep } from "lodash-es";
 
 // HELPERS ----------------------------------------------------------------------
 function isAbortError(e: unknown) {
@@ -176,31 +176,71 @@ const shouldRetry = (
 };
 // -----------------------------------------------------------------------------------------
 
-const queryCache = ref<{
-  values: Record<string, any>;
-  setQuery: (queryKey: string, data: any) => void;
-  invalidateQuery: (queryKey: string) => void;
-  invalidateAll: () => void;
-}>({
-  values: {},
-  setQuery: function (queryKey: string, data: any) {
-    this.values[queryKey] = data;
-  },
-  invalidateQuery: function (queryKey: string) {
-    this.values.delete(queryKey);
-  },
-  invalidateAll: function () {
-    this.values = {};
-  },
-});
+// TODO: make this values property as readonly
+// TODO: invalidate after some time
+const createQueryCache = () => {
+  const values = ref<Record<string, any>>({});
+
+  return {
+    values: readonly(values),
+    setQuery: (queryKey: string, data: any) => {
+      console.log(values.value);
+      values.value[queryKey] = data;
+    },
+    invalidateQuery: (
+      queryParam: string | ((queryKey: string, data: any) => boolean),
+    ) => {
+      console.log(values.value);
+      if (typeof queryParam === "string") {
+        console.log('queryParam === "string"');
+        values.value.delete(queryParam);
+      }
+      if (typeof queryParam === "function") {
+        console.log('queryParam === "function"');
+        values.value = Object.fromEntries(
+          Object.entries(values.value).filter(([queryKey, data]) =>
+            queryParam(queryKey, data),
+          ),
+        );
+      }
+      console.log(values.value);
+    },
+    invalidateAll: (queryParam?: string | ((queryKey: string) => boolean)) => {
+      console.log(values.value);
+      if (queryParam) {
+        if (typeof queryParam === "string") {
+          values.value.delete(queryParam);
+        }
+        if (typeof queryParam === "function") {
+          Object.fromEntries(
+            Object.entries(values.value).filter(([key, _]) => queryParam(key)),
+          );
+        } else {
+          values.value = {};
+        }
+      }
+    },
+  };
+};
+
+export const {
+  values: queriesCache,
+  invalidateAll,
+  invalidateQuery,
+  setQuery,
+} = createQueryCache();
 
 async function connector(path: string, opts: RequestOptions): Promise<Result> {
   const query = buildQuery(opts.query);
   const queryKey = `${path}${query ? `?${query}` : ""}`;
 
-  if (queryCache.value.values[queryKey]) {
+  if (queriesCache.value[queryKey]) {
     console.log("CASSHHHH");
-    return { ok: true, data: queryCache.value.values[queryKey], error: null };
+    return {
+      ok: true,
+      data: cloneDeep(queriesCache.value[queryKey]),
+      error: null,
+    };
   }
 
   let retryCount = 0;
@@ -278,7 +318,7 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
         const { success, error } = opts.schema.safeParse(res.data);
 
         if (success) {
-          queryCache.value.setQuery(queryKey, res.data);
+          setQuery(queryKey, res.data);
           return res;
         }
 
