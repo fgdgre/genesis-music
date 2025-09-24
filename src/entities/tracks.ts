@@ -1,6 +1,7 @@
 import { apiClient } from "@/shared/api";
 import { TracksResponseSchema } from "@/shared/api";
 import { invalidateQuery } from "@/shared/api/api";
+import { filtersStore } from "@/stores/filters";
 import type { Track } from "@/types";
 import type { DeepReadonly } from "vue";
 
@@ -30,8 +31,8 @@ export const postTrackAPI = async (track: Track | DeepReadonly<Track>) => {
   });
 
   if (res.ok) {
-    console.log(1);
     invalidateQuery((queryKey: string) => !queryKey.includes("tracks"));
+    filtersStore().refreshFilters();
   }
 
   return res;

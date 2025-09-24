@@ -4,22 +4,20 @@ import { ref } from "vue";
 import BaseInput from "./base/BaseInput.vue";
 import BaseSelect from "./base/BaseSelect.vue";
 import GenresSelect from "./GenresSelect.vue";
+import { filtersStore } from "@/stores/filters";
+import { storeToRefs } from "pinia";
 
 defineProps<{
   isLoading?: boolean;
 }>();
 
-defineEmits<{
-  filtersChanged: [QueryParams];
-}>();
+const store = filtersStore();
 
-const queryParams = ref<QueryParams>({
-  search: "",
-  genre: "",
-  artist: "",
-  order: "",
-  sort: "",
-});
+const { page, search, order, artist, genre, sort } = storeToRefs(store);
+
+const handleUpdateFilters = () => {
+  page.value = 1;
+};
 
 const sortSelectItems = [
   { label: "Artist", value: "artist" },
@@ -40,16 +38,16 @@ const orderSelectItems = [
         with-debounce
         label="Search"
         placeholder="Title, Artist, Album, Date"
-        v-model="queryParams.search"
-        @update:model-value="$emit('filtersChanged', queryParams)"
+        v-model="search"
+        @update:model-value="handleUpdateFilters"
         data-testid="search-input"
       />
 
       <GenresSelect
         label="Genres"
         placeholder="Select one"
-        v-model="queryParams.genre"
-        @update:model-value="$emit('filtersChanged', queryParams)"
+        v-model="genre"
+        @update:model-value="handleUpdateFilters"
         class="min-w-[150px]"
         data-testid="filter-genre"
       />
@@ -58,8 +56,8 @@ const orderSelectItems = [
         with-debounce
         label="Artist"
         placeholder="Artist name"
-        v-model="queryParams.artist"
-        @update:model-value="$emit('filtersChanged', queryParams)"
+        v-model="artist"
+        @update:model-value="handleUpdateFilters"
         data-testid="filter-artist"
       />
 
@@ -67,8 +65,8 @@ const orderSelectItems = [
         label="Sort"
         placeholder="Select one"
         :items="sortSelectItems"
-        v-model="queryParams.sort"
-        @update:model-value="$emit('filtersChanged', queryParams)"
+        v-model="sort"
+        @update:model-value="handleUpdateFilters"
         class="min-w-[150px]"
         data-testid="sort-select"
       />
@@ -77,8 +75,8 @@ const orderSelectItems = [
         label="Order"
         placeholder="Select one"
         :items="orderSelectItems"
-        v-model="queryParams.order"
-        @update:model-value="$emit('filtersChanged', queryParams)"
+        v-model="order"
+        @update:model-value="handleUpdateFilters"
         class="min-w-[150px]"
       />
     </div>
