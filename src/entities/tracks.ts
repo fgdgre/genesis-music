@@ -1,6 +1,4 @@
-import { apiClient } from "@/shared/api";
-import { TracksResponseSchema } from "@/shared/api";
-import { invalidateAll } from "@/shared/api/api";
+import { apiClient, invalidateAll, TracksResponseSchema } from "@/shared/api";
 import { filtersStore } from "@/stores/filters";
 import type { Track } from "@/types";
 import type { DeepReadonly } from "vue";

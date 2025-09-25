@@ -1,7 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
-import { createApiClient, invalidateAll } from "@/shared/api/api";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { createApiClient, invalidateAll } from "@/shared/api";
 import { installFetchMock } from "../../utils/fetchMock";
-import { afterEach } from "node:test";
 
 Object.defineProperty(globalThis, "navigator", {
   value: { onLine: true },

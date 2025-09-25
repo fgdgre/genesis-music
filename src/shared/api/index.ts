@@ -6,9 +6,15 @@ export type {
   ParseMode,
   RequestOptions,
   Result,
-  RetryPolicy,
 } from "./types";
-export { createApiClient } from "./api";
+export {
+  createApiClient,
+  combineSignals,
+  invalidateAll,
+  invalidateQuery,
+  queriesCache,
+  setQuery,
+} from "./api";
 export {
   TrackSchema,
   TracksResponseSchema,

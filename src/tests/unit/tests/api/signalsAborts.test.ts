@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { combineSignals } from "@/shared/api/api";
+import { combineSignals } from "@/shared/api";
 
 describe("combineSignals", () => {
   it("immediately aborted if any input is already aborted", () => {

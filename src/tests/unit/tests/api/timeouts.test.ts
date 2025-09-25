@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { createApiClient, invalidateAll } from "@/shared/api/api";
+import { createApiClient, invalidateAll } from "@/shared/api";
 import { installFetchMock } from "../../utils/fetchMock";
 
 describe("global elapsed timeout", () => {

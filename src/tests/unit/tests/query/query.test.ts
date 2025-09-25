@@ -4,7 +4,7 @@ import {
   setQuery,
   invalidateQuery,
   invalidateAll,
-} from "@/shared/api/api";
+} from "@/shared/api";
 
 describe("query client (readonly + invalidation)", () => {
   afterEach(() => {

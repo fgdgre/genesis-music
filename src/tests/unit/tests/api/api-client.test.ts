@@ -1,9 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import * as z from "zod";
 import { installFetchMock } from "../../utils/fetchMock";
-
-// You can test via the factory directly:
-import { createApiClient } from "@/shared/api/api";
+import { createApiClient } from "@/shared/api";
 
 Object.defineProperty(globalThis, "navigator", {
   value: { onLine: true },

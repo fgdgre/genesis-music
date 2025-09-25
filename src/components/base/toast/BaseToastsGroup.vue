@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { Toast } from "@/types";
 import BaseToast from "./BaseToast.vue";
+import type { DeepReadonly } from "vue";
 
 defineProps<{
-  toasts: Toast[];
+  toasts: Toast[] | DeepReadonly<Toast[]>;
 }>();
 
 const emit = defineEmits<{
