@@ -1,6 +1,4 @@
-// vite.config.ts
 import { fileURLToPath, URL } from "node:url";
-// ⬇️ use Vitest’s helpers here
 import { defineConfig, configDefaults } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import vueDevTools from "vite-plugin-vue-devtools";
@@ -15,14 +13,11 @@ export default defineConfig({
   },
   server: { port: 3000 },
 
-  // Vitest config
   test: {
-    dir: "./tests",
-    include: ["**/*.{test,spec}.{ts,tsx,js,jsx}"],
-    exclude: [...configDefaults.exclude, "playwright/**", "e2e/**", "dist/**"],
+    dir: "./src/tests/unit",
+    include: ["**/*.test.ts"],
     environment: "jsdom",
     globals: true,
     css: true,
-    // setupFiles: ["./tests/setup.ts"],
   },
 });

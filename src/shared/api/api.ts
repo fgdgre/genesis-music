@@ -8,7 +8,6 @@ import type {
   RetryOptions,
 } from "./types";
 import { buildQuery } from "@/utils/buildQuery";
-import { readonly, ref } from "vue";
 import { cloneDeep } from "lodash-es";
 import { createQueryCache } from "../query/queryClient";
 
@@ -161,16 +160,18 @@ const shouldRetry = (
   if (!requestOptions.retry?.methods?.includes(requestOptions.method || "GET"))
     return false;
 
-  if (requestOptions.retry.when!.includes("http-5xx")) {
-    return res.error.status.toString().startsWith("5");
-  }
+  if (requestOptions.retry.when?.every((i) => typeof i === "string")) {
+    if (requestOptions.retry.when!.includes("http-5xx")) {
+      return res.error.status.toString().startsWith("5");
+    }
 
-  if (requestOptions.retry.when!.includes("http-429")) {
-    return res.error.status === 429;
+    if (requestOptions.retry.when!.includes("http-429")) {
+      return res.error.status === 429;
+    }
+    return requestOptions.retry.when?.includes(res.error.code?.toLowerCase());
+  } else if (requestOptions.retry.when?.every((i) => typeof i === "number")) {
+    return requestOptions.retry.when?.includes(res.error.status);
   }
-  return requestOptions.retry.when?.includes(
-    res.error.code?.toLowerCase() || res.error.status,
-  );
 };
 // -----------------------------------------------------------------------------------------
 export const {
@@ -261,6 +262,7 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
       continue;
     } else {
       if (!opts.schema) {
+        setQuery(queryKey, res.data);
         return res;
       }
 

@@ -1,0 +1,251 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - heading "Tracks page" [level=1] [ref=e5]
+    - main [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - generic [ref=e10]:
+            - generic [ref=e11]:
+              - generic [ref=e12]: Search
+              - textbox "Search" [ref=e13]
+            - generic [ref=e14]:
+              - paragraph [ref=e15]: Genres
+              - button "Select one" [ref=e16] [cursor=pointer]:
+                - paragraph [ref=e18] [cursor=pointer]: Select one
+                - img [ref=e19] [cursor=pointer]
+            - generic [ref=e21]:
+              - generic [ref=e22]: Artist
+              - textbox "Artist" [ref=e23]
+            - generic [ref=e24]:
+              - paragraph [ref=e25]: Sort
+              - button "Select one" [ref=e26] [cursor=pointer]:
+                - paragraph [ref=e28] [cursor=pointer]: Select one
+                - img [ref=e29] [cursor=pointer]
+            - generic [ref=e31]:
+              - paragraph [ref=e32]: Order
+              - button "Select one" [ref=e33] [cursor=pointer]:
+                - paragraph [ref=e35] [cursor=pointer]: Select one
+                - img [ref=e36] [cursor=pointer]
+          - button "Add track" [ref=e38] [cursor=pointer]
+        - list [ref=e39]:
+          - listitem [ref=e40]:
+            - generic [ref=e41]:
+              - img [ref=e43]
+              - generic [ref=e44]:
+                - generic [ref=e45]:
+                  - generic [ref=e46]:
+                    - paragraph [ref=e47]: "3"
+                    - paragraph [ref=e48]:
+                      - generic [ref=e49]: "3"
+                      - text: "-"
+                      - generic [ref=e50]: "3"
+                  - generic [ref=e51]:
+                    - text: "Genres:"
+                    - generic [ref=e52]: pop
+                - generic [ref=e53]:
+                  - button [ref=e54] [cursor=pointer]:
+                    - img [ref=e55] [cursor=pointer]
+                  - button [ref=e57] [cursor=pointer]:
+                    - img [ref=e58] [cursor=pointer]
+                  - button [ref=e60] [cursor=pointer]:
+                    - img [ref=e61] [cursor=pointer]
+          - listitem [ref=e63]:
+            - generic [ref=e64]:
+              - img [ref=e66]
+              - generic [ref=e67]:
+                - generic [ref=e68]:
+                  - generic [ref=e69]:
+                    - paragraph [ref=e70]: "2"
+                    - paragraph [ref=e71]:
+                      - generic [ref=e72]: "2"
+                      - text: "-"
+                      - generic [ref=e73]: "2"
+                  - generic [ref=e74]:
+                    - text: "Genres:"
+                    - generic [ref=e75]: rock
+                - generic [ref=e76]:
+                  - button [ref=e77] [cursor=pointer]:
+                    - img [ref=e78] [cursor=pointer]
+                  - button [ref=e80] [cursor=pointer]:
+                    - img [ref=e81] [cursor=pointer]
+                  - button [ref=e83] [cursor=pointer]:
+                    - img [ref=e84] [cursor=pointer]
+          - listitem [ref=e86]:
+            - generic [ref=e87]:
+              - img [ref=e89]
+              - generic [ref=e90]:
+                - generic [ref=e91]:
+                  - generic [ref=e92]:
+                    - paragraph [ref=e93]: "1"
+                    - paragraph [ref=e94]:
+                      - generic [ref=e95]: "1"
+                      - text: "-"
+                      - generic [ref=e96]: "1"
+                  - generic [ref=e97]:
+                    - text: "Genres:"
+                    - generic [ref=e98]: rock
+                - generic [ref=e99]:
+                  - button [ref=e100] [cursor=pointer]:
+                    - img [ref=e101] [cursor=pointer]
+                  - button [ref=e103] [cursor=pointer]:
+                    - img [ref=e104] [cursor=pointer]
+                  - button [ref=e106] [cursor=pointer]:
+                    - img [ref=e107] [cursor=pointer]
+          - listitem [ref=e109]:
+            - generic [ref=e110]:
+              - img [ref=e112]
+              - generic [ref=e113]:
+                - generic [ref=e114]:
+                  - generic [ref=e115]:
+                    - paragraph [ref=e116]: poiu
+                    - paragraph [ref=e117]:
+                      - generic [ref=e118]: qew
+                      - text: "-"
+                      - generic [ref=e119]: wqe
+                  - generic [ref=e120]:
+                    - text: "Genres:"
+                    - generic [ref=e121]: pop
+                - generic [ref=e122]:
+                  - button [ref=e123] [cursor=pointer]:
+                    - img [ref=e124] [cursor=pointer]
+                  - button [ref=e126] [cursor=pointer]:
+                    - img [ref=e127] [cursor=pointer]
+                  - button [ref=e129] [cursor=pointer]:
+                    - img [ref=e130] [cursor=pointer]
+          - listitem [ref=e132]:
+            - generic [ref=e133]:
+              - img [ref=e135]
+              - generic [ref=e136]:
+                - generic [ref=e137]:
+                  - generic [ref=e138]:
+                    - paragraph [ref=e139]: test refresh filters
+                    - paragraph [ref=e140]:
+                      - generic [ref=e141]: sdqw
+                      - text: "-"
+                      - generic [ref=e142]: wqe
+                  - generic [ref=e143]:
+                    - text: "Genres:"
+                    - generic [ref=e144]: pop
+                - generic [ref=e145]:
+                  - button [ref=e146] [cursor=pointer]:
+                    - img [ref=e147] [cursor=pointer]
+                  - button [ref=e149] [cursor=pointer]:
+                    - img [ref=e150] [cursor=pointer]
+                  - button [ref=e152] [cursor=pointer]:
+                    - img [ref=e153] [cursor=pointer]
+          - listitem [ref=e155]:
+            - generic [ref=e156]:
+              - img [ref=e158]
+              - generic [ref=e159]:
+                - generic [ref=e160]:
+                  - generic [ref=e161]:
+                    - paragraph [ref=e162]: xla
+                    - paragraph [ref=e163]:
+                      - generic [ref=e164]: wqeqw
+                      - text: "-"
+                      - generic [ref=e165]: qe
+                  - generic [ref=e166]:
+                    - text: "Genres:"
+                    - generic [ref=e167]: rock
+                - generic [ref=e168]:
+                  - button [ref=e169] [cursor=pointer]:
+                    - img [ref=e170] [cursor=pointer]
+                  - button [ref=e172] [cursor=pointer]:
+                    - img [ref=e173] [cursor=pointer]
+                  - button [ref=e175] [cursor=pointer]:
+                    - img [ref=e176] [cursor=pointer]
+          - listitem [ref=e178]:
+            - generic [ref=e179]:
+              - img [ref=e181]
+              - generic [ref=e182]:
+                - generic [ref=e183]:
+                  - generic [ref=e184]:
+                    - paragraph [ref=e185]: "7123"
+                    - paragraph [ref=e186]:
+                      - generic [ref=e187]: qwe
+                      - text: "-"
+                      - generic [ref=e188]: qwe
+                  - generic [ref=e189]:
+                    - text: "Genres:"
+                    - generic [ref=e190]: rock
+                - generic [ref=e191]:
+                  - button [ref=e192] [cursor=pointer]:
+                    - img [ref=e193] [cursor=pointer]
+                  - button [ref=e195] [cursor=pointer]:
+                    - img [ref=e196] [cursor=pointer]
+                  - button [ref=e198] [cursor=pointer]:
+                    - img [ref=e199] [cursor=pointer]
+          - listitem [ref=e201]:
+            - generic [ref=e202]:
+              - img [ref=e204]
+              - generic [ref=e205]:
+                - generic [ref=e206]:
+                  - generic [ref=e207]:
+                    - paragraph [ref=e208]: "7124"
+                    - paragraph [ref=e209]:
+                      - generic [ref=e210]: "213"
+                      - text: "-"
+                      - generic [ref=e211]: wqe
+                  - generic [ref=e212]:
+                    - text: "Genres:"
+                    - generic [ref=e213]: rock,
+                    - generic [ref=e214]: pop,
+                    - generic [ref=e215]: hip hop
+                - generic [ref=e216]:
+                  - button [ref=e217] [cursor=pointer]:
+                    - img [ref=e218] [cursor=pointer]
+                  - button [ref=e220] [cursor=pointer]:
+                    - img [ref=e221] [cursor=pointer]
+                  - button [ref=e223] [cursor=pointer]:
+                    - img [ref=e224] [cursor=pointer]
+          - listitem [ref=e226]:
+            - generic [ref=e227]:
+              - img [ref=e229]
+              - generic [ref=e230]:
+                - generic [ref=e231]:
+                  - generic [ref=e232]:
+                    - paragraph [ref=e233]: kcnas
+                    - paragraph [ref=e234]:
+                      - generic [ref=e235]: sajdn
+                      - text: "-"
+                      - generic [ref=e236]: isajk
+                  - generic [ref=e237]:
+                    - text: "Genres:"
+                    - generic [ref=e238]: rock
+                - generic [ref=e239]:
+                  - button [ref=e240] [cursor=pointer]:
+                    - img [ref=e241] [cursor=pointer]
+                  - button [ref=e243] [cursor=pointer]:
+                    - img [ref=e244] [cursor=pointer]
+                  - button [ref=e246] [cursor=pointer]:
+                    - img [ref=e247] [cursor=pointer]
+          - listitem [ref=e249]:
+            - generic [ref=e250]:
+              - img [ref=e252]
+              - generic [ref=e253]:
+                - generic [ref=e254]:
+                  - generic [ref=e255]:
+                    - paragraph [ref=e256]: "3456"
+                    - paragraph [ref=e257]:
+                      - generic [ref=e258]: qwwqe
+                      - text: "-"
+                      - generic [ref=e259]: weqq
+                  - generic [ref=e260]:
+                    - text: "Genres:"
+                    - generic [ref=e261]: rock
+                - generic [ref=e262]:
+                  - button [ref=e263] [cursor=pointer]:
+                    - img [ref=e264] [cursor=pointer]
+                  - button [ref=e266] [cursor=pointer]:
+                    - img [ref=e267] [cursor=pointer]
+                  - button [ref=e269] [cursor=pointer]:
+                    - img [ref=e270] [cursor=pointer]
+        - button "Next" [ref=e273] [cursor=pointer]
+  - generic [ref=e274]:
+    - img [ref=e276] [cursor=pointer]
+    - img [ref=e282] [cursor=pointer]
+  - list
+```
