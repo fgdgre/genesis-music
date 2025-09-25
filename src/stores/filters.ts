@@ -8,7 +8,7 @@ export const filtersStore = defineStore("filtersStore", () => {
   const genre = ref("");
   const sort = ref<"title" | "artist" | "album" | "createdAt" | "">("");
 
-  const page = ref(1);
+  // const page = ref(1);
 
   const refreshFilters = () => {
     search.value = "";
@@ -16,8 +16,8 @@ export const filtersStore = defineStore("filtersStore", () => {
     artist.value = "";
     genre.value = "";
     sort.value = "";
-    page.value = 1;
+    // page.value = 1;
   };
 
-  return { page, search, order, artist, genre, sort, refreshFilters };
+  return { search, order, artist, genre, sort, refreshFilters };
 });

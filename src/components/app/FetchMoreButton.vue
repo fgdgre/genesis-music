@@ -21,7 +21,6 @@ const handleCheckVisibility = (
 
 const observer = new IntersectionObserver(handleCheckVisibility, {
   root: null,
-  rootMargin: "0px",
   threshold: 0,
 });
 

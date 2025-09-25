@@ -1,15 +1,11 @@
-import { defineStore, storeToRefs } from "pinia";
+import { defineStore } from "pinia";
 import type { Track, TracksMeta } from "@/types";
 import { ref, type DeepReadonly } from "vue";
-import { readonly, type Ref } from "vue";
+import { readonly } from "vue";
 import { fetchTracksAPI } from "@/entities/tracks";
 import { useTracksToasts } from "@/composables/useTracksToasts";
-import { filtersStore } from "./filters";
 
 export const useTracksStore = defineStore("tracksStore", () => {
-  const store = filtersStore();
-  const { page: filtersStorePage } = storeToRefs(store);
-
   const { addErrorToast } = useTracksToasts();
 
   const initialized = ref(false);
@@ -41,23 +37,23 @@ export const useTracksStore = defineStore("tracksStore", () => {
     order,
     sort,
   }: {
-    page: Ref<number>;
-    search?: Ref<string>;
-    genre?: Ref<string>;
-    artist?: Ref<string>;
-    order?: Ref<"asc" | "desc" | "">;
-    sort?: Ref<"title" | "artist" | "album" | "createdAt" | "">;
+    page: number;
+    search?: string;
+    genre?: string;
+    artist?: string;
+    order?: "asc" | "desc" | "";
+    sort?: "title" | "artist" | "album" | "createdAt" | "";
   }) => {
     try {
       isLoading.value = true;
 
       const { ok, data, error, res } = await fetchTracksAPI({
-        page: page.value,
-        search: search?.value,
-        genre: genre?.value,
-        artist: artist?.value,
-        order: order?.value,
-        sort: sort?.value,
+        page,
+        search,
+        genre,
+        artist,
+        order,
+        sort,
       });
 
       console.log({ ok, data, error, res });
@@ -75,7 +71,6 @@ export const useTracksStore = defineStore("tracksStore", () => {
 
         tracks.value = [...tracks.value, ...data.data];
         tracksMeta.value = data.meta;
-        filtersStorePage.value = tracksMeta.value!.page;
       }
     } finally {
       initialized.value = true;
@@ -84,7 +79,6 @@ export const useTracksStore = defineStore("tracksStore", () => {
   };
 
   const createTrack = (trackData: DeepReadonly<Track>) => {
-    console.log(trackData);
     tracks.value?.unshift(trackData as Track);
   };
 
