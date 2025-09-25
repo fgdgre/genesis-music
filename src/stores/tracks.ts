@@ -1,11 +1,15 @@
-import { defineStore } from "pinia";
+import { defineStore, storeToRefs } from "pinia";
 import type { Track, TracksMeta } from "@/types";
 import { ref, type DeepReadonly } from "vue";
 import { readonly, type Ref } from "vue";
 import { fetchTracksAPI } from "@/entities/tracks";
 import { useTracksToasts } from "@/composables/useTracksToasts";
+import { filtersStore } from "./filters";
 
 export const useTracksStore = defineStore("tracksStore", () => {
+  const store = filtersStore();
+  const { page: filtersStorePage } = storeToRefs(store);
+
   const { addErrorToast } = useTracksToasts();
 
   const initialized = ref(false);
@@ -47,7 +51,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
     try {
       isLoading.value = true;
 
-      const { ok, data, error } = await fetchTracksAPI({
+      const { ok, data, error, res } = await fetchTracksAPI({
         page: page.value,
         search: search?.value,
         genre: genre?.value,
@@ -56,19 +60,22 @@ export const useTracksStore = defineStore("tracksStore", () => {
         sort: sort?.value,
       });
 
+      console.log({ ok, data, error, res });
+
       if (!ok) {
         setErrorMessage(error.message);
 
         if (initialized.value) {
           addErrorToast(error);
 
-          page.value = tracksMeta.value?.page || 1; // ???
+          // page.value = tracksMeta.value?.page || 1; // ???
         }
       } else {
         clearErrors();
 
-        tracks.value = data.data;
+        tracks.value = [...tracks.value, ...data.data];
         tracksMeta.value = data.meta;
+        filtersStorePage.value = tracksMeta.value!.page;
       }
     } finally {
       initialized.value = true;
