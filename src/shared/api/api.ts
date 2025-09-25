@@ -123,11 +123,16 @@ const injectApiClientOptions = (
 
   for (const k of httpMethods) {
     const original = baseApiClient[k];
-    (apiClient as any)[k] = (path: string, opts: any) =>
-      original(baseURL.replace(/\/+$/, "") + "/" + path.replace(/^\/+/, ""), {
-        ...defaults,
-        ...opts,
-      });
+    (apiClient as any)[k] = (path: string, opts: any) => {
+      console.log({ ...defaults, ...opts });
+      return original(
+        baseURL.replace(/\/+$/, "") + "/" + path.replace(/^\/+/, ""),
+        {
+          ...defaults,
+          ...opts,
+        },
+      );
+    };
   }
   return apiClient;
 };
@@ -156,7 +161,7 @@ const shouldRetry = (
   if (!res.error) return false;
   if (res.ok) return false;
   if (requestOptions.retry?.attempts === 0) return false;
-  if (retriesCount >= (requestOptions.retry?.attempts || 0)) return false;
+  if (retriesCount === (requestOptions.retry?.attempts || 1) - 1) return false;
   if (!requestOptions.retry?.methods?.includes(requestOptions.method || "GET"))
     return false;
 

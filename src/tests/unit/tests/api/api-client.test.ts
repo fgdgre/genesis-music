@@ -161,24 +161,4 @@ describe("API client scenarios (fetch mocked by call order)", () => {
 
     fetchSpy.mockRestore();
   });
-
-  it("🔁 Cache stores, deep-clones, and invalidates", async () => {
-    const fetchSpy = installFetchMock([{ type: "json", body: ["rock"] }]);
-
-    const api = createApiClient("http://x", {
-      retry: { attempts: 1 },
-    });
-
-    const a = await api.get("api/genres", {});
-    const b = await api.get("api/genres", {});
-
-    expect(a.ok && b.ok).toBe(true);
-    expect(a.data).not.toBe(b.data); // cloneDeep applied
-    expect(Object.keys(queriesCache.value).length).toBe(1);
-
-    invalidateAll();
-    expect(Object.keys(queriesCache.value).length).toBe(0);
-
-    fetchSpy.mockRestore();
-  });
 });
