@@ -29,6 +29,14 @@ export const useTracksStore = defineStore("tracksStore", () => {
     errorMessage.value = message;
   };
 
+  const setTracks = (data: { data: Track[]; meta: TracksMeta }) => {
+    if (data.meta.page > 1) {
+      tracks.value = [...tracks.value, ...data.data];
+    } else {
+      tracks.value = data.data;
+    }
+  };
+
   const fetchTracks = async ({
     page,
     search,
@@ -63,13 +71,11 @@ export const useTracksStore = defineStore("tracksStore", () => {
 
         if (initialized.value) {
           addErrorToast(error);
-
-          // page.value = tracksMeta.value?.page || 1; // ???
         }
       } else {
         clearErrors();
 
-        tracks.value = [...tracks.value, ...data.data];
+        setTracks(data);
         tracksMeta.value = data.meta;
       }
     } finally {
