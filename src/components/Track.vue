@@ -176,6 +176,7 @@ const toggleTrack = () => {
           square
           :data-testid="`delete-track-${track.id}`"
           @click.stop="isDeleteTrackFileModal = true"
+          class="w-10!"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

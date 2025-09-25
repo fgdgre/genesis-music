@@ -37,7 +37,7 @@ onUnmounted(() => {
 <template>
   <button
     @click="(e) => $emit('click', e)"
-    class="mx-auto mt-5 bg-black rounded-md text-white select-none px-4 py-2"
+    class="mx-auto mt-5 bg-black rounded-md text-white select-none px-4 py-2 disabled:opacity-50 cursor-pointer"
     ref="fetchMoreButton"
   >
     Fetch more

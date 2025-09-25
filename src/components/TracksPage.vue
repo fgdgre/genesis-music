@@ -74,7 +74,7 @@ watch(
 </script>
 
 <template>
-  <AppHeader title="Tracks page" :is-loading="isLoading && !initialized" />
+  <AppHeader title="Tracks page" :is-loading="isLoading" />
 
   <main v-if="initialized" class="flex flex-col h-[calc(100svh-61px)]">
     <AppErrorPage
@@ -123,6 +123,7 @@ watch(
 
         <FetchMoreButton
           v-if="tracksMeta?.page && tracksMeta.page < tracksMeta.totalPages"
+          :disabled="isLoading"
           @click="handleFetchNextPage"
           @in-viewport="handleFetchNextPage"
         />
