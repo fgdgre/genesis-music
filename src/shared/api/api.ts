@@ -124,7 +124,6 @@ const injectApiClientOptions = (
   for (const k of httpMethods) {
     const original = baseApiClient[k];
     (apiClient as any)[k] = (path: string, opts: any) => {
-      console.log({ ...defaults, ...opts });
       return original(
         baseURL.replace(/\/+$/, "") + "/" + path.replace(/^\/+/, ""),
         {
@@ -191,7 +190,6 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
   const queryKey = `${path}${query ? `?${query}` : ""}`;
 
   if (queriesCache.value[queryKey]) {
-    console.log("CASSHHHH");
     return {
       ok: true,
       data: cloneDeep(queriesCache.value[queryKey]),
@@ -256,8 +254,6 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
           ),
         };
       });
-
-    console.log(res);
 
     if (
       shouldRetry(res, opts, retryCount) &&
