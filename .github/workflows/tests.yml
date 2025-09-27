@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [main, master, infinite-scroll]
+    branches: [main, master, feat/infinite-scroll]
   pull_request:
-    branches: [main, master, infinite-scroll]
+    branches: [main, master, feat/infinite-scroll]
 
 jobs:
   unit:
