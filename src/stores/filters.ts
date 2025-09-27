@@ -17,7 +17,12 @@ export const filtersStore = defineStore("filtersStore", () => {
   };
 
   const filtersEmpty = computed(
-    () => !search.value && !artist.value && !genre.value,
+    () =>
+      !search.value &&
+      !artist.value &&
+      !genre.value &&
+      !sort.value &&
+      !order.value,
   );
 
   return { search, order, artist, genre, sort, refreshFilters, filtersEmpty };
