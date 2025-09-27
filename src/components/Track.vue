@@ -42,6 +42,7 @@ const toggleTrack = () => {
       track.audioFile && 'hover:bg-gray-100 transition-colors cursor-pointer',
     ]"
     @click="toggleTrack"
+    :data-track-id="track.id"
     :data-testid="`track-item-${track.id}`"
   >
     <div

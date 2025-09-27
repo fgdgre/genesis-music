@@ -41,6 +41,7 @@ const width = computed(() => {
       Boolean(icon) ? 'icon-toast-message-layout' : 'toast-message-layout',
       color === 'red' ? 'bg-red-400' : 'bg-white',
     ]"
+    data-testid="toast-item"
   >
     <div v-if="icon">
       <svg

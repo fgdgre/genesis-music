@@ -115,6 +115,7 @@ watch(
       <ul
         v-else-if="tracks.length"
         class="flex-1 flex flex-col overflow-auto gap-2 px-6 pr-2.5 pb-10"
+        data-testid="tracks-list"
         ref="tracksList"
       >
         <li v-for="track in tracks">
