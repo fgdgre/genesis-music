@@ -3,7 +3,7 @@ import * as z from "zod";
 export const TrackSchema = z.object({
   title: z.string(),
   artist: z.string(),
-  album: z.string(),
+  album: z.string().optional(),
   genres: z.array(z.string()),
   coverImage: z
     .string()
