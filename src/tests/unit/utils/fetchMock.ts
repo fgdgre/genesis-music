@@ -1,4 +1,3 @@
-// test/utils/fetchMock.ts
 import { vi } from "vitest";
 
 type MockPlan =

@@ -7,13 +7,11 @@ Object.defineProperty(globalThis, "navigator", {
   configurable: true,
 });
 
-// Clean slate between tests
 afterEach(() => {
   invalidateAll();
 
   vi.useRealTimers();
   vi.restoreAllMocks();
-  // reset to online by default
   Object.defineProperty(globalThis.navigator, "onLine", {
     value: true,
     configurable: true,
@@ -24,7 +22,6 @@ describe("retry gating by method", () => {
   it("POST is not retried even if 5xx", async () => {
     const fetchSpy = installFetchMock([
       { type: "json", status: 500, body: { statusCode: 500, message: "boom" } },
-      // would succeed if retried, but it must not retry:
       { type: "json", status: 200, body: { ok: true } },
     ]);
 
@@ -35,7 +32,7 @@ describe("retry gating by method", () => {
 
     const res = await api.post("api/tracks", { body: { id: "1" } });
     expect(res.ok).toBe(false);
-    expect(fetchSpy).toHaveBeenCalledTimes(1); // no retry for POST
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
 
     fetchSpy.mockRestore();
   });

@@ -24,7 +24,7 @@ afterEach(() => {
 import { queriesCache, invalidateAll } from "@/shared/api/api";
 
 describe("API client scenarios (fetch mocked by call order)", () => {
-  it("✅ parses json and validates schema", async () => {
+  it("parses json and validates schema", async () => {
     const fetchSpy = installFetchMock([
       { type: "json", body: ["rock", "jazz"] },
     ]);
@@ -41,7 +41,7 @@ describe("API client scenarios (fetch mocked by call order)", () => {
     fetchSpy.mockRestore();
   });
 
-  it("❌ HTTP 5xx → retries then succeeds", async () => {
+  it("HTTP 5xx → retries then succeeds", async () => {
     const fetchSpy = installFetchMock([
       {
         type: "json",
@@ -73,7 +73,7 @@ describe("API client scenarios (fetch mocked by call order)", () => {
     fetchSpy.mockRestore();
   });
 
-  it("🌐 Network error → NETWORK", async () => {
+  it("Network error → NETWORK", async () => {
     // Simulate offline
     Object.defineProperty(globalThis.navigator, "onLine", {
       value: false,
@@ -96,7 +96,7 @@ describe("API client scenarios (fetch mocked by call order)", () => {
     fetchSpy.mockRestore();
   });
 
-  it("⏳ Per-attempt timeout → TIMEOUT (fake timers)", async () => {
+  it("Per-attempt timeout → TIMEOUT (fake timers)", async () => {
     vi.useFakeTimers();
 
     const fetchSpy = installFetchMock([
@@ -119,7 +119,7 @@ describe("API client scenarios (fetch mocked by call order)", () => {
     fetchSpy.mockRestore();
   });
 
-  it("🛑 External AbortController → ABORTED", async () => {
+  it("External AbortController → ABORTED", async () => {
     const fetchSpy = installFetchMock([
       // long delay so we can abort first
       { type: "json", body: { ok: true }, delayMs: 1000 },
@@ -141,7 +141,7 @@ describe("API client scenarios (fetch mocked by call order)", () => {
     fetchSpy.mockRestore();
   });
 
-  it("🧪 Schema mismatch → SCHEMA", async () => {
+  it("Schema mismatch → SCHEMA", async () => {
     const fetchSpy = installFetchMock([
       { type: "json", body: ["rock", "jazz"] },
     ]);
