@@ -8,7 +8,7 @@ import {
 
 describe("query client (readonly + invalidation)", () => {
   afterEach(() => {
-    invalidateAll(); // reset for isolation
+    invalidateAll();
   });
 
   it("exposes a readonly ref: cannot reassign .value or set keys directly", () => {
@@ -18,7 +18,7 @@ describe("query client (readonly + invalidation)", () => {
 
     (queriesCache as any).value = { hacked: true };
     expect(queriesCache.value).toBe(before);
-    expect(warn).toHaveBeenCalled(); // Vue readonly warning
+    expect(warn).toHaveBeenCalled();
 
     (queriesCache.value as any).foo = 123;
     expect("foo" in queriesCache.value).toBe(false);
@@ -33,13 +33,11 @@ describe("query client (readonly + invalidation)", () => {
     expect(queriesCache.value["tracks?page=1"]).toEqual({ items: ["a"] });
     expect(queriesCache.value["genres"]).toEqual(["rock"]);
 
-    // Direct deletion should be blocked (readonly surface)
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     delete (queriesCache.value as any)["tracks?page=1"];
     expect(queriesCache.value["tracks?page=1"]).toBeDefined();
     warn.mockRestore();
 
-    // Proper removal via API
     invalidateQuery("tracks?page=1");
     expect(queriesCache.value["tracks?page=1"]).toBeUndefined();
     expect(queriesCache.value["genres"]).toEqual(["rock"]);

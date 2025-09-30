@@ -42,6 +42,7 @@ const toggleTrack = () => {
       track.audioFile && 'hover:bg-gray-100 transition-colors cursor-pointer',
     ]"
     @click="toggleTrack"
+    :data-track-id="track.id"
     :data-testid="`track-item-${track.id}`"
   >
     <div
@@ -176,6 +177,7 @@ const toggleTrack = () => {
           square
           :data-testid="`delete-track-${track.id}`"
           @click.stop="isDeleteTrackFileModal = true"
+          class="w-10!"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

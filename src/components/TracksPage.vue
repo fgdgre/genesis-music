@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, toRef, useTemplateRef, watch } from "vue";
 import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 import Track from "./Track.vue";
-import AppPagination from "./app/AppPagination.vue";
 import AppHeader from "./app/AppHeader.vue";
 import TracksFilters from "./TracksFilters.vue";
 import AppErrorPage from "./app/AppErrorPage.vue";
@@ -11,40 +10,61 @@ import CreateTrackModal from "./CreateTrackModal.vue";
 import AppEmptyScreen from "./app/AppEmptyScreen.vue";
 import BaseButton from "./base/BaseButton.vue";
 import { filtersStore } from "@/stores/filters";
+import FetchMoreButton from "./app/FetchMoreButton.vue";
 
 const tracksStore = useTracksStore();
 
 const { isLoading, isError, errorMessage, initialized, tracks, tracksMeta } =
   storeToRefs(tracksStore);
 
-const isCreateTrackModalOpen = ref(false);
-
 const store = filtersStore();
 
-const { page, search, order, artist, genre, sort } = storeToRefs(store);
+const { search, order, artist, genre, sort, filtersEmpty } = storeToRefs(store);
+
+const isCreateTrackModalOpen = ref(false);
 
 const fetchTracks = () => {
   tracksStore.fetchTracks({
-    page,
-    search,
-    order,
-    artist,
-    genre,
-    sort,
+    page: filtersEmpty.value ? tracksMeta.value?.page || 1 : 1,
+    search: search.value,
+    order: order.value,
+    artist: artist.value,
+    genre: genre.value,
+    sort: sort.value,
   });
 };
 
-const filtersEmpty = computed(
-  () => !search.value && !artist.value && !genre.value && page.value === 1,
-);
+const handleFetchNextPage = () => {
+  if (!tracksMeta.value) return;
+  if (tracksMeta.value.page === tracksMeta.value.totalPages) return;
+
+  tracksStore.fetchTracks({
+    page: tracksMeta.value.page + 1,
+    search: search.value,
+    order: order.value,
+    artist: artist.value,
+    genre: genre.value,
+    sort: sort.value,
+  });
+};
 
 const initializedWithEmptyTracks = computed(
-  () => filtersEmpty.value && tracks.value?.length === 0,
+  () =>
+    filtersEmpty.value &&
+    tracksMeta.value?.page === 1 &&
+    tracks.value?.length === 0,
 );
 
+const tracksListRef = useTemplateRef("tracksList");
+
 watch(
-  [page, search, order, artist, genre, sort],
+  [search, order, artist, genre, sort],
   () => {
+    tracksListRef.value?.scroll({
+      behavior: "instant",
+      top: 0,
+    });
+
     tracksStore.clearPlayingTrackId();
 
     fetchTracks();
@@ -54,7 +74,7 @@ watch(
 </script>
 
 <template>
-  <AppHeader title="Tracks page" :is-loading="isLoading && !initialized" />
+  <AppHeader title="Tracks page" :is-loading="isLoading" />
 
   <main v-if="initialized" class="flex flex-col h-[calc(100svh-61px)]">
     <AppErrorPage
@@ -82,7 +102,9 @@ watch(
       </div>
 
       <div
-        v-if="isLoading"
+        v-if="
+          isLoading && !tracks.length && filtersEmpty && tracksMeta?.page === 1
+        "
         class="flex flex-col gap-4 justify-center items-center h-full"
         data-testid="loading-tracks"
         :data-loading="true"
@@ -92,11 +114,20 @@ watch(
 
       <ul
         v-else-if="tracks.length"
-        class="flex-1 flex flex-col overflow-auto gap-2 px-6 pr-2.5"
+        class="flex-1 flex flex-col overflow-auto gap-2 px-6 pr-2.5 pb-10"
+        data-testid="tracks-list"
+        ref="tracksList"
       >
         <li v-for="track in tracks">
           <Track :track />
         </li>
+
+        <FetchMoreButton
+          v-if="tracksMeta?.page && tracksMeta.page < tracksMeta.totalPages"
+          :disabled="isLoading"
+          @click="handleFetchNextPage"
+          @in-viewport="handleFetchNextPage"
+        />
       </ul>
 
       <div
@@ -106,13 +137,13 @@ watch(
         Nothing is found
       </div>
 
-      <AppPagination
+      <!-- <AppPagination
         v-if="tracksMeta?.totalPages && tracks.length"
         class="px-2 pb-2"
         v-model="page"
         :total-pages="tracksMeta.totalPages"
         :is-loading="isLoading"
-      />
+      /> -->
     </div>
   </main>
 

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 export const filtersStore = defineStore("filtersStore", () => {
   const search = ref("");
@@ -8,16 +8,22 @@ export const filtersStore = defineStore("filtersStore", () => {
   const genre = ref("");
   const sort = ref<"title" | "artist" | "album" | "createdAt" | "">("");
 
-  const page = ref(1);
-
   const refreshFilters = () => {
     search.value = "";
     order.value = "";
     artist.value = "";
     genre.value = "";
     sort.value = "";
-    page.value = 1;
   };
 
-  return { page, search, order, artist, genre, sort, refreshFilters };
+  const filtersEmpty = computed(
+    () =>
+      !search.value &&
+      !artist.value &&
+      !genre.value &&
+      !sort.value &&
+      !order.value,
+  );
+
+  return { search, order, artist, genre, sort, refreshFilters, filtersEmpty };
 });

@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import type { Track, TracksMeta } from "@/types";
 import { ref, type DeepReadonly } from "vue";
-import { readonly, type Ref } from "vue";
+import { readonly } from "vue";
 import { fetchTracksAPI } from "@/entities/tracks";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 
@@ -29,6 +29,14 @@ export const useTracksStore = defineStore("tracksStore", () => {
     errorMessage.value = message;
   };
 
+  const setTracks = (data: { data: Track[]; meta: TracksMeta }) => {
+    if (data.meta.page > 1) {
+      tracks.value = [...tracks.value, ...data.data];
+    } else {
+      tracks.value = data.data;
+    }
+  };
+
   const fetchTracks = async ({
     page,
     search,
@@ -37,37 +45,37 @@ export const useTracksStore = defineStore("tracksStore", () => {
     order,
     sort,
   }: {
-    page: Ref<number>;
-    search?: Ref<string>;
-    genre?: Ref<string>;
-    artist?: Ref<string>;
-    order?: Ref<"asc" | "desc" | "">;
-    sort?: Ref<"title" | "artist" | "album" | "createdAt" | "">;
+    page: number;
+    search?: string;
+    genre?: string;
+    artist?: string;
+    order?: "asc" | "desc" | "";
+    sort?: "title" | "artist" | "album" | "createdAt" | "";
   }) => {
     try {
       isLoading.value = true;
 
-      const { ok, data, error } = await fetchTracksAPI({
-        page: page.value,
-        search: search?.value,
-        genre: genre?.value,
-        artist: artist?.value,
-        order: order?.value,
-        sort: sort?.value,
+      const { ok, data, error, res } = await fetchTracksAPI({
+        page,
+        search,
+        genre,
+        artist,
+        order,
+        sort,
       });
+
+      console.log({ ok, data, error, res });
 
       if (!ok) {
         setErrorMessage(error.message);
 
         if (initialized.value) {
           addErrorToast(error);
-
-          page.value = tracksMeta.value?.page || 1; // ???
         }
       } else {
         clearErrors();
 
-        tracks.value = data.data;
+        setTracks(data);
         tracksMeta.value = data.meta;
       }
     } finally {
@@ -77,7 +85,6 @@ export const useTracksStore = defineStore("tracksStore", () => {
   };
 
   const createTrack = (trackData: DeepReadonly<Track>) => {
-    console.log(trackData);
     tracks.value?.unshift(trackData as Track);
   };
 
