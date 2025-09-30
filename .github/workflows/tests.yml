@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [main, master, feat/infinite-scroll]
+    branches: [main, master]
   pull_request:
-    branches: [main, master, feat/infinite-scroll]
+    branches: [main, master]
 
 jobs:
   unit:
@@ -14,15 +14,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Install pnpm first so setup-node can cache it
       - uses: pnpm/action-setup@v4
         with:
-          version: 9 # or the version in your packageManager field
+          version: 9
 
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: "pnpm" # now safe; pnpm exists
+          cache: "pnpm"
           cache-dependency-path: |
             pnpm-lock.yaml
             **/pnpm-lock.yaml
