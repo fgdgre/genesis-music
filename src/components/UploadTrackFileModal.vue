@@ -46,6 +46,7 @@ const validateUploadedFile = (file?: File) => {
   trackFileInputErrorMessage.value = "";
 };
 
+// TODO rewrite this to vue query
 const handleUploadTrackFile = async () => {
   validateUploadedFile(trackFile.value);
   if (

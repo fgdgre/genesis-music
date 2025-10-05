@@ -19,6 +19,7 @@ const tracksStore = useTracksStore();
 
 const { addErrorToast, addSuccessToast } = useTracksToasts();
 
+// TODO rewrite this to vue query
 const editTrack = async (updatedTrack: DeepReadonly<Track>) => {
   emit("close");
 

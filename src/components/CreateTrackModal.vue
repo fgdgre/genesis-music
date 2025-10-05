@@ -15,6 +15,7 @@ const tracksStore = useTracksStore();
 
 const { addErrorToast, addSuccessToast } = useTracksToasts();
 
+// TODO rewrite this to vue query
 const handleCreateTrack = async (newTrack: DeepReadonly<Track>) => {
   emit("close");
 

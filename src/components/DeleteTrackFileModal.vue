@@ -15,6 +15,7 @@ const emit = defineEmits<{
   close: [];
 }>();
 
+// TODO rewrite this to vue query
 const handleDeleteTrackFile = async () => {
   emit("close");
 
