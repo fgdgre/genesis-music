@@ -5,6 +5,7 @@ export const useTracksToasts = () => {
   const toastsStore = useToast();
 
   const addErrorToast = (error: ApiError) => {
+    console.log(error);
     toastsStore.clearToasts();
 
     toastsStore.addToast({

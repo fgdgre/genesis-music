@@ -93,7 +93,7 @@ const apiClient: ApiClient = {
     path: string,
     opts: Omit<RequestOptions, "method">,
   ): Promise<T> =>
-    await connector(path, {
+    await connector<T>(path, {
       method: "POST",
       ...opts,
     }),

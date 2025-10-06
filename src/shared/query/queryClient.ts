@@ -1,26 +1,17 @@
-import { ref, readonly } from "vue";
-// TODO: invalidate after some time
-export const createQueryCache = () => {
-  const values = ref<Record<string, any>>({});
+import { useTracksToasts } from "@/composables/useTracksToasts";
+import { QueryClient, QueryCache, MutationCache } from "@tanstack/vue-query";
 
-  return {
-    values: readonly(values),
-    setQuery: (queryKey: string, data: any) => {
-      values.value[queryKey] = data;
+const { addErrorToast } = useTracksToasts();
+
+export const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError(error, query) {
+      addErrorToast(error);
     },
-    invalidateQuery: (queryParam: string) => {
-      delete values.value[queryParam];
+  }),
+  mutationCache: new MutationCache({
+    onError(error, _variables, _ctx, mutation) {
+      addErrorToast(error);
     },
-    invalidateAll: (queryKey?: string) => {
-      if (queryKey) {
-        values.value = Object.fromEntries(
-          Object.entries(values.value).filter(
-            ([_queryKey, _]) => !_queryKey.includes(queryKey),
-          ),
-        );
-      } else {
-        values.value = {};
-      }
-    },
-  };
-};
+  }),
+});

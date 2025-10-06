@@ -19,34 +19,34 @@ const { isLoading, isError, errorMessage, initialized, tracks, tracksMeta } =
 
 const store = filtersStore();
 
-const { search, order, artist, genre, sort, filtersEmpty } = storeToRefs(store);
+const { filtersEmpty } = storeToRefs(store);
 
 const isCreateTrackModalOpen = ref(false);
 
-const fetchTracks = () => {
-  tracksStore.fetchTracks({
-    page: filtersEmpty.value ? tracksMeta.value?.page || 1 : 1,
-    search: search.value,
-    order: order.value,
-    artist: artist.value,
-    genre: genre.value,
-    sort: sort.value,
-  });
-};
+// const fetchTracks = () => {
+//   tracksStore.fetchTracks({
+//     page: filtersEmpty.value ? tracksMeta.value?.page || 1 : 1,
+//     search,
+//     order,
+//     artist,
+//     genre,
+//     sort,
+//   });
+// };
 
-const handleFetchNextPage = () => {
-  if (!tracksMeta.value) return;
-  if (tracksMeta.value.page === tracksMeta.value.totalPages) return;
+// const handleFetchNextPage = () => {
+//   if (!tracksMeta.value) return;
+//   if (tracksMeta.value.page === tracksMeta.value.totalPages) return;
 
-  tracksStore.fetchTracks({
-    page: tracksMeta.value.page + 1,
-    search: search.value,
-    order: order.value,
-    artist: artist.value,
-    genre: genre.value,
-    sort: sort.value,
-  });
-};
+//   tracksStore.fetchTracks({
+//     page: tracksMeta.value.page + 1,
+//     search,
+//     order,
+//     artist,
+//     genre,
+//     sort,
+//   });
+// };
 
 const initializedWithEmptyTracks = computed(
   () =>
@@ -57,20 +57,20 @@ const initializedWithEmptyTracks = computed(
 
 const tracksListRef = useTemplateRef("tracksList");
 
-watch(
-  [search, order, artist, genre, sort],
-  () => {
-    tracksListRef.value?.scroll({
-      behavior: "instant",
-      top: 0,
-    });
+// watch(
+//   [search, order, artist, genre, sort],
+//   () => {
+//     tracksListRef.value?.scroll({
+//       behavior: "instant",
+//       top: 0,
+//     });
 
-    tracksStore.clearPlayingTrackId();
+//     tracksStore.clearPlayingTrackId();
 
-    fetchTracks();
-  },
-  { immediate: true },
-);
+//     fetchTracks();
+//   },
+//   { immediate: true },
+// );
 </script>
 
 <template>
@@ -80,7 +80,7 @@ watch(
     <AppErrorPage
       v-if="initializedWithEmptyTracks && isError"
       :error-message="errorMessage"
-      @refetch="fetchTracks"
+      @refetch="tracksStore.refetch"
       :is-loading="isLoading"
     />
 
@@ -125,8 +125,8 @@ watch(
         <FetchMoreButton
           v-if="tracksMeta?.page && tracksMeta.page < tracksMeta.totalPages"
           :disabled="isLoading"
-          @click="handleFetchNextPage"
-          @in-viewport="handleFetchNextPage"
+          @click="tracksStore.fetchNextPage"
+          @in-viewport="tracksStore.fetchNextPage"
         />
       </ul>
 

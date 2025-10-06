@@ -1,3 +1,8 @@
+export type TracksDTO = {
+  data: Track[];
+  meta: TracksMeta;
+};
+
 export type Track = {
   id: string;
   title: string;

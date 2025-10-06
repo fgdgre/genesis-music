@@ -1,35 +1,30 @@
 import { apiClient, TracksResponseSchema } from "@/shared/api";
 import { filtersStore } from "@/stores/filters";
-import type { Track } from "@/types";
-import { useQuery } from "@tanstack/vue-query";
+import type { Track, TracksMeta } from "@/types";
 import type { DeepReadonly, Ref } from "vue";
 
-export const fetchTracksAPI = ({
+export const fetchTracksAPI = async ({
   page,
   search,
   genre,
   artist,
   order,
   sort,
+  signal,
 }: {
-  page: Ref<number>;
-  search?: Ref<string>;
-  genre?: Ref<string>;
-  artist?: Ref<string>;
-  order?: Ref<"asc" | "desc" | "">;
-  sort?: Ref<"title" | "artist" | "album" | "createdAt" | "">;
-}) => {
-  const res = useQuery({
-    queryKey: ["tracks", page, search, genre, artist, order, sort],
-    queryFn: async ({ signal }) => {
-      await apiClient.get("api/tracks", {
-        schema: TracksResponseSchema,
-        query: { page, search, genre, artist, order, sort },
-        signal,
-      });
-    },
+  page: number;
+  search?: string;
+  genre?: string;
+  artist?: string;
+  order?: "asc" | "desc" | "";
+  sort?: "title" | "artist" | "album" | "createdAt" | "";
+  signal?: AbortSignal;
+}) =>
+  await apiClient.get("api/tracks", {
+    schema: TracksResponseSchema,
+    query: { page, search, genre, artist, order, sort },
+    signal,
   });
-};
 
 // export const postTrackAPI = async (track: Track | DeepReadonly<Track>) => {
 //   const res = await apiClient.post("api/tracks", {
