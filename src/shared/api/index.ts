@@ -7,14 +7,7 @@ export type {
   RequestOptions,
   Result,
 } from "./types";
-export {
-  createApiClient,
-  combineSignals,
-  invalidateAll,
-  invalidateQuery,
-  queriesCache,
-  setQuery,
-} from "./api";
+export { createApiClient, combineSignals } from "./api";
 export {
   TrackSchema,
   TracksResponseSchema,

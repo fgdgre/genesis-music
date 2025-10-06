@@ -10,7 +10,24 @@ import type {
 import { buildQuery } from "@/utils/buildQuery";
 import { cloneDeep } from "lodash-es";
 import { createQueryCache } from "../query/queryClient";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 
+export class RequestError extends Error {
+  constructor(opts: ApiError, ...params: any[]) {
+    super(...params);
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, RequestError);
+    }
+
+    this.name = "AppError";
+    this.code = opts.code;
+    this.message = opts.message;
+    this.status = opts.status;
+    this.aborted = opts.aborted;
+    this.details = opts.details;
+  }
+}
 // HELPERS ----------------------------------------------------------------------
 function isAbortError(e: unknown) {
   return e instanceof DOMException
@@ -178,123 +195,199 @@ const shouldRetry = (
   }
 };
 // -----------------------------------------------------------------------------------------
-export const {
-  values: queriesCache,
-  invalidateAll,
-  invalidateQuery,
-  setQuery,
-} = createQueryCache();
+// export const {
+//   values: queriesCache,
+//   invalidateAll,
+//   invalidateQuery,
+//   setQuery,
+// } = createQueryCache();
 
-async function connector(path: string, opts: RequestOptions): Promise<Result> {
-  const query = buildQuery(opts.query);
-  const queryKey = `${path}${query ? `?${query}` : ""}`;
+// async function connector(path: string, opts: RequestOptions): Promise<Result> {
+//   const query = buildQuery(opts.query);
+//   const queryKey = `${path}${query ? `?${query}` : ""}`;
 
-  if (queriesCache.value[queryKey]) {
-    return {
-      ok: true,
-      data: cloneDeep(queriesCache.value[queryKey]),
-      error: null,
-    };
-  }
+//   if (queriesCache.value[queryKey]) {
+//     return {
+//       ok: true,
+//       data: cloneDeep(queriesCache.value[queryKey]),
+//       error: null,
+//     };
+//   }
 
-  let retryCount = 0;
-  const elapsedTimeoutController = new AbortController();
+//   let retryCount = 0;
+//   const elapsedTimeoutController = new AbortController();
 
-  setTimeout(() => {
-    elapsedTimeoutController.abort();
-  }, opts.retry?.maxElapsedMs || 30000);
+//   setTimeout(() => {
+//     elapsedTimeoutController.abort();
+//   }, opts.retry?.maxElapsedMs || 30000);
 
-  while (true) {
-    // TODO: request !!!
-    const timeoutController = new AbortController();
-    const signal = combineSignals(
-      timeoutController.signal,
-      opts.signal,
-      elapsedTimeoutController.signal,
-    );
+//   while (true) {
+//     // TODO: request !!!
+//     const timeoutController = new AbortController();
+//     const signal = combineSignals(
+//       timeoutController.signal,
+//       opts.signal,
+//       elapsedTimeoutController.signal,
+//     );
 
-    const timer = setTimeout(() => {
-      timeoutController.abort();
-    }, opts.timeoutMs);
+//     const timer = setTimeout(() => {
+//       timeoutController.abort();
+//     }, opts.timeoutMs);
 
-    const res: Result = await fetch(queryKey, {
+//     const res: Result = await fetch(queryKey, {
+//       ...opts,
+//       ...configureRequestOptions(opts.body),
+//       signal,
+//     })
+//       .then(async (res) => {
+//         clearTimeout(timer);
+
+//         const data = await parseResponseBody(res);
+//         return res.ok
+//           ? { ok: true, data, error: null, res }
+//           : {
+//               ok: false,
+//               data: null,
+//               error: getApiError(
+//                 data,
+//                 timeoutController.signal,
+//                 elapsedTimeoutController.signal,
+//                 signal,
+//               ),
+//               res,
+//             };
+//       })
+//       .catch((e) => {
+//         clearTimeout(timer);
+
+//         return {
+//           ok: false,
+//           data: null,
+//           error: getApiError(
+//             e,
+//             timeoutController.signal,
+//             elapsedTimeoutController.signal,
+//             signal,
+//           ),
+//         };
+//       });
+
+//     if (
+//       shouldRetry(res, opts, retryCount) &&
+//       !elapsedTimeoutController.signal.aborted
+//     ) {
+//       retryCount += 1;
+//       continue;
+//     } else {
+//       if (!opts.schema) {
+//         setQuery(queryKey, res.data);
+//         return res;
+//       }
+
+//       if ((opts.parse || "json") === "json") {
+//         const { success, error } = opts.schema.safeParse(res.data);
+
+//         if (success) {
+//           setQuery(queryKey, res.data);
+//           return res;
+//         }
+
+//         return {
+//           ok: false,
+//           data: null,
+//           error: {
+//             code: "SCHEMA",
+//             message: "Received data is not supported structure",
+//             details: error.issues,
+//           },
+//           res: res.res,
+//         };
+//       }
+
+//       return res;
+//     }
+//   }
+// }
+
+const connector = async (
+  path: string,
+  opts: RequestOptions,
+  vueQuerySignal?: AbortSignal,
+) => {
+  try {
+    const query = buildQuery(opts.query);
+    const signal = combineSignals(vueQuerySignal, opts.signal);
+
+    const res: Response = await fetch(`${path}${query ? `?${query}` : ""}`, {
       ...opts,
       ...configureRequestOptions(opts.body),
       signal,
-    })
-      .then(async (res) => {
-        clearTimeout(timer);
+    });
 
-        const data = await parseResponseBody(res);
-        return res.ok
-          ? { ok: true, data, error: null, res }
-          : {
-              ok: false,
-              data: null,
-              error: getApiError(
-                data,
-                timeoutController.signal,
-                elapsedTimeoutController.signal,
-                signal,
-              ),
-              res,
-            };
-      })
-      .catch((e) => {
-        clearTimeout(timer);
+    const data = await parseResponseBody(res);
 
-        return {
-          ok: false,
-          data: null,
-          error: getApiError(
-            e,
-            timeoutController.signal,
-            elapsedTimeoutController.signal,
-            signal,
-          ),
-        };
-      });
-
-    if (
-      shouldRetry(res, opts, retryCount) &&
-      !elapsedTimeoutController.signal.aborted
-    ) {
-      retryCount += 1;
-      continue;
-    } else {
-      if (!opts.schema) {
-        setQuery(queryKey, res.data);
-        return res;
-      }
-
+    if (res.ok) {
       if ((opts.parse || "json") === "json") {
-        const { success, error } = opts.schema.safeParse(res.data);
+        if (opts.schema) {
+          const { success, error } = opts.schema.safeParse(data);
 
-        if (success) {
-          setQuery(queryKey, res.data);
-          return res;
+          if (success) {
+            return data;
+          }
+
+          return {
+            ok: false,
+            data: null,
+            error: {
+              code: "SCHEMA",
+              message: "Received data is not supported structure",
+              details: error.issues,
+            },
+            res: res,
+          };
+        } else {
+          return data;
         }
-
-        return {
-          ok: false,
-          data: null,
-          error: {
-            code: "SCHEMA",
-            message: "Received data is not supported structure",
-            details: error.issues,
-          },
-          res: res.res,
-        };
       }
-
-      return res;
+    } else {
+      // throw new RequestError(getApiError(data,signal));
     }
+  } catch (e) {
+    console.error(e);
+    // throw new RequestError(getApiError(data,signal));
   }
-}
+};
 
+// const apiClient: ApiClient = {
+//   get: async (path: string, opts: Omit<RequestOptions, "method" | "body">) =>
+//     await connector(path, { method: "GET", ...opts }),
+//   post: async (path: string, opts: Omit<RequestOptions, "method">) =>
+//     await connector(path, {
+//       method: "POST",
+//       ...opts,
+//     }),
+//   put: async (path: string, opts: Omit<RequestOptions, "method">) =>
+//     await connector(path, {
+//       method: "PUT",
+//       ...opts,
+//     }),
+//   patch: async (path: string, opts: Omit<RequestOptions, "method">) =>
+//     await connector(path, {
+//       method: "PATCH",
+//       ...opts,
+//     }),
+//   delete: async (path: string, opts: Omit<RequestOptions, "method">) =>
+//     await connector(path, {
+//       method: "DELETE",
+//       ...opts,
+//     }),
+// };
 const apiClient: ApiClient = {
   get: async (path: string, opts: Omit<RequestOptions, "method" | "body">) =>
-    await connector(path, { method: "GET", ...opts }),
+    await connector(path, {
+      method: "GET",
+      ...opts,
+    }),
   post: async (path: string, opts: Omit<RequestOptions, "method">) =>
     await connector(path, {
       method: "POST",

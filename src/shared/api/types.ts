@@ -67,16 +67,16 @@ export type RequestOptions = {
   schema?: ZodSchema;
   parse?: ParseMode;
   dedupeKey?: string;
-  queryKey?: string;
+  queryKey?: any[];
 };
 
 export interface ApiClient {
   get(
     path: string,
     opts?: Omit<RequestOptions, "method" | "body">,
-  ): Promise<Result>;
-  post(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
-  put(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
-  patch(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
-  delete(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
+  ): Promise<any>;
+  post(path: string, opts?: Omit<RequestOptions, "method">): Promise<any>;
+  put(path: string, opts?: Omit<RequestOptions, "method">): Promise<any>;
+  patch(path: string, opts?: Omit<RequestOptions, "method">): Promise<any>;
+  delete(path: string, opts?: Omit<RequestOptions, "method">): Promise<any>;
 }
