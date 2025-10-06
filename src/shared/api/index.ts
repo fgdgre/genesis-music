@@ -1,4 +1,5 @@
 export { default as apiClient } from "./client";
+
 export type {
   ApiClient,
   ApiError,
@@ -7,7 +8,20 @@ export type {
   RequestOptions,
   Result,
 } from "./types";
-export { createApiClient, combineSignals } from "./api";
+
+export { createApiClient } from "./api";
+
+export {
+  combineSignals,
+  configureRequestOptions,
+  getApiError,
+  injectApiClientOptions,
+  getApiCode,
+  getErrorMessage,
+  isAbortError,
+  isOffline,
+} from "./helpers";
+
 export {
   TrackSchema,
   TracksResponseSchema,
