@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
 import BaseSelect from "./base/BaseSelect.vue";
 import { fetchGenresAPI } from "@/entities/genres";
-import type { DropdownItem } from "@/types";
+import { useQuery } from "@tanstack/vue-query";
 
 defineProps<{
   label?: string;
@@ -23,33 +22,29 @@ const emit = defineEmits<{
 
 const genre = defineModel<string>({ required: true });
 
-const { data: genresItems } = await fetchGenresAPI();
-
-const trackGenresItems = ref<DropdownItem[]>([]);
-
-watchEffect(() => {
-  if (genresItems) {
-    trackGenresItems.value = genresItems.map((genre: string) => ({
+const { data: genresItems, isLoading } = useQuery({
+  queryKey: ["genres"],
+  queryFn: fetchGenresAPI,
+  select: (data) =>
+    data?.map((genre: string) => ({
       label: genre,
       value: genre.toLowerCase(),
-    }));
-  }
+    })),
 });
 </script>
 
 <template>
-  <!-- :is-loading="isLoading" -->
-  <!-- :is-empty="trackGenresItems?.length === 0 && !isLoading" -->
   <BaseSelect
-    :items="trackGenresItems"
+    :items="genresItems"
     v-model="genre"
     @blur="(e) => $emit('blur', e)"
     :error-message="errorMessage"
     :empty-message="emptyMessage"
-    :is-empty="trackGenresItems?.length === 0"
+    :is-empty="genresItems?.length === 0 && !isLoading"
     :label
     :placeholder
     :trigger-testid
     :error-message-testid
+    :is-loading
   />
 </template>
