@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, toRef, useTemplateRef, watch } from "vue";
+import { computed, ref, useTemplateRef, watch } from "vue";
 import { useTracksStore } from "@/stores/tracks";
 import { useFiltersStore } from "@/stores/filters";
 import { storeToRefs } from "pinia";
@@ -96,7 +96,7 @@ watch(
         <FetchMoreButton
           v-if="tracksMeta?.page && tracksMeta.page < tracksMeta.totalPages"
           :disabled="isLoading"
-          @click="tracksStore.fetchNextPage"
+          @click="() => tracksStore.fetchNextPage"
           @in-viewport="tracksStore.fetchNextPage"
         />
       </ul>
@@ -107,14 +107,6 @@ watch(
       >
         Nothing is found
       </div>
-
-      <!-- <AppPagination
-        v-if="tracksMeta?.totalPages && tracks.length"
-        class="px-2 pb-2"
-        v-model="page"
-        :total-pages="tracksMeta.totalPages"
-        :is-loading="isLoading"
-      /> -->
     </div>
   </main>
 
