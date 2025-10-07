@@ -10,13 +10,8 @@ const { toasts } = storeToRefs(store);
 </script>
 
 <template>
-  <!-- <Suspense> -->
-  <VueQueryDevtools />
-
-  <!-- <div> -->
   <TracksPage />
 
   <BaseToastsGroup :toasts @close-toast="(id) => store.removeToast(id)" />
-  <!-- </div> -->
-  <!-- </Suspense> -->
+  <VueQueryDevtools />
 </template>

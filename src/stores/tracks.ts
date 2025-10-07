@@ -33,7 +33,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
   watchEffect(() => {
     errorMessage.value = error.value?.message || "";
 
-    initialized.value = true; // ???????
+    // initialized.value = true; // ???????
   });
 
   return {

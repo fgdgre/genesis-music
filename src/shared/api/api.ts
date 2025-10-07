@@ -4,6 +4,7 @@ import type {
   ApiClient,
   ApiError,
   RetryOptions,
+  ApiErrorCode,
 } from "./types";
 import { buildQuery } from "@/utils/buildQuery";
 import {
@@ -14,6 +15,10 @@ import {
 } from "./helpers";
 
 export class RequestError extends Error {
+  readonly code: ApiErrorCode;
+  readonly status?: number;
+  readonly details?: unknown;
+  readonly aborted?: boolean;
   constructor(opts: ApiError, ...params: any[]) {
     super(...params);
 

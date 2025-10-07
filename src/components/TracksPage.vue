@@ -15,7 +15,7 @@ import FetchMoreButton from "./app/FetchMoreButton.vue";
 const tracksStore = useTracksStore();
 const filtersStore = useFiltersStore();
 
-const { isLoading, isError, errorMessage, initialized, tracks, hasNextPage } =
+const { isLoading, isError, errorMessage, tracks, initialized, hasNextPage } =
   storeToRefs(tracksStore);
 
 const { search, order, artist, genre, sort, filtersEmpty } =
@@ -25,6 +25,7 @@ const isCreateTrackModalOpen = ref(false);
 
 const initializedWithEmptyTracks = computed(
   () =>
+    initialized.value &&
     filtersEmpty.value &&
     tracks.value?.meta.page === 1 &&
     tracks.value?.data.length === 0,
@@ -46,8 +47,7 @@ watch(
 
 <template>
   <AppHeader title="Tracks page" :is-loading="isLoading" />
-
-  <main v-if="initialized" class="flex flex-col h-[calc(100svh-61px)]">
+  <main class="flex flex-col h-[calc(100svh-61px)]">
     <AppErrorPage
       v-if="initializedWithEmptyTracks && isError"
       :error-message="errorMessage"
@@ -77,7 +77,7 @@ watch(
           isLoading &&
           !tracks?.data.length &&
           filtersEmpty &&
-          tracks?.meta.page === 1
+          (tracks?.meta.page || 1) === 1
         "
         class="flex flex-col gap-4 justify-center items-center h-full"
         data-testid="loading-tracks"
