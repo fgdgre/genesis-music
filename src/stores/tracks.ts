@@ -11,7 +11,6 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const { search, genre, artist, order, sort } = storeToRefs(filterStore);
   const { addErrorToast } = useTracksToasts();
 
-  const initialized = ref(false);
   const errorMessage = ref("");
   const playingTrackId = ref<string | null>(null);
 
@@ -29,16 +28,13 @@ export const useTracksStore = defineStore("tracksStore", () => {
   } = useInfiniteQuery(tracksOptions({ search, genre, artist, order, sort }));
 
   // TODO GLOBAL: mutations for CRUD + invalidations
-  // TODO: error notification + initialization logic
+  // TODO: error notification
   watchEffect(() => {
     errorMessage.value = error.value?.message || "";
-
-    // initialized.value = true; // ???????
   });
 
   return {
     tracks: data,
-    initialized: readonly(initialized),
     isLoading: readonly(isLoading),
     isError: readonly(isError),
     errorMessage: readonly(errorMessage),
