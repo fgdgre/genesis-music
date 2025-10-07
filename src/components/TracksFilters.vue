@@ -2,16 +2,16 @@
 import BaseInput from "./base/BaseInput.vue";
 import BaseSelect from "./base/BaseSelect.vue";
 import GenresSelect from "./GenresSelect.vue";
-import { filtersStore } from "@/stores/filters";
+import { useFiltersStore } from "@/stores/filters";
 import { storeToRefs } from "pinia";
 
 defineProps<{
   isLoading?: boolean;
 }>();
 
-const store = filtersStore();
+const filtersStore = useFiltersStore();
 
-const { search, order, artist, genre, sort } = storeToRefs(store);
+const { search, order, artist, genre, sort } = storeToRefs(filtersStore);
 
 const sortSelectItems = [
   { label: "Artist", value: "artist" },
@@ -28,8 +28,8 @@ const orderSelectItems = [
 <template>
   <div class="flex gap-4">
     <div class="flex gap-4 items-end">
+      <!-- with-debounce -->
       <BaseInput
-        with-debounce
         label="Search"
         placeholder="Title, Artist, Album, Date"
         v-model="search"

@@ -1,5 +1,4 @@
 import { apiClient, TracksResponseSchema } from "@/shared/api";
-import { filtersStore } from "@/stores/filters";
 import type { Track, TracksMeta } from "@/types";
 import type { DeepReadonly, Ref } from "vue";
 

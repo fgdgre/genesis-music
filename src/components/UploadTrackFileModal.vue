@@ -4,7 +4,7 @@ import BaseButton from "./base/BaseButton.vue";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 import { ref, type DeepReadonly } from "vue";
 import { MAX_FILES_SIZE } from "@/consts";
-import { postTrackFileAPI } from "@/entities/tracks";
+import { postTrackFileAPI } from "@/entities/tracks/tracks";
 import type { Track } from "@/types";
 import { useTracksStore } from "@/stores/tracks";
 

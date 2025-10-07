@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { genresOptions } from "@/entities/genres";
 import BaseSelect from "./base/BaseSelect.vue";
-import { fetchGenresAPI } from "@/entities/genres";
 import { useQuery } from "@tanstack/vue-query";
 
 defineProps<{
@@ -22,15 +22,7 @@ const emit = defineEmits<{
 
 const genre = defineModel<string>({ required: true });
 
-const { data: genresItems, isLoading } = useQuery({
-  queryKey: ["genres"],
-  queryFn: fetchGenresAPI,
-  select: (data) =>
-    data?.map((genre: string) => ({
-      label: genre,
-      value: genre.toLowerCase(),
-    })),
-});
+const { data: genresItems, isLoading } = useQuery(genresOptions());
 </script>
 
 <template>

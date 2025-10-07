@@ -3,7 +3,7 @@ import AppModal from "./app/AppModal.vue";
 import BaseButton from "./base/BaseButton.vue";
 import type { Track } from "@/types";
 import { useTracksStore } from "@/stores/tracks";
-import { deleteTrackAPI } from "@/entities/tracks";
+import { deleteTrackAPI } from "@/entities/tracks/tracks";
 import type { DeepReadonly } from "vue";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 

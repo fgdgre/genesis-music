@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 
-export const filtersStore = defineStore("filtersStore", () => {
+export const useFiltersStore = defineStore("filtersStore", () => {
   const search = ref("");
   const order = ref<"desc" | "asc" | "">("");
   const artist = ref("");

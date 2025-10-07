@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, toRef, useTemplateRef, watch } from "vue";
 import { useTracksStore } from "@/stores/tracks";
+import { useFiltersStore } from "@/stores/filters";
 import { storeToRefs } from "pinia";
 import Track from "./Track.vue";
 import AppHeader from "./app/AppHeader.vue";
@@ -9,44 +10,18 @@ import AppErrorPage from "./app/AppErrorPage.vue";
 import CreateTrackModal from "./CreateTrackModal.vue";
 import AppEmptyScreen from "./app/AppEmptyScreen.vue";
 import BaseButton from "./base/BaseButton.vue";
-import { filtersStore } from "@/stores/filters";
 import FetchMoreButton from "./app/FetchMoreButton.vue";
 
 const tracksStore = useTracksStore();
+const filtersStore = useFiltersStore();
 
 const { isLoading, isError, errorMessage, initialized, tracks, tracksMeta } =
   storeToRefs(tracksStore);
 
-const store = filtersStore();
-
-const { filtersEmpty } = storeToRefs(store);
+const { search, order, artist, genre, sort, filtersEmpty } =
+  storeToRefs(filtersStore);
 
 const isCreateTrackModalOpen = ref(false);
-
-// const fetchTracks = () => {
-//   tracksStore.fetchTracks({
-//     page: filtersEmpty.value ? tracksMeta.value?.page || 1 : 1,
-//     search,
-//     order,
-//     artist,
-//     genre,
-//     sort,
-//   });
-// };
-
-// const handleFetchNextPage = () => {
-//   if (!tracksMeta.value) return;
-//   if (tracksMeta.value.page === tracksMeta.value.totalPages) return;
-
-//   tracksStore.fetchTracks({
-//     page: tracksMeta.value.page + 1,
-//     search,
-//     order,
-//     artist,
-//     genre,
-//     sort,
-//   });
-// };
 
 const initializedWithEmptyTracks = computed(
   () =>
@@ -57,20 +32,16 @@ const initializedWithEmptyTracks = computed(
 
 const tracksListRef = useTemplateRef("tracksList");
 
-// watch(
-//   [search, order, artist, genre, sort],
-//   () => {
-//     tracksListRef.value?.scroll({
-//       behavior: "instant",
-//       top: 0,
-//     });
-
-//     tracksStore.clearPlayingTrackId();
-
-//     fetchTracks();
-//   },
-//   { immediate: true },
-// );
+watch(
+  [search, order, artist, genre, sort],
+  () => {
+    tracksListRef.value?.scroll({
+      behavior: "instant",
+      top: 0,
+    });
+  },
+  { immediate: true },
+);
 </script>
 
 <template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { deleteTrackFileAPI } from "@/entities/tracks";
+import { deleteTrackFileAPI } from "@/entities/tracks/tracks";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 import { useTracksStore } from "@/stores/tracks";
 import type { Track } from "@/types";
