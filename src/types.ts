@@ -45,3 +45,8 @@ export type DropdownItem = {
   label: string;
   value: string;
 };
+
+export type infiniteTracksPage = {
+  data: Track[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+};
