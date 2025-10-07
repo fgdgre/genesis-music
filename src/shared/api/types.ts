@@ -71,12 +71,12 @@ export type RequestOptions = {
 };
 
 export interface ApiClient {
-  get(
+  get<T>(
     path: string,
     opts?: Omit<RequestOptions, "method" | "body">,
-  ): Promise<any>;
-  post(path: string, opts?: Omit<RequestOptions, "method">): Promise<any>;
-  put(path: string, opts?: Omit<RequestOptions, "method">): Promise<any>;
-  patch(path: string, opts?: Omit<RequestOptions, "method">): Promise<any>;
-  delete(path: string, opts?: Omit<RequestOptions, "method">): Promise<any>;
+  ): Promise<T>;
+  post<T>(path: string, opts?: Omit<RequestOptions, "method">): Promise<T>;
+  put<T>(path: string, opts?: Omit<RequestOptions, "method">): Promise<T>;
+  patch<T>(path: string, opts?: Omit<RequestOptions, "method">): Promise<T>;
+  delete<T>(path: string, opts?: Omit<RequestOptions, "method">): Promise<T>;
 }

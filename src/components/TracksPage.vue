@@ -15,7 +15,7 @@ import FetchMoreButton from "./app/FetchMoreButton.vue";
 const tracksStore = useTracksStore();
 const filtersStore = useFiltersStore();
 
-const { isLoading, isError, errorMessage, initialized, tracks, tracksMeta } =
+const { isLoading, isError, errorMessage, initialized, tracks, hasNextPage } =
   storeToRefs(tracksStore);
 
 const { search, order, artist, genre, sort, filtersEmpty } =
@@ -26,8 +26,8 @@ const isCreateTrackModalOpen = ref(false);
 const initializedWithEmptyTracks = computed(
   () =>
     filtersEmpty.value &&
-    tracksMeta.value?.page === 1 &&
-    tracks.value?.length === 0,
+    tracks.value?.meta.page === 1 &&
+    tracks.value?.data.length === 0,
 );
 
 const tracksListRef = useTemplateRef("tracksList");
@@ -74,7 +74,10 @@ watch(
 
       <div
         v-if="
-          isLoading && !tracks.length && filtersEmpty && tracksMeta?.page === 1
+          isLoading &&
+          !tracks?.data.length &&
+          filtersEmpty &&
+          tracks?.meta.page === 1
         "
         class="flex flex-col gap-4 justify-center items-center h-full"
         data-testid="loading-tracks"
@@ -84,17 +87,18 @@ watch(
       </div>
 
       <ul
-        v-else-if="tracks.length"
+        v-else-if="tracks?.data.length"
         class="flex-1 flex flex-col overflow-auto gap-2 px-6 pr-2.5 pb-10"
         data-testid="tracks-list"
         ref="tracksList"
       >
-        <li v-for="track in tracks">
+        <li v-for="track in tracks.data">
           <Track :track />
         </li>
 
+        <!-- tracks?.meta.page && tracks?.meta.page < tracks?.meta.totalPages -->
         <FetchMoreButton
-          v-if="tracksMeta?.page && tracksMeta.page < tracksMeta.totalPages"
+          v-if="hasNextPage"
           :disabled="isLoading"
           @click="() => tracksStore.fetchNextPage"
           @in-viewport="tracksStore.fetchNextPage"

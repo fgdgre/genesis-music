@@ -2,6 +2,7 @@ import { infiniteQueryOptions } from "@tanstack/vue-query";
 import { toValue, type Ref } from "vue";
 import type { QueryParams } from "@/types";
 import { fetchTracksAPI } from "./tracks";
+import { tracksKeys } from "./tracksKeys";
 
 export function tracksOptions({
   search,
@@ -11,7 +12,7 @@ export function tracksOptions({
   sort,
 }: { [K in keyof QueryParams]: Ref<QueryParams[K]> }) {
   return infiniteQueryOptions({
-    queryKey: ["tracks", search, genre, artist, order, sort],
+    queryKey: tracksKeys.list({ search, artist, genre, order, sort }),
     initialPageParam: 1,
     queryFn: ({ pageParam = 1, signal }) =>
       fetchTracksAPI({

@@ -1,5 +1,5 @@
 import { apiClient, TracksResponseSchema } from "@/shared/api";
-import type { Track, TracksMeta } from "@/types";
+import type { Track, TracksDTO, TracksMeta } from "@/types";
 import type { DeepReadonly, Ref } from "vue";
 
 export const fetchTracksAPI = async ({
@@ -19,7 +19,7 @@ export const fetchTracksAPI = async ({
   sort?: "title" | "artist" | "album" | "createdAt" | "";
   signal?: AbortSignal;
 }) =>
-  await apiClient.get("api/tracks", {
+  await apiClient.get<TracksDTO>("api/tracks", {
     schema: TracksResponseSchema,
     query: { page, search, genre, artist, order, sort },
     signal,
