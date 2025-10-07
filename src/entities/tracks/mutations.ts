@@ -1,9 +1,5 @@
 import type { Track } from "@/types";
-import {
-  useMutation,
-  useQueryClient,
-  type InfiniteData,
-} from "@tanstack/vue-query";
+import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import { postTrackAPI } from "./tracks";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 import { tracksKeys } from "./tracksKeys";

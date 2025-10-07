@@ -13,7 +13,7 @@ const emit = defineEmits<{
 const tracksStore = useTracksStore();
 
 const { mutate } = addTrackMutation();
-const handleCreateTrack = async (newTrack: DeepReadonly<Track>) => {
+const handleCreateTrack = async (newTrack: Track) => {
   emit("close");
 
   tracksStore.clearPlayingTrackId();

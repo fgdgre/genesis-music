@@ -11,7 +11,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  submit: [DeepReadonly<Track>];
+  submit: [Track];
   discard: [];
 }>();
 

@@ -17,7 +17,6 @@ export const prependOptimisticToInfinite =
       } as InfiniteData<infiniteTracksPage>;
     }
 
-    // Prepend into the first page
     const first = old.pages[0];
     const updatedFirst: infiniteTracksPage = {
       ...first,
@@ -52,7 +51,6 @@ export function replaceTempInInfinite<TPageParam = unknown>(
       ...old,
       pages: old.pages.map((p) => ({
         ...p,
-        // keep the same readonly element type as p.data
         data: p.data.map((t) => (t.id === tempId ? real : t)) as typeof p.data,
       })) as typeof old.pages,
     };
