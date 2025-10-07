@@ -25,110 +25,27 @@ export const fetchTracksAPI = async ({
     signal,
   });
 
-// export const postTrackAPI = async (track: Track | DeepReadonly<Track>) => {
-//   const res = await apiClient.post("api/tracks", {
-//     body: track,
-//   });
+export const postTrackAPI = async (track: Track | DeepReadonly<Track>) =>
+  await apiClient.post<Track>("api/tracks", {
+    body: track,
+  });
 
-//   if (res.ok) {
-//     invalidateAll("tracks");
-//     filtersStore().refreshFilters();
-//   }
+export const deleteTrackAPI = async (id: string) =>
+  await apiClient.delete<void>(`api/tracks/${id}`);
 
-//   return res;
-// };
-
-// export const deleteTrackAPI = async (id: string) => {
-//   const res = await apiClient.delete(`api/tracks/${id}`);
-
-//   if (res.ok) {
-//     invalidateAll("tracks");
-//   }
-
-//   return res;
-// };
-
-// export const editTrackAPI = async (track: Track | DeepReadonly<Track>) => {
-//   const res = await apiClient.put(`api/tracks/${track.id}`, {
-//     body: track,
-//   });
-
-//   if (res.ok) {
-//     invalidateAll("tracks");
-//   }
-
-//   return res;
-// };
-
-// export const postTrackFileAPI = async (id: string, file: any) => {
-//   const formData = new FormData();
-//   formData.append("file", file);
-
-//   const res = await apiClient.post(`api/tracks/${id}/upload`, {
-//     body: formData,
-//   });
-
-//   if (res.ok) {
-//     invalidateAll("tracks");
-//   }
-
-//   return res;
-// };
-
-// export const deleteTrackFileAPI = async (id: string) => {
-//   const res = await apiClient.delete(`api/tracks/${id}/file`);
-
-//   if (res.ok) {
-//     invalidateAll("tracks");
-//   }
-
-//   return res;
-// };
-export const postTrackAPI = async (track: Track | DeepReadonly<Track>) => {
-  // const res = await apiClient.post("api/tracks", {
-  //   body: track,
-  // });
-  // if (res.ok) {
-  //   invalidateAll("tracks");
-  //   filtersStore().refreshFilters();
-  // }
-  // return res;
-};
-
-export const deleteTrackAPI = async (id: string) => {
-  // const res = await apiClient.delete(`api/tracks/${id}`);
-  // if (res.ok) {
-  //   invalidateAll("tracks");
-  // }
-  // return res;
-};
-
-export const editTrackAPI = async (track: Track | DeepReadonly<Track>) => {
-  // const res = await apiClient.put(`api/tracks/${track.id}`, {
-  //   body: track,
-  // });
-  // if (res.ok) {
-  //   invalidateAll("tracks");
-  // }
-  // return res;
-};
+export const editTrackAPI = async (track: Track | DeepReadonly<Track>) =>
+  await apiClient.put<Track>(`api/tracks/${track.id}`, {
+    body: track,
+  });
 
 export const postTrackFileAPI = async (id: string, file: any) => {
-  // const formData = new FormData();
-  // formData.append("file", file);
-  // const res = await apiClient.post(`api/tracks/${id}/upload`, {
-  //   body: formData,
-  // });
-  // if (res.ok) {
-  //   invalidateAll("tracks");
-  // }
-  // return res;
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return await apiClient.post<Track>(`api/tracks/${id}/upload`, {
+    body: formData,
+  });
 };
 
-export const deleteTrackFileAPI = async (id: string) => {
-  // const res = await apiClient.delete(`api/tracks/${id}/file`);
-  // if (res.ok) {
-  //   invalidateAll("tracks");
-  // }
-  // return res;
-};
+export const deleteTrackFileAPI = async (id: string) =>
+  await apiClient.delete<Track>(`api/tracks/${id}/file`);

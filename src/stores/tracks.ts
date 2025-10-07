@@ -4,7 +4,7 @@ import { readonly } from "vue";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 import { useInfiniteQuery } from "@tanstack/vue-query";
 import { useFiltersStore } from "./filters";
-import { tracksOptions } from "@/entities/tracks";
+import { infiniteTracksOptions } from "@/entities/tracks";
 
 export const useTracksStore = defineStore("tracksStore", () => {
   const filterStore = useFiltersStore();
@@ -25,7 +25,9 @@ export const useTracksStore = defineStore("tracksStore", () => {
     fetchNextPage,
     refetch,
     hasNextPage,
-  } = useInfiniteQuery(tracksOptions({ search, genre, artist, order, sort }));
+  } = useInfiniteQuery(
+    infiniteTracksOptions({ search, genre, artist, order, sort }),
+  );
 
   // TODO GLOBAL: mutations for CRUD + invalidations
   // TODO: error notification

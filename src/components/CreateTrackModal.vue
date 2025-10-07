@@ -6,6 +6,8 @@ import { useTracksStore } from "@/stores/tracks";
 import { postTrackAPI } from "@/entities/tracks/tracks";
 import type { DeepReadonly } from "vue";
 import { useTracksToasts } from "@/composables/useTracksToasts";
+import { addTrackMutation } from "@/entities/tracks";
+import { QueryClient } from "@tanstack/vue-query";
 
 const emit = defineEmits<{
   close: [];
@@ -15,28 +17,27 @@ const tracksStore = useTracksStore();
 
 const { addErrorToast, addSuccessToast } = useTracksToasts();
 
-// TODO rewrite this to vue query
+// const client = new QueryClient();
+const { mutate } = addTrackMutation();
 const handleCreateTrack = async (newTrack: DeepReadonly<Track>) => {
   emit("close");
 
   tracksStore.clearPlayingTrackId();
 
-  tracksStore.createTrack(newTrack);
+  mutate(newTrack);
 
-  const { data, error } = await postTrackAPI(newTrack);
+  // if (error) {
+  //   tracksStore.deleteTrack(newTrack.id);
 
-  if (error) {
-    tracksStore.deleteTrack(newTrack.id);
+  //   addErrorToast(error);
+  //   return;
+  // }
 
-    addErrorToast(error);
-    return;
-  }
+  // if (data) {
+  //   tracksStore.updateTrack(newTrack.id, data);
 
-  if (data) {
-    tracksStore.updateTrack(newTrack.id, data);
-
-    addSuccessToast("create");
-  }
+  //   addSuccessToast("create");
+  // }
 };
 </script>
 

@@ -1,10 +1,10 @@
-import { infiniteQueryOptions } from "@tanstack/vue-query";
-import { toValue, type Ref } from "vue";
-import type { QueryParams } from "@/types";
-import { fetchTracksAPI } from "./tracks";
+import { infiniteQueryOptions, useMutation } from "@tanstack/vue-query";
+import { toValue, type DeepReadonly, type Ref } from "vue";
+import type { QueryParams, Track } from "@/types";
+import { fetchTracksAPI, postTrackAPI } from "./tracks";
 import { tracksKeys } from "./tracksKeys";
 
-export function tracksOptions({
+export function infiniteTracksOptions({
   search,
   artist,
   genre,
@@ -24,10 +24,13 @@ export function tracksOptions({
         sort: toValue(sort),
         signal,
       }),
-    select: (data) => ({
-      data: data.pages.flatMap((p) => p.data) ?? [],
-      meta: data.pages[data.pages.length - 1]?.meta,
-    }),
+    select: (data) => {
+      console.log(data);
+      return {
+        data: data.pages.flatMap((p) => p.data) ?? [],
+        meta: data.pages[data.pages.length - 1]?.meta,
+      };
+    },
     getNextPageParam: (lastPage) => {
       const { page, totalPages } = lastPage.meta;
       return page < totalPages ? page + 1 : undefined;
