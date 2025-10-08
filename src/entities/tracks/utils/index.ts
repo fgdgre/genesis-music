@@ -54,3 +54,21 @@ export function updateItemInInfinite<TPageParam = unknown>(
     };
   };
 }
+
+export function deleteItemInInfinite<TPageParam = unknown>(id: string) {
+  return (
+    old?: InfiniteData<InfiniteTracksPage, TPageParam>,
+  ): InfiniteData<InfiniteTracksPage, TPageParam> | undefined => {
+    if (!old) return old;
+
+    return {
+      ...old,
+      pages: old.pages.map((p) => ({
+        ...p,
+        data: p.data
+          .map((t) => (t.id === id ? undefined : t))
+          .filter(Boolean) as typeof p.data,
+      })) as typeof old.pages,
+    };
+  };
+}

@@ -1,9 +1,13 @@
 import type { Track } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
-import { createTrackAPI, updateTrackAPI } from "./tracks";
+import { createTrackAPI, deleteTrackAPI, updateTrackAPI } from "./tracks";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 import { tracksKeys } from "./tracksKeys";
-import { prependItemToInfinite, updateItemInInfinite } from "./utils";
+import {
+  deleteItemInInfinite,
+  prependItemToInfinite,
+  updateItemInInfinite,
+} from "./utils";
 
 export function createInfiniteTrackMutation() {
   const queryClient = useQueryClient();
@@ -69,6 +73,34 @@ export function updateInfiniteTrackMutation() {
         { queryKey: tracksKeys.all },
         updateItemInInfinite(ctx.trackId, data),
       );
+    },
+  });
+}
+export function deleteInfiniteTrackMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteTrackAPI(id),
+    onMutate: async (deleteTrackId) => {
+      await queryClient.cancelQueries({ queryKey: tracksKeys.all });
+
+      const previous = queryClient.getQueriesData<Track[]>({
+        queryKey: tracksKeys.all,
+      });
+
+      queryClient.setQueriesData(
+        { queryKey: tracksKeys.all },
+        deleteItemInInfinite(deleteTrackId),
+      );
+
+      return { previous: previous[0][1] };
+    },
+    onError: (e, variables, ctx) => {
+      useTracksToasts().addErrorToast(e);
+      queryClient.setQueriesData({ queryKey: tracksKeys.all }, ctx?.previous);
+    },
+    onSuccess: async (data, variables, ctx) => {
+      useTracksToasts().addSuccessToast("delete");
     },
   });
 }

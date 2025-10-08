@@ -3,9 +3,8 @@ import AppModal from "./app/AppModal.vue";
 import BaseButton from "./base/BaseButton.vue";
 import type { Track } from "@/types";
 import { useTracksStore } from "@/stores/tracks";
-import { deleteTrackAPI } from "@/entities/tracks/tracks";
 import type { DeepReadonly } from "vue";
-import { useTracksToasts } from "@/composables/useTracksToasts";
+import { deleteInfiniteTrackMutation } from "@/entities/tracks/mutations";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -16,26 +15,16 @@ const emit = defineEmits<{
 }>();
 
 const tracksStore = useTracksStore();
+const { mutate } = deleteInfiniteTrackMutation();
 
-const { addErrorToast, addSuccessToast } = useTracksToasts();
-
-// TODO rewrite this to vue query
-const handleDeleteTrack = async () => {
+const handleDeleteTrack = () => {
   emit("close");
 
-  tracksStore.clearPlayingTrackId();
-
-  tracksStore.deleteTrack(props.track.id);
-
-  const { error } = await deleteTrackAPI(props.track.id);
-
-  if (error) {
-    tracksStore.createTrack(props.track);
-
-    addErrorToast(error);
-  } else {
-    addSuccessToast("delete");
+  if (tracksStore.playingTrackId == props.track.id) {
+    tracksStore.clearPlayingTrackId();
   }
+
+  mutate(props.track.id);
 };
 </script>
 
