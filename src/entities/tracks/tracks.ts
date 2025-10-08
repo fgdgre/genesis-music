@@ -1,6 +1,6 @@
 import { apiClient, TracksResponseSchema } from "@/shared/api";
-import type { Track, TracksDTO, TracksMeta } from "@/types";
-import type { DeepReadonly, Ref } from "vue";
+import type { Track, TracksDTO } from "@/types";
+import type { DeepReadonly } from "vue";
 
 export const fetchTracksAPI = async ({
   page,
@@ -25,7 +25,7 @@ export const fetchTracksAPI = async ({
     signal,
   });
 
-export const postTrackAPI = async (track: Track | DeepReadonly<Track>) =>
+export const createTrackAPI = async (track: Track | DeepReadonly<Track>) =>
   await apiClient.post<Track>("api/tracks1", {
     body: track,
   });
@@ -33,7 +33,7 @@ export const postTrackAPI = async (track: Track | DeepReadonly<Track>) =>
 export const deleteTrackAPI = async (id: string) =>
   await apiClient.delete<void>(`api/tracks/${id}`);
 
-export const editTrackAPI = async (track: Track | DeepReadonly<Track>) =>
+export const updateTrackAPI = async (track: Track | DeepReadonly<Track>) =>
   await apiClient.put<Track>(`api/tracks/${track.id}`, {
     body: track,
   });

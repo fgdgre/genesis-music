@@ -17,7 +17,7 @@ export const useTracksToasts = () => {
   };
 
   const addSuccessToast = (
-    action: "create" | "delete" | "edit" | "uploadFile" | "deleteFile",
+    action: "create" | "delete" | "update" | "uploadFile" | "deleteFile",
   ) => {
     toastsStore.clearToasts();
 
@@ -27,7 +27,7 @@ export const useTracksToasts = () => {
       case "create":
         title = "Track successfully created";
         break;
-      case "edit":
+      case "update":
         title = "Track successfully edited";
         break;
       case "delete":

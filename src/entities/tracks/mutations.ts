@@ -1,35 +1,32 @@
 import type { Track } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
-import { postTrackAPI } from "./tracks";
+import { createTrackAPI, updateTrackAPI } from "./tracks";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 import { tracksKeys } from "./tracksKeys";
 import type { DeepReadonly } from "vue";
-import { prependOptimisticToInfinite, replaceTempInInfinite } from "./utils";
+import { prependItemToInfinite, updateItemInInfinite } from "./utils";
 
-export function addTrackMutation() {
+export function createTrackMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (track: Track | DeepReadonly<Track>) => postTrackAPI(track),
+    mutationFn: (track: Track) => createTrackAPI(track),
     onMutate: async (optimisticTrack) => {
       await queryClient.cancelQueries({ queryKey: tracksKeys.all });
 
       const previous = queryClient.getQueriesData<Track[]>({
         queryKey: tracksKeys.all,
       });
-      console.log(previous[0][1]);
 
       queryClient.setQueriesData(
         { queryKey: tracksKeys.all },
-        prependOptimisticToInfinite(optimisticTrack),
+        prependItemToInfinite(optimisticTrack),
       );
 
       return { previous: previous[0][1], tempId: optimisticTrack.id };
     },
     onError: (e, variables, ctx) => {
-      console.log(11);
       useTracksToasts().addErrorToast(e);
-      console.log(ctx?.previous);
       queryClient.setQueriesData({ queryKey: tracksKeys.all }, ctx?.previous);
     },
     onSuccess: async (data: Track, variables, ctx) => {
@@ -37,7 +34,41 @@ export function addTrackMutation() {
 
       queryClient.setQueriesData(
         { queryKey: tracksKeys.all },
-        replaceTempInInfinite(ctx.tempId, data),
+        updateItemInInfinite(ctx.tempId, data),
+      );
+    },
+  });
+}
+
+export function updateTrackMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (track: Track) => updateTrackAPI(track),
+    onMutate: async (optimisticTrack) => {
+      await queryClient.cancelQueries({ queryKey: tracksKeys.all });
+
+      const previous = queryClient.getQueriesData<Track[]>({
+        queryKey: tracksKeys.all,
+      });
+
+      queryClient.setQueriesData(
+        { queryKey: tracksKeys.all },
+        updateItemInInfinite(optimisticTrack.id, optimisticTrack),
+      );
+
+      return { previous: previous[0][1] };
+    },
+    onError: (e, variables, ctx) => {
+      useTracksToasts().addErrorToast(e);
+      queryClient.setQueriesData({ queryKey: tracksKeys.all }, ctx?.previous);
+    },
+    onSuccess: async (data: Track, variables, ctx) => {
+      useTracksToasts().addSuccessToast("update");
+
+      queryClient.setQueriesData(
+        { queryKey: tracksKeys.all },
+        updateItemInInfinite(data.id, data),
       );
     },
   });

@@ -1,10 +1,8 @@
 import type { infiniteTracksPage, Track } from "@/types";
 import type { InfiniteData } from "@tanstack/vue-query";
-import type { DeepReadonly } from "vue";
 
-export const prependOptimisticToInfinite =
-  (optimisticTrack: Track | DeepReadonly<Track>) =>
-  (old?: InfiniteData<infiniteTracksPage>) => {
+export const prependItemToInfinite =
+  (optimisticTrack: Track) => (old?: InfiniteData<infiniteTracksPage>) => {
     if (!old) {
       return {
         pages: [
@@ -38,7 +36,7 @@ type InfiniteTracksPage = {
   meta: { total: number; page: number; limit: number; totalPages: number };
 };
 
-export function replaceTempInInfinite<TPageParam = unknown>(
+export function updateItemInInfinite<TPageParam = unknown>(
   tempId: string,
   real: Track,
 ) {

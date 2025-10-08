@@ -1,7 +1,7 @@
-import { infiniteQueryOptions, useMutation } from "@tanstack/vue-query";
-import { toValue, type DeepReadonly, type Ref } from "vue";
-import type { QueryParams, Track } from "@/types";
-import { fetchTracksAPI, postTrackAPI } from "./tracks";
+import { infiniteQueryOptions } from "@tanstack/vue-query";
+import { toValue, type Ref } from "vue";
+import type { QueryParams } from "@/types";
+import { fetchTracksAPI } from "./tracks";
 import { tracksKeys } from "./tracksKeys";
 
 export function infiniteTracksOptions({

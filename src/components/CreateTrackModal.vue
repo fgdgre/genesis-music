@@ -3,8 +3,7 @@ import type { Track } from "@/types";
 import AppModal from "./app/AppModal.vue";
 import TrackForm from "./TrackForm.vue";
 import { useTracksStore } from "@/stores/tracks";
-import type { DeepReadonly } from "vue";
-import { addTrackMutation } from "@/entities/tracks";
+import { createTrackMutation } from "@/entities/tracks";
 
 const emit = defineEmits<{
   close: [];
@@ -12,7 +11,7 @@ const emit = defineEmits<{
 
 const tracksStore = useTracksStore();
 
-const { mutate } = addTrackMutation();
+const { mutate } = createTrackMutation();
 const handleCreateTrack = async (newTrack: Track) => {
   emit("close");
 
