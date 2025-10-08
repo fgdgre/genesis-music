@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import AppModal from "./app/AppModal.vue";
 import BaseButton from "./base/BaseButton.vue";
-import { useTracksToasts } from "@/composables/useTracksToasts";
 import { ref, type DeepReadonly } from "vue";
 import { MAX_FILES_SIZE } from "@/consts";
-import { postTrackFileAPI } from "@/entities/tracks/tracks";
 import type { Track } from "@/types";
-import { useTracksStore } from "@/stores/tracks";
+import { uploadFileInfiniteTrackMutation } from "@/entities/tracks/mutations";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -15,8 +13,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   close: [];
 }>();
-
-const { addErrorToast, addSuccessToast } = useTracksToasts();
 
 const trackFileInputErrorMessage = ref("");
 
@@ -46,8 +42,9 @@ const validateUploadedFile = (file?: File) => {
   trackFileInputErrorMessage.value = "";
 };
 
+const { mutate } = uploadFileInfiniteTrackMutation();
 // TODO rewrite this to vue query
-const handleUploadTrackFile = async () => {
+const handleUploadTrackFile = () => {
   validateUploadedFile(trackFile.value);
   if (
     trackFile.value &&
@@ -56,21 +53,7 @@ const handleUploadTrackFile = async () => {
   ) {
     emit("close");
 
-    const { data, error } = await postTrackFileAPI(
-      props.track.id,
-      trackFile.value,
-    );
-
-    if (error) {
-      addErrorToast(error);
-      return;
-    }
-
-    if (data) {
-      addSuccessToast("uploadFile");
-
-      useTracksStore().updateTrack(props.track.id, data);
-    }
+    mutate({ id: props.track.id, file: trackFile.value });
   }
 };
 </script>

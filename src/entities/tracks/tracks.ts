@@ -38,7 +38,7 @@ export const updateTrackAPI = async (track: Track | DeepReadonly<Track>) =>
     body: track,
   });
 
-export const postTrackFileAPI = async (id: string, file: any) => {
+export const uploadTrackFileAPI = async (id: string, file: any) => {
   const formData = new FormData();
   formData.append("file", file);
 
