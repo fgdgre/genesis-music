@@ -43,7 +43,7 @@ const validateUploadedFile = (file?: File) => {
 };
 
 const { mutate } = uploadFileInfiniteTrackMutation();
-// TODO rewrite this to vue query
+
 const handleUploadTrackFile = () => {
   validateUploadedFile(trackFile.value);
   if (

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import {
   createTrackAPI,
   deleteTrackAPI,
+  deleteTrackFileAPI,
   updateTrackAPI,
   uploadTrackFileAPI,
 } from "./tracks";
@@ -121,6 +122,25 @@ export function uploadFileInfiniteTrackMutation() {
     },
     onSuccess: async (data) => {
       useTracksToasts().addSuccessToast("uploadFile");
+
+      queryClient.setQueriesData(
+        { queryKey: tracksKeys.all },
+        updateItemInInfinite(String(data.id), data),
+      );
+    },
+  });
+}
+
+export function deleteFileInfiniteTrackMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteTrackFileAPI(id),
+    onError: (e) => {
+      useTracksToasts().addErrorToast(e);
+    },
+    onSuccess: async (data) => {
+      useTracksToasts().addSuccessToast("deleteFile");
 
       queryClient.setQueriesData(
         { queryKey: tracksKeys.all },

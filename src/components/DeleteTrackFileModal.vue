@@ -6,6 +6,7 @@ import type { Track } from "@/types";
 import type { DeepReadonly } from "vue";
 import AppModal from "./app/AppModal.vue";
 import BaseButton from "./base/BaseButton.vue";
+import { deleteFileInfiniteTrackMutation } from "@/entities/tracks/mutations";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -15,27 +16,18 @@ const emit = defineEmits<{
   close: [];
 }>();
 
-// TODO rewrite this to vue query
+const trackStore = useTracksStore();
+
+const { mutate } = deleteFileInfiniteTrackMutation();
+
 const handleDeleteTrackFile = async () => {
   emit("close");
 
-  useTracksStore().clearPlayingTrackId();
-
-  useTracksStore().updateTrack(props.track.id, {
-    ...props.track,
-    audioFile: undefined,
-  });
-
-  const { data, error } = await deleteTrackFileAPI(props.track.id);
-
-  if (error) {
-    useTracksToasts().addErrorToast(error);
-    useTracksStore().updateTrack(props.track.id, props.track);
+  if (trackStore.playingTrackId == props.track.id) {
+    trackStore.clearPlayingTrackId();
   }
 
-  if (data) {
-    useTracksToasts().addSuccessToast("deleteFile");
-  }
+  mutate(props.track.id);
 };
 </script>
 
