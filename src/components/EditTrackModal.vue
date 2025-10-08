@@ -3,7 +3,7 @@ import type { Track } from "@/types";
 import type { DeepReadonly } from "vue";
 import AppModal from "./app/AppModal.vue";
 import TrackForm from "./TrackForm.vue";
-import { updateTrackMutation } from "@/entities/tracks";
+import { updateInfiniteTrackMutation } from "@/entities/tracks";
 
 defineProps<{
   track: DeepReadonly<Track>;
@@ -13,9 +13,9 @@ const emit = defineEmits<{
   close: [];
 }>();
 
-const { mutate } = updateTrackMutation();
+const { mutate } = updateInfiniteTrackMutation();
 
-const editTrack = async (updatedTrack: Track) => {
+const editTrack = (updatedTrack: Track) => {
   emit("close");
 
   mutate(updatedTrack);

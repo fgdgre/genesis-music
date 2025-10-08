@@ -26,7 +26,7 @@ export const fetchTracksAPI = async ({
   });
 
 export const createTrackAPI = async (track: Track | DeepReadonly<Track>) =>
-  await apiClient.post<Track>("api/tracks1", {
+  await apiClient.post<Track>("api/tracks", {
     body: track,
   });
 

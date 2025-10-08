@@ -3,10 +3,9 @@ import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import { createTrackAPI, updateTrackAPI } from "./tracks";
 import { useTracksToasts } from "@/composables/useTracksToasts";
 import { tracksKeys } from "./tracksKeys";
-import type { DeepReadonly } from "vue";
 import { prependItemToInfinite, updateItemInInfinite } from "./utils";
 
-export function createTrackMutation() {
+export function createInfiniteTrackMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -40,7 +39,7 @@ export function createTrackMutation() {
   });
 }
 
-export function updateTrackMutation() {
+export function updateInfiniteTrackMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -57,7 +56,7 @@ export function updateTrackMutation() {
         updateItemInInfinite(optimisticTrack.id, optimisticTrack),
       );
 
-      return { previous: previous[0][1] };
+      return { previous: previous[0][1], trackId: optimisticTrack.id };
     },
     onError: (e, variables, ctx) => {
       useTracksToasts().addErrorToast(e);
@@ -68,7 +67,7 @@ export function updateTrackMutation() {
 
       queryClient.setQueriesData(
         { queryKey: tracksKeys.all },
-        updateItemInInfinite(data.id, data),
+        updateItemInInfinite(ctx.trackId, data),
       );
     },
   });
