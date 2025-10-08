@@ -14,17 +14,23 @@ export function addTrackMutation() {
     onMutate: async (optimisticTrack) => {
       await queryClient.cancelQueries({ queryKey: tracksKeys.all });
 
-      const previous = queryClient.getQueryData<Track[]>(tracksKeys.all);
+      const previous = queryClient.getQueriesData<Track[]>({
+        queryKey: tracksKeys.all,
+      });
+      console.log(previous[0][1]);
 
       queryClient.setQueriesData(
         { queryKey: tracksKeys.all },
         prependOptimisticToInfinite(optimisticTrack),
       );
 
-      return { previous, tempId: optimisticTrack.id };
+      return { previous: previous[0][1], tempId: optimisticTrack.id };
     },
-    onError: (e) => {
+    onError: (e, variables, ctx) => {
+      console.log(11);
       useTracksToasts().addErrorToast(e);
+      console.log(ctx?.previous);
+      queryClient.setQueriesData({ queryKey: tracksKeys.all }, ctx?.previous);
     },
     onSuccess: async (data: Track, variables, ctx) => {
       useTracksToasts().addSuccessToast("create");

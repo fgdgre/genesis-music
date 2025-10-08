@@ -25,7 +25,6 @@ export function infiniteTracksOptions({
         signal,
       }),
     select: (data) => {
-      console.log(data);
       return {
         data: data.pages.flatMap((p) => p.data) ?? [],
         meta: data.pages[data.pages.length - 1]?.meta,
