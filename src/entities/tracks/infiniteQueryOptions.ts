@@ -3,6 +3,7 @@ import { toValue, type Ref } from "vue";
 import type { QueryParams } from "@/types";
 import { fetchTracksAPI } from "./tracks";
 import { tracksKeys } from "./tracksKeys";
+import { useTracksToasts } from "@/composables/useTracksToasts";
 
 export function infiniteTracksOptions({
   search,
@@ -14,8 +15,8 @@ export function infiniteTracksOptions({
   return infiniteQueryOptions({
     queryKey: tracksKeys.list({ search, artist, genre, order, sort }),
     initialPageParam: 1,
-    queryFn: ({ pageParam = 1, signal }) =>
-      fetchTracksAPI({
+    queryFn: async ({ pageParam = 1, signal }) => {
+      return await fetchTracksAPI({
         page: pageParam,
         search: toValue(search),
         genre: toValue(genre),
@@ -23,7 +24,8 @@ export function infiniteTracksOptions({
         order: toValue(order),
         sort: toValue(sort),
         signal,
-      }),
+      }).catch((e) => useTracksToasts().addErrorToast(e));
+    },
     select: (data) => {
       return {
         data: data.pages.flatMap((p) => p.data) ?? [],
