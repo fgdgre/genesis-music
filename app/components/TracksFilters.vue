@@ -2,14 +2,13 @@
 import BaseInput from "./base/BaseInput.vue";
 import BaseSelect from "./base/BaseSelect.vue";
 import GenresSelect from "./GenresSelect.vue";
-import { filtersStore } from "@/stores/filters";
 import { storeToRefs } from "pinia";
 
 defineProps<{
   isLoading?: boolean;
 }>();
 
-const store = filtersStore();
+const store = useFiltersStore();
 
 const { search, order, artist, genre, sort } = storeToRefs(store);
 

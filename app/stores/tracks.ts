@@ -8,16 +8,16 @@ import { useTracksToasts } from "@/composables/useTracksToasts";
 export const useTracksStore = defineStore("tracksStore", () => {
   const { addErrorToast } = useTracksToasts();
 
+  const filtersStore = useFiltersStore();
+
+  const { search, order, artist, genre, sort } = storeToRefs(filtersStore);
+
   const initialized = ref(false);
   const tracks = ref<Track[]>([]);
   const tracksMeta = ref<TracksMeta | null>(null);
   const isLoading = ref(false);
   const isError = ref(false);
   const errorMessage = ref("");
-  const playingTrackId = ref<string | null>(null);
-
-  const setPlayingTrackId = (id: string) => (playingTrackId.value = id);
-  const clearPlayingTrackId = () => (playingTrackId.value = null);
 
   const clearErrors = () => {
     isError.value = false;
@@ -84,6 +84,20 @@ export const useTracksStore = defineStore("tracksStore", () => {
     }
   };
 
+  const fetchNextPage = () => {
+    if (!tracksMeta.value) return;
+    if (tracksMeta.value.page === tracksMeta.value.totalPages) return;
+
+    fetchTracks({
+      page: tracksMeta.value.page + 1,
+      search: search.value,
+      order: order.value,
+      artist: artist.value,
+      genre: genre.value,
+      sort: sort.value,
+    });
+  };
+
   const createTrack = (trackData: DeepReadonly<Track>) => {
     tracks.value?.unshift(trackData as Track);
   };
@@ -105,10 +119,8 @@ export const useTracksStore = defineStore("tracksStore", () => {
     isLoading: readonly(isLoading),
     isError: readonly(isError),
     errorMessage: readonly(errorMessage),
-    playingTrackId: readonly(playingTrackId),
-    setPlayingTrackId,
-    clearPlayingTrackId,
     fetchTracks,
+    fetchNextPage,
     createTrack,
     updateTrack,
     deleteTrack,

@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import AppModal from "./app/AppModal.vue";
-import BaseButton from "./base/BaseButton.vue";
 import type { Track } from "@/types";
-import { useTracksStore } from "@/stores/tracks";
 import { deleteTrackAPI } from "@/entities/tracks";
 import type { DeepReadonly } from "vue";
-import { useTracksToasts } from "@/composables/useTracksToasts";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -19,10 +15,14 @@ const tracksStore = useTracksStore();
 
 const { addErrorToast, addSuccessToast } = useTracksToasts();
 
+const { playingTrackId, nextTrack } = usePlaybackStore();
+
 const handleDeleteTrack = async () => {
   emit("close");
 
-  tracksStore.clearPlayingTrackId();
+  if (props.track.id === playingTrackId) {
+    nextTrack();
+  }
 
   tracksStore.deleteTrack(props.track.id);
 

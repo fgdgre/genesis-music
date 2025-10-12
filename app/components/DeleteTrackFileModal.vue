@@ -15,10 +15,14 @@ const emit = defineEmits<{
   close: [];
 }>();
 
+const { playingTrackId, nextTrack } = usePlaybackStore();
+
 const handleDeleteTrackFile = async () => {
   emit("close");
 
-  useTracksStore().clearPlayingTrackId();
+  if (props.track.id === playingTrackId) {
+    nextTrack();
+  }
 
   useTracksStore().updateTrack(props.track.id, {
     ...props.track,

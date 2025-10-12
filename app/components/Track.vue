@@ -1,36 +1,29 @@
 <script setup lang="ts">
 import type { Track } from "@/types";
-import EditTrackModal from "./EditTrackModal.vue";
-import { computed, ref, type DeepReadonly } from "vue";
-import DeleteTrackModal from "./DeleteTrackModal.vue";
-import BaseButton from "./base/BaseButton.vue";
 import { DEFAULT_TRACK_COVER } from "@/consts";
-import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
-import UploadTrackFileModal from "./UploadTrackFileModal.vue";
-import BaseAudioPlay from "./base/BaseAudioPlay.vue";
-import DeleteTrackFileModal from "./DeleteTrackFileModal.vue";
+import type { DeepReadonly } from "vue";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
 }>();
 
-const tracksStore = useTracksStore();
+const playbackStore = usePlaybackStore();
 
-const { playingTrackId } = storeToRefs(tracksStore);
-
-const isPlaying = computed(() => playingTrackId.value === props.track.id);
+const { isPlaying, playingTrackId } = storeToRefs(playbackStore);
 
 const isEditTrackModalOpen = ref(false);
 const isDeleteTrackModalOpen = ref(false);
 const isUploadTrackFileModalOpen = ref(false);
 const isDeleteTrackFileModal = ref(false);
 
-const toggleTrack = () => {
-  if (props.track.audioFile) {
-    isPlaying.value
-      ? tracksStore.clearPlayingTrackId()
-      : tracksStore.setPlayingTrackId(props.track.id);
+const handleTogglePlay = () => {
+  if (!props.track.audioFile) return;
+
+  if (props.track.id === playingTrackId.value) {
+    playbackStore.togglePlayTrack();
+  } else {
+    playbackStore.setPlayingTrackId(props.track.id);
   }
 };
 </script>
@@ -41,7 +34,7 @@ const toggleTrack = () => {
     :class="[
       track.audioFile && 'hover:bg-gray-100 transition-colors cursor-pointer',
     ]"
-    @click="toggleTrack"
+    @click="handleTogglePlay"
     :data-track-id="track.id"
     :data-testid="`track-item-${track.id}`"
   >
@@ -53,7 +46,7 @@ const toggleTrack = () => {
         class="absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] text-orange-400"
       >
         <svg
-          v-if="!isPlaying"
+          v-if="!isPlaying || (isPlaying && playingTrackId !== track.id)"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
           height="24"
@@ -67,7 +60,7 @@ const toggleTrack = () => {
         </svg>
 
         <svg
-          v-else
+          v-else-if="playingTrackId === track.id && isPlaying"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
           height="24"
@@ -160,13 +153,6 @@ const toggleTrack = () => {
         </NuxtLink>
       </div>
     </div>
-
-    <BaseAudioPlay
-      v-if="track.audioFile"
-      class="self-end"
-      :trackSource="track.audioFile"
-      :trackId="track.id"
-    />
   </div>
 
   <EditTrackModal

@@ -1,50 +1,40 @@
 <script setup lang="ts">
-import { useTracksStore } from "@/stores/tracks";
-import { storeToRefs } from "pinia";
-import { ref, useTemplateRef, watch } from "vue";
-
 const props = defineProps<{
   trackSource: string;
-  trackId: string;
+  playingTrackId?: string | null;
+  isPlaying: boolean;
+  currentPlaybackTime: number;
+  currentTrackSourceUrl: string;
 }>();
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-
-const tracksStore = useTracksStore();
-
-const { playingTrackId } = storeToRefs(tracksStore);
+const emit = defineEmits<{
+  trackEnd: [];
+  timeChange: [number];
+}>();
 
 const audioPlyerRef = useTemplateRef("audioPlyerRef");
 
-watch(playingTrackId, () => {
-  if (playingTrackId.value === props.trackId) {
-    audioPlyerRef.value?.play();
-  } else {
-    audioPlyerRef.value?.pause();
-  }
-});
-
-const currentTime = ref(0);
 const isChangingManually = ref(false);
 
 const handlePlay = (e: any) => {
   if (!isChangingManually.value) {
-    currentTime.value = e.target.currentTime;
+    emit("timeChange", e.target.currentTime);
   }
 
   if (
     audioPlyerRef.value &&
-    currentTime.value >= audioPlyerRef.value.duration
+    audioPlyerRef.value.duration &&
+    Math.round(props.currentPlaybackTime) >=
+      Math.round(audioPlyerRef.value.duration)
   ) {
-    tracksStore.clearPlayingTrackId();
-
-    audioPlyerRef.value.currentTime = 0;
+    console.log("trackEnd");
+    emit("trackEnd");
   }
 };
 
 const onSliderInput = (e: Event) => {
   const value = parseFloat((e.target as HTMLInputElement).value);
-  currentTime.value = value;
+  emit("timeChange", value);
   isChangingManually.value = true;
 };
 
@@ -55,12 +45,26 @@ const onSliderChange = (e: Event) => {
   }
   isChangingManually.value = false;
 };
+
+watchPostEffect(() => {
+  if (props.isPlaying) {
+    audioPlyerRef.value?.play();
+  } else {
+    audioPlyerRef.value?.pause();
+  }
+});
+
+onMounted(() => {
+  if (audioPlyerRef.value && props.currentPlaybackTime > 0) {
+    audioPlyerRef.value.currentTime = props.currentPlaybackTime;
+  }
+});
 </script>
 
 <template>
   <div class="w-full">
     <audio
-      :src="BASE_URL + `/api/files/${trackSource}`"
+      :src="currentTrackSourceUrl"
       preload="metadata"
       ref="audioPlyerRef"
       @timeupdate="handlePlay"
@@ -72,7 +76,7 @@ const onSliderChange = (e: Event) => {
       class="w-full transition-all duration-300 ease-linear"
       :step="0.1"
       :max="audioPlyerRef?.duration"
-      :value="currentTime"
+      :value="currentPlaybackTime"
       @input="onSliderInput"
       @change="onSliderChange"
       @click.stop

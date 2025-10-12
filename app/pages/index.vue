@@ -2,36 +2,22 @@
 import { computed, ref, useTemplateRef, watch } from "vue";
 import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
-import { filtersStore } from "@/stores/filters";
 
 const tracksStore = useTracksStore();
 
 const { isLoading, isError, errorMessage, initialized, tracks, tracksMeta } =
   storeToRefs(tracksStore);
 
-const store = filtersStore();
+const filtersStore = useFiltersStore();
 
-const { search, order, artist, genre, sort, filtersEmpty } = storeToRefs(store);
+const { search, order, artist, genre, sort, filtersEmpty } =
+  storeToRefs(filtersStore);
 
 const isCreateTrackModalOpen = ref(false);
 
 const fetchTracks = () => {
   tracksStore.fetchTracks({
     page: filtersEmpty.value ? tracksMeta.value?.page || 1 : 1,
-    search: search.value,
-    order: order.value,
-    artist: artist.value,
-    genre: genre.value,
-    sort: sort.value,
-  });
-};
-
-const handleFetchNextPage = () => {
-  if (!tracksMeta.value) return;
-  if (tracksMeta.value.page === tracksMeta.value.totalPages) return;
-
-  tracksStore.fetchTracks({
-    page: tracksMeta.value.page + 1,
     search: search.value,
     order: order.value,
     artist: artist.value,
@@ -56,8 +42,6 @@ watch(
       behavior: "instant",
       top: 0,
     });
-
-    tracksStore.clearPlayingTrackId();
 
     fetchTracks();
   },
@@ -117,8 +101,8 @@ watch(
         <FetchMoreButton
           v-if="tracksMeta?.page && tracksMeta.page < tracksMeta.totalPages"
           :disabled="isLoading"
-          @click="handleFetchNextPage"
-          @in-viewport="handleFetchNextPage"
+          @click="tracksStore.fetchNextPage"
+          @in-viewport="tracksStore.fetchNextPage"
         />
       </ul>
 

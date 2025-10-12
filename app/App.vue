@@ -11,5 +11,6 @@ const { toasts } = storeToRefs(store);
     <NuxtPage />
 
     <BaseToastsGroup :toasts @close-toast="(id) => store.removeToast(id)" />
+    <TracksPlayer />
   </div>
 </template>

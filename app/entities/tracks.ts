@@ -4,7 +4,6 @@ import {
   invalidateQuery,
   TracksResponseSchema,
 } from "@/shared/api";
-import { filtersStore } from "@/stores/filters";
 import type { Track, TracksResponse } from "@/types";
 import type { DeepReadonly } from "vue";
 
@@ -35,7 +34,7 @@ export const postTrackAPI = async (track: Track | DeepReadonly<Track>) => {
 
   if (res.ok) {
     invalidateAll("tracks");
-    filtersStore().refreshFilters();
+    useFiltersStore().refreshFilters();
   }
 
   return res;
@@ -58,7 +57,7 @@ export const editTrackAPI = async (track: Track | DeepReadonly<Track>) => {
 
   if (res.ok) {
     invalidateAll("tracks");
-    invalidateQuery(`api/tracks/${res.data.slug}`);
+    invalidateQuery(`api/tracks/${res.data!.slug}`);
   }
 
   return res;
