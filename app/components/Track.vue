@@ -154,7 +154,7 @@ const toggleTrack = () => {
           class="flex gap-x-[5px] items-center justify-center rounded-md w-fit select-none transition-colors pointer-events-auto font-medium text-sm cursor-pointer h-9 bg-gray-500 text-white hover:bg-gray-400/80 p-2"
           :data-testid="`info-track-${track.id}`"
           @click.stop
-          :to="`/${track.id}`"
+          :to="`/${track.slug}`"
         >
           <Icon name="material-symbols:more-horiz" class="size-5 shrink-0" />
         </NuxtLink>
