@@ -24,7 +24,10 @@ export function infiniteTracksOptions({
         order: toValue(order),
         sort: toValue(sort),
         signal,
-      }).catch((e) => useTracksToasts().addErrorToast(e));
+      }).catch((e) => {
+        useTracksToasts().addErrorToast(e);
+        throw e;
+      });
     },
     select: (data) => {
       return {
