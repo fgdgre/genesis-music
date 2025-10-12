@@ -15,9 +15,9 @@ export type ApiError = {
   details?: unknown;
 };
 
-export type Result = {
+export type Result<T = unknown> = {
   ok: boolean;
-  data: any | null;
+  data: T | null;
   error: any | null;
   res?: Response | null;
 };
@@ -71,12 +71,24 @@ export type RequestOptions = {
 };
 
 export interface ApiClient {
-  get(
+  get<T>(
     path: string,
-    opts?: Omit<RequestOptions, "method" | "body">,
-  ): Promise<Result>;
-  post(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
-  put(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
-  patch(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
-  delete(path: string, opts?: Omit<RequestOptions, "method">): Promise<Result>;
+    opts?: Omit<RequestOptions, "method" | "body">
+  ): Promise<Result<T>>;
+  post<T>(
+    path: string,
+    opts?: Omit<RequestOptions, "method">
+  ): Promise<Result<T>>;
+  put<T>(
+    path: string,
+    opts?: Omit<RequestOptions, "method">
+  ): Promise<Result<T>>;
+  patch<T>(
+    path: string,
+    opts?: Omit<RequestOptions, "method">
+  ): Promise<Result<T>>;
+  delete<T>(
+    path: string,
+    opts?: Omit<RequestOptions, "method">
+  ): Promise<Result<T>>;
 }

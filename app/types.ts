@@ -40,3 +40,8 @@ export type DropdownItem = {
   label: string;
   value: string;
 };
+
+export type TracksResponse = {
+  data: Track[];
+  meta: TracksMeta;
+};

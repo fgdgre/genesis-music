@@ -1,6 +1,6 @@
 import { apiClient, invalidateAll, TracksResponseSchema } from "@/shared/api";
 import { filtersStore } from "@/stores/filters";
-import type { Track } from "@/types";
+import type { Track, TracksResponse } from "@/types";
 import type { DeepReadonly } from "vue";
 
 export const fetchTracksAPI = async ({
@@ -18,13 +18,13 @@ export const fetchTracksAPI = async ({
   order?: "asc" | "desc" | "";
   sort?: "title" | "artist" | "album" | "createdAt" | "";
 }) =>
-  await apiClient.get("api/tracks", {
+  await apiClient.get<TracksResponse>("api/tracks", {
     schema: TracksResponseSchema,
     query: { page, search, genre, artist, order, sort },
   });
 
 export const postTrackAPI = async (track: Track | DeepReadonly<Track>) => {
-  const res = await apiClient.post("api/tracks", {
+  const res = await apiClient.post<Track>("api/tracks", {
     body: track,
   });
 
@@ -37,7 +37,7 @@ export const postTrackAPI = async (track: Track | DeepReadonly<Track>) => {
 };
 
 export const deleteTrackAPI = async (id: string) => {
-  const res = await apiClient.delete(`api/tracks/${id}`);
+  const res = await apiClient.delete<void>(`api/tracks/${id}`);
 
   if (res.ok) {
     invalidateAll("tracks");
@@ -47,7 +47,7 @@ export const deleteTrackAPI = async (id: string) => {
 };
 
 export const editTrackAPI = async (track: Track | DeepReadonly<Track>) => {
-  const res = await apiClient.put(`api/tracks/${track.id}`, {
+  const res = await apiClient.put<Track>(`api/tracks/${track.id}`, {
     body: track,
   });
 
@@ -62,7 +62,7 @@ export const postTrackFileAPI = async (id: string, file: any) => {
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await apiClient.post(`api/tracks/${id}/upload`, {
+  const res = await apiClient.post<Track>(`api/tracks/${id}/upload`, {
     body: formData,
   });
 
@@ -74,7 +74,7 @@ export const postTrackFileAPI = async (id: string, file: any) => {
 };
 
 export const deleteTrackFileAPI = async (id: string) => {
-  const res = await apiClient.delete(`api/tracks/${id}/file`);
+  const res = await apiClient.delete<Track>(`api/tracks/${id}/file`);
 
   if (res.ok) {
     invalidateAll("tracks");

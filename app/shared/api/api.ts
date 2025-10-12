@@ -185,7 +185,10 @@ export const {
   setQuery,
 } = createQueryCache();
 
-async function connector(path: string, opts: RequestOptions): Promise<Result> {
+async function connector<T>(
+  path: string,
+  opts: RequestOptions
+): Promise<Result<T>> {
   const query = buildQuery(opts.query);
   const queryKey = `${path}${query ? `?${query}` : ""}`;
 
@@ -205,7 +208,6 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
   }, opts.retry?.maxElapsedMs || 30000);
 
   while (true) {
-    // TODO: request !!!
     const timeoutController = new AbortController();
     const signal = combineSignals(
       timeoutController.signal,
@@ -217,7 +219,7 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
       timeoutController.abort();
     }, opts.timeoutMs);
 
-    const res: Result = await fetch(queryKey, {
+    const res: Result<T> = await fetch(queryKey, {
       ...opts,
       ...configureRequestOptions(opts.body),
       signal,
@@ -227,7 +229,7 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
 
         const data = await parseResponseBody(res);
         return res.ok
-          ? { ok: true, data, error: null, res }
+          ? { ok: true, data: data as T, error: null, res }
           : {
               ok: false,
               data: null,
@@ -293,25 +295,39 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
 }
 
 const apiClient: ApiClient = {
-  get: async (path: string, opts: Omit<RequestOptions, "method" | "body">) =>
-    await connector(path, { method: "GET", ...opts }),
-  post: async (path: string, opts: Omit<RequestOptions, "method">) =>
-    await connector(path, {
+  get: async <T>(
+    path: string,
+    opts: Omit<RequestOptions, "method" | "body">
+  ): Promise<Result<T>> => await connector<T>(path, { method: "GET", ...opts }),
+  post: async <T>(
+    path: string,
+    opts: Omit<RequestOptions, "method">
+  ): Promise<Result<T>> =>
+    await connector<T>(path, {
       method: "POST",
       ...opts,
     }),
-  put: async (path: string, opts: Omit<RequestOptions, "method">) =>
-    await connector(path, {
+  put: async <T>(
+    path: string,
+    opts: Omit<RequestOptions, "method">
+  ): Promise<Result<T>> =>
+    await connector<T>(path, {
       method: "PUT",
       ...opts,
     }),
-  patch: async (path: string, opts: Omit<RequestOptions, "method">) =>
-    await connector(path, {
+  patch: async <T>(
+    path: string,
+    opts: Omit<RequestOptions, "method">
+  ): Promise<Result<T>> =>
+    await connector<T>(path, {
       method: "PATCH",
       ...opts,
     }),
-  delete: async (path: string, opts: Omit<RequestOptions, "method">) =>
-    await connector(path, {
+  delete: async <T>(
+    path: string,
+    opts: Omit<RequestOptions, "method">
+  ): Promise<Result<T>> =>
+    await connector<T>(path, {
       method: "DELETE",
       ...opts,
     }),
