@@ -3,7 +3,7 @@ import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "src/tests/e2e",
   testMatch: "/**/*.test.ts",
-  outputDir: "./tests/e2e/test-results",
+  outputDir: "src/tests/e2e/test-results",
   fullyParallel: true,
   use: {
     baseURL: "http://localhost:3000",

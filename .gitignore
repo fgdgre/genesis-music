@@ -30,6 +30,7 @@ coverage
 *.tsbuildinfo
 
 # Playwright
+src/tests/e2e/test-results
 /tests/e2e/test-results
 /playwright-report/
 /blob-report/
