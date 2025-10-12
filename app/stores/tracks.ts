@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { Track, TracksMeta } from "@/types";
+import type { Track, TracksMeta, TracksResponse } from "@/types";
 import { ref, type DeepReadonly } from "vue";
 import { readonly } from "vue";
 import { fetchTracksAPI } from "@/entities/tracks";
@@ -29,7 +29,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
     errorMessage.value = message;
   };
 
-  const setTracks = (data: { data: Track[]; meta: TracksMeta }) => {
+  const setTracks = (data: TracksResponse) => {
     if (data.meta.page > 1) {
       tracks.value = [...tracks.value, ...data.data];
     } else {
@@ -72,7 +72,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
         if (initialized.value) {
           addErrorToast(error);
         }
-      } else {
+      } else if (data) {
         clearErrors();
 
         setTracks(data);
@@ -90,7 +90,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
 
   const updateTrack = (id: string, newTrack: DeepReadonly<Track>) => {
     tracks.value = tracks.value?.map((t) =>
-      t.id === id ? { ...t, ...newTrack } : t,
+      t.id === id ? { ...t, ...newTrack } : t
     ) as Track[];
   };
 
