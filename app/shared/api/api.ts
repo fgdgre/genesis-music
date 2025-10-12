@@ -8,8 +8,8 @@ import type {
   RetryOptions,
 } from "./types";
 import { buildQuery } from "@/utils/buildQuery";
-import { cloneDeep } from "lodash-es";
 import { createQueryCache } from "../query/queryClient";
+import { cloneDeep } from "lodash";
 
 // HELPERS ----------------------------------------------------------------------
 function isAbortError(e: unknown) {
@@ -20,7 +20,7 @@ function isAbortError(e: unknown) {
 
 const getErrorMessage = (
   error: any,
-  errorCode: ApiErrorCode | undefined,
+  errorCode: ApiErrorCode | undefined
 ): string => {
   if (errorCode === "NETWORK") return "Your offline check your internet";
   if (errorCode === "TIMEOUT") return "Timeout";
@@ -48,7 +48,7 @@ export function combineSignals(
   const firstAborted = list.find((s) => s.aborted);
   if (firstAborted) {
     controller.abort(
-      (firstAborted as any).reason ?? new DOMException("Aborted", "AbortError"),
+      (firstAborted as any).reason ?? new DOMException("Aborted", "AbortError")
     );
     return controller.signal;
   }
@@ -57,7 +57,7 @@ export function combineSignals(
   const onAbort = (e: Event) => {
     const src = e.target as AbortSignal | null;
     controller.abort(
-      (src as any)?.reason ?? new DOMException("Aborted", "AbortError"),
+      (src as any)?.reason ?? new DOMException("Aborted", "AbortError")
     );
   };
   for (const s of list) s.addEventListener("abort", onAbort, { once: true });
@@ -69,7 +69,7 @@ const getApiCode = (
   error: any,
   timeoutSignal: AbortSignal,
   elapsedSignal: AbortSignal,
-  combinedSignals: AbortSignal,
+  combinedSignals: AbortSignal
 ): ApiErrorCode | undefined => {
   if (isAbortError(error) || (combinedSignals as any)?.aborted) {
     return timeoutSignal.aborted || elapsedSignal.aborted
@@ -91,13 +91,13 @@ const getApiError = (
   error: any,
   timeoutSignal: AbortSignal,
   elapsedSignal: AbortSignal,
-  combinedSignals: AbortSignal,
+  combinedSignals: AbortSignal
 ): Omit<ApiError, "code"> & { code: ApiErrorCode | undefined } => {
   const errorCode: ApiErrorCode | undefined = getApiCode(
     error,
     timeoutSignal,
     elapsedSignal,
-    combinedSignals,
+    combinedSignals
   );
 
   return {
@@ -116,7 +116,7 @@ const injectApiClientOptions = (
     headers?: Record<string, string>;
     timeoutMs?: number;
     retry?: RetryOptions;
-  },
+  }
 ): ApiClient => {
   const httpMethods = ["get", "post", "patch", "put", "delete"] as const;
   const apiClient = { ...baseApiClient } as ApiClient;
@@ -129,7 +129,7 @@ const injectApiClientOptions = (
         {
           ...defaults,
           ...opts,
-        },
+        }
       );
     };
   }
@@ -155,7 +155,7 @@ const configureRequestOptions = (body: any) => {
 const shouldRetry = (
   res: Result,
   requestOptions: RequestOptions,
-  retriesCount: number,
+  retriesCount: number
 ) => {
   if (!res.error) return false;
   if (res.ok) return false;
@@ -210,7 +210,7 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
     const signal = combineSignals(
       timeoutController.signal,
       opts.signal,
-      elapsedTimeoutController.signal,
+      elapsedTimeoutController.signal
     );
 
     const timer = setTimeout(() => {
@@ -235,7 +235,7 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
                 data,
                 timeoutController.signal,
                 elapsedTimeoutController.signal,
-                signal,
+                signal
               ),
               res,
             };
@@ -250,7 +250,7 @@ async function connector(path: string, opts: RequestOptions): Promise<Result> {
             e,
             timeoutController.signal,
             elapsedTimeoutController.signal,
-            signal,
+            signal
           ),
         };
       });
@@ -323,7 +323,7 @@ export function createApiClient(
     headers?: Record<string, string>;
     timeoutMs?: number;
     retry: RetryOptions;
-  },
+  }
 ): ApiClient {
   return injectApiClientOptions(apiClient, baseURL, defaults);
 }

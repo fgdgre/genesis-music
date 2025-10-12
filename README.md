@@ -1,21 +1,75 @@
-# genesis-music
+# Nuxt Minimal Starter
 
-This template should help get you started developing with Vue 3 in Vite.
+Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
-## Project Setup
+## Setup
 
-```sh
+Make sure to install dependencies:
+
+```bash
+# npm
 npm install
+
+# pnpm
+pnpm install
+
+# yarn
+yarn install
+
+# bun
+bun install
 ```
 
-### Compile and Hot-Reload for Development
+## Development Server
 
-```sh
+Start the development server on `http://localhost:3000`:
+
+```bash
+# npm
 npm run dev
+
+# pnpm
+pnpm dev
+
+# yarn
+yarn dev
+
+# bun
+bun run dev
 ```
 
-EXTRA TASK DESCRIPTION: ---------------------------------------------------------------------------------------------
+## Production
 
-Make 1/3 extra tasks
+Build the application for production:
 
-- Implement optimistic updates to reflect changes in the UI before they are confirmed by the server.
+```bash
+# npm
+npm run build
+
+# pnpm
+pnpm build
+
+# yarn
+yarn build
+
+# bun
+bun run build
+```
+
+Locally preview production build:
+
+```bash
+# npm
+npm run preview
+
+# pnpm
+pnpm preview
+
+# yarn
+yarn preview
+
+# bun
+bun run preview
+```
+
+Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.

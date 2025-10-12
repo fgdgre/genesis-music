@@ -1,9 +1,9 @@
 import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
-  testDir: "src/tests/e2e",
+  testDir: "app/tests/e2e",
   testMatch: "/**/*.test.ts",
-  outputDir: "src/tests/e2e/test-results",
+  outputDir: "app/tests/e2e/test-results",
   fullyParallel: true,
   use: {
     baseURL: "http://localhost:3000",

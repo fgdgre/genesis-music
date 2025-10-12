@@ -1,10 +1,10 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import {
-  queriesCache,
   setQuery,
   invalidateQuery,
   invalidateAll,
-} from "@/shared/api";
+  queriesCache,
+} from "~/shared/api/index";
 
 describe("query client (readonly + invalidation)", () => {
   afterEach(() => {
@@ -50,7 +50,7 @@ describe("query client (readonly + invalidation)", () => {
 
     const keysBefore = Object.keys(queriesCache.value);
     expect(keysBefore.sort()).toEqual(
-      ["genres", "tracks?page=1", "tracks?page=2"].sort(),
+      ["genres", "tracks?page=1", "tracks?page=2"].sort()
     );
 
     invalidateAll("tracks");

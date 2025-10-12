@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import * as z from "zod";
 import { installFetchMock } from "../../utils/fetchMock";
-import { createApiClient } from "@/shared/api";
+import { createApiClient } from "~/shared/api";
+import { queriesCache, invalidateAll } from "~/shared/api/api";
 
 Object.defineProperty(globalThis, "navigator", {
   value: { onLine: true },
@@ -20,8 +21,6 @@ afterEach(() => {
     configurable: true,
   });
 });
-
-import { queriesCache, invalidateAll } from "@/shared/api/api";
 
 describe("API client scenarios (fetch mocked by call order)", () => {
   it("parses json and validates schema", async () => {

@@ -1,3 +1,28 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
 # Logs
 logs
 *.log
@@ -30,9 +55,12 @@ coverage
 *.tsbuildinfo
 
 # Playwright
-src/tests/e2e/test-results
+app/tests/e2e/test-results
 /tests/e2e/test-results
 /playwright-report/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Playwright
+/test-results/

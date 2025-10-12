@@ -8,7 +8,7 @@ import {
   waitForTracksGet,
 } from "./helpers";
 
-const APP_URL = "http://localhost:3000/tracks";
+const APP_URL = "http://localhost:3000";
 
 test("infinite scroll over tracks (frontend-only, deterministic)", async ({
   page,
@@ -50,11 +50,11 @@ test("infinite scroll over tracks (frontend-only, deterministic)", async ({
     });
   });
 
-  await page.goto("http://localhost:3000/tracks");
+  await page.goto(APP_URL);
 
   await page.waitForResponse(
     (resp) =>
-      resp.url().includes("/api/tracks") && resp.request().method() === "GET",
+      resp.url().includes("/api/tracks") && resp.request().method() === "GET"
   );
 
   const list = page.getByTestId("tracks-list");
@@ -72,7 +72,7 @@ test("infinite scroll over tracks (frontend-only, deterministic)", async ({
         testid: c.getAttribute("data-testid"),
         trackId: c.getAttribute("data-track-id"),
         class: c.className,
-      })),
+      }))
     );
     console.table(children);
     console.warn("Intercept hits:", interceptCount);
@@ -88,7 +88,7 @@ test("infinite scroll over tracks (frontend-only, deterministic)", async ({
 
   await page.waitForResponse(
     (resp) =>
-      resp.url().includes("/api/tracks") && resp.request().method() === "GET",
+      resp.url().includes("/api/tracks") && resp.request().method() === "GET"
   );
   await expect(items).toHaveCount(firstLimit * 2);
 
@@ -97,7 +97,7 @@ test("infinite scroll over tracks (frontend-only, deterministic)", async ({
   });
   await page.waitForResponse(
     (resp) =>
-      resp.url().includes("/api/tracks") && resp.request().method() === "GET",
+      resp.url().includes("/api/tracks") && resp.request().method() === "GET"
   );
   await expect(items).toHaveCount(53);
 });
@@ -235,7 +235,7 @@ test("invalid response on scroll shows toast-error and does not increase items",
   await expect(toastError).toBeVisible();
 
   await expect(toastError).toContainText(
-    /(not supported structure|invalid input)/i,
+    /(not supported structure|invalid input)/i
   );
 
   await page.waitForTimeout(200);

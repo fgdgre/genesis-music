@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    color?: "red" | "black" | "yellow" | "green" | "orange";
+    color?: "red" | "black" | "yellow" | "green" | "orange" | "gray";
     disabled?: boolean;
     transparent?: boolean;
     type?: "button" | "submit";
@@ -11,7 +11,7 @@ withDefaults(
   {
     type: "button",
     color: "black",
-  },
+  }
 );
 
 defineEmits<{
@@ -28,6 +28,7 @@ defineEmits<{
       color === 'black' && 'bg-black text-white hover:bg-black/80',
       color === 'yellow' && 'bg-yellow-400 text-black hover:bg-yellow-400/80',
       color === 'green' && 'bg-green-400 text-black hover:bg-green-400/80',
+      color === 'gray' && 'bg-gray-500 text-white hover:bg-gray-400/80',
       transparent && 'bg-transparent !text-black hover:bg-transparent',
       square ? 'p-2' : 'px-4 py-2',
       (disabled || isLoading) && 'opacity-70',

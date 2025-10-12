@@ -1,16 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, toRef, useTemplateRef, watch } from "vue";
+import { computed, ref, useTemplateRef, watch } from "vue";
 import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
-import Track from "./Track.vue";
-import AppHeader from "./app/AppHeader.vue";
-import TracksFilters from "./TracksFilters.vue";
-import AppErrorPage from "./app/AppErrorPage.vue";
-import CreateTrackModal from "./CreateTrackModal.vue";
-import AppEmptyScreen from "./app/AppEmptyScreen.vue";
-import BaseButton from "./base/BaseButton.vue";
 import { filtersStore } from "@/stores/filters";
-import FetchMoreButton from "./app/FetchMoreButton.vue";
 
 const tracksStore = useTracksStore();
 
@@ -52,7 +44,7 @@ const initializedWithEmptyTracks = computed(
   () =>
     filtersEmpty.value &&
     tracksMeta.value?.page === 1 &&
-    tracks.value?.length === 0,
+    tracks.value?.length === 0
 );
 
 const tracksListRef = useTemplateRef("tracksList");
@@ -69,7 +61,7 @@ watch(
 
     fetchTracks();
   },
-  { immediate: true },
+  { immediate: true }
 );
 </script>
 
@@ -136,14 +128,6 @@ watch(
       >
         Nothing is found
       </div>
-
-      <!-- <AppPagination
-        v-if="tracksMeta?.totalPages && tracks.length"
-        class="px-2 pb-2"
-        v-model="page"
-        :total-pages="tracksMeta.totalPages"
-        :is-loading="isLoading"
-      /> -->
     </div>
   </main>
 
