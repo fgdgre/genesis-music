@@ -4,10 +4,13 @@ import type { Track } from "~/types";
 
 export const usePlaybackStore = defineStore("playbackStore", () => {
   const tracksStore = useTracksStore();
-  const { tracks, tracksMeta } = storeToRefs(tracksStore);
+  const { tracks, hasNextPage } = storeToRefs(tracksStore);
 
   const isShuffle = useLocalStorage("isShuffle", false);
-  const isLooping = useLocalStorage("isLooping", false);
+  const loopingMode = useLocalStorage<"noLoop" | "loopPlaylist" | "loopTrack">(
+    "loopingMode",
+    "noLoop"
+  );
   const isPlaying = ref(false);
   const currentPlaybackTime = useLocalStorage("currentPlaybackTime", 0);
 
@@ -21,12 +24,10 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     (cloneDeep(tracksWithAudioFiles.value) as Track[]) || []
   );
 
-  watch(
-    tracksWithAudioFiles,
-    () =>
-      (globalQueue.value =
-        (cloneDeep(tracksWithAudioFiles.value) as Track[]) || [])
-  );
+  watch(tracksWithAudioFiles, () => {
+    globalQueue.value =
+      (cloneDeep(tracksWithAudioFiles.value) as Track[]) || [];
+  });
 
   const globalPlayingTrackIndex = computed(() =>
     globalQueue.value.findIndex((t) => t.id === playingTrackId.value)
@@ -44,21 +45,26 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
       }`
   );
 
-  const hasNextTrack = computed(() => {
-    const idx = globalPlayingTrackIndex.value ?? -1;
-    const len = globalQueue.value?.length ?? 0;
+  const hasNextTrack = computed(
+    () => !!globalQueue.value[globalPlayingTrackIndex.value + 1]
+  );
 
-    const hasNextInQueue = idx >= 0 && idx + 1 < len - 2;
-    const hasMorePages =
-      !!tracksMeta.value && tracksMeta.value.page < tracksMeta.value.totalPages;
+  const hasPrevTrack = computed(() => {
+    if (
+      globalPlayingTrackIndex.value === 0 &&
+      loopingMode.value === "loopPlaylist"
+    ) {
+      return false; // TODO
+    }
 
-    return hasNextInQueue || hasMorePages;
+    return globalPlayingTrackIndex.value > 0;
   });
 
-  const hasPrevTrack = computed(() => globalPlayingTrackIndex.value > 0);
-
   const currentQueue = computed<Track[]>(() =>
-    globalQueue.value.slice(globalPlayingTrackIndex.value, -1)
+    globalQueue.value.slice(
+      globalPlayingTrackIndex.value,
+      globalQueue.value.length
+    )
   );
 
   const setPlayingTrackId = (id: string) => {
@@ -66,31 +72,56 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     currentPlaybackTime.value = 0;
     isPlaying.value = true;
   };
+
   const clearPlayingTrackId = () => (playingTrackId.value = null);
 
   const nextTrack = () => {
-    const id = currentQueue.value[globalPlayingTrackIndex.value + 1]?.id;
-
-    if (!hasNextTrack.value && isLooping.value) {
-      playingTrackId.value = globalQueue.value[0]!.id;
-      isPlaying.value = true;
+    if (loopingMode.value === "loopTrack") {
       currentPlaybackTime.value = 0;
+      isPlaying.value = false;
+      isPlaying.value = true;
+      return;
     }
 
-    if (!id) return;
+    if (
+      !hasNextTrack.value &&
+      !hasNextPage.value &&
+      loopingMode.value === "loopPlaylist"
+    ) {
+      setPlayingTrackId(globalQueue.value[0]!.id);
+      return;
+    }
 
-    isPlaying.value = true;
-    currentPlaybackTime.value = 0;
-    playingTrackId.value = id;
+    const id = globalQueue.value[globalPlayingTrackIndex.value + 1]?.id;
+
+    if (!id) {
+      currentPlaybackTime.value = 0;
+      isPlaying.value = false;
+    } else {
+      setPlayingTrackId(id);
+    }
   };
 
   const prevTrack = () => {
+    if (!hasPrevTrack.value && loopingMode.value === "loopPlaylist") {
+      // setPlayingTrackId(globalQueue.value[globalQueue.value.length - 1]!.id);
+      return; // TODO
+    }
+
+    if (loopingMode.value === "loopTrack") {
+      if (currentPlaybackTime.value < 3) {
+        loopingMode.value = "loopPlaylist";
+      } else {
+        setPlayingTrackId(globalQueue.value[0]!.id);
+      }
+    }
+
     const id = globalQueue.value[globalPlayingTrackIndex.value - 1]?.id;
 
-    if (!id) return;
-
-    isPlaying.value = true;
+    isPlaying.value = false;
     currentPlaybackTime.value = 0;
+
+    if (!id) return;
     playingTrackId.value = id;
   };
 
@@ -100,20 +131,22 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
 
       globalQueue.value =
         (cloneDeep(tracksWithAudioFiles.value) as Track[]) || [];
-    }
-    if (!isShuffle.value) {
+    } else {
       isShuffle.value = true;
 
       globalQueue.value = cloneDeep(shuffleArray(globalQueue.value));
     }
+
+    playingTrackId.value = globalQueue.value[0]!.id;
   };
 
-  const toggleLoop = () => {
-    if (isLooping.value) {
-      isLooping.value = false;
-    }
-    if (!isLooping.value) {
-      isLooping.value = true;
+  const changeLoopMode = () => {
+    if (loopingMode.value === "noLoop") {
+      loopingMode.value = "loopPlaylist";
+    } else if (loopingMode.value === "loopPlaylist") {
+      loopingMode.value = "loopTrack";
+    } else {
+      loopingMode.value = "noLoop";
     }
   };
 
@@ -126,18 +159,17 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   };
 
   watchEffect(() => {
-    console.log("tracksWithAudioFiles:");
-    console.log(tracksWithAudioFiles.value);
-    console.log("globalQueue:");
-    console.log(globalQueue.value);
-    console.log(`globalPlayingTrackIndex: ${globalPlayingTrackIndex.value}`);
-    console.log("currentQueue:");
-    console.log(currentQueue.value);
+    if (
+      globalPlayingTrackIndex.value === -1 ||
+      (!hasNextTrack.value && hasNextPage.value)
+    ) {
+      console.log("fetch next trackkkkkkkssssss");
+      tracksStore.fetchNextPage();
+    }
   });
 
   watchEffect(() => {
-    if (globalPlayingTrackIndex.value === -1 || !hasNextTrack.value) {
-      console.log(2);
+    if (globalPlayingTrackIndex.value === -1 || !hasPrevTrack.value) {
       tracksStore.fetchNextPage();
     }
   });
@@ -147,11 +179,12 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     queue: readonly(currentQueue),
     isPlaying: readonly(isPlaying),
     isShuffle: readonly(isShuffle),
-    isLooping: readonly(isLooping),
+    loopingMode: readonly(loopingMode),
     currentPlaybackTime: readonly(currentPlaybackTime),
     currentTrackSourceUrl: readonly(currentTrackSourceUrl),
     currentTrackInfo: readonly(currentTrackInfo),
     togglePlayTrack,
+    hasNextPage,
     changePlaybackTime,
     setPlayingTrackId,
     clearPlayingTrackId,
@@ -160,6 +193,6 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     nextTrack,
     prevTrack,
     toggleShuffle,
-    toggleLoop,
+    changeLoopMode,
   };
 });

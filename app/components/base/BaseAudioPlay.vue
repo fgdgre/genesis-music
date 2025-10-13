@@ -55,10 +55,20 @@ watchPostEffect(() => {
 });
 
 onMounted(() => {
-  if (audioPlyerRef.value && props.currentPlaybackTime > 0) {
+  if (audioPlyerRef.value) {
     audioPlyerRef.value.currentTime = props.currentPlaybackTime;
   }
 });
+
+// TODOOOOOOOOOOOOOOOO
+// watch(
+//   () => props.isPlaying,
+//   () => {
+//     if (audioPlyerRef.value) {
+//       audioPlyerRef.value.currentTime = props.currentPlaybackTime;
+//     }
+//   }
+// );
 </script>
 
 <template>

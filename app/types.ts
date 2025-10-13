@@ -45,3 +45,12 @@ export type TracksResponse = {
   data: Track[];
   meta: TracksMeta;
 };
+
+export type TracksFilters = {
+  page: number;
+  search?: string;
+  genre?: string;
+  artist?: string;
+  order?: "asc" | "desc" | "";
+  sort?: "title" | "artist" | "album" | "createdAt" | "";
+};

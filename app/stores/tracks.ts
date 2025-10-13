@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { Track, TracksMeta, TracksResponse } from "@/types";
+import type { Track, TracksFilters, TracksMeta, TracksResponse } from "@/types";
 import { ref, type DeepReadonly } from "vue";
 import { readonly } from "vue";
 import { fetchTracksAPI } from "@/entities/tracks";
@@ -19,6 +19,11 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const isError = ref(false);
   const errorMessage = ref("");
 
+  const hasNextPage = computed(
+    () =>
+      tracksMeta.value && tracksMeta.value?.page < tracksMeta.value?.totalPages
+  );
+
   const clearErrors = () => {
     isError.value = false;
     errorMessage.value = "";
@@ -30,6 +35,8 @@ export const useTracksStore = defineStore("tracksStore", () => {
   };
 
   const setTracks = (data: TracksResponse) => {
+    if (data.meta.page === tracksMeta.value?.page) return;
+
     if (data.meta.page > 1) {
       tracks.value = [...tracks.value, ...data.data];
     } else {
@@ -119,6 +126,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
     isLoading: readonly(isLoading),
     isError: readonly(isError),
     errorMessage: readonly(errorMessage),
+    hasNextPage,
     fetchTracks,
     fetchNextPage,
     createTrack,
