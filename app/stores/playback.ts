@@ -5,7 +5,7 @@ import type { Track } from "~/types";
 export const usePlaybackStore = defineStore("playbackStore", () => {
   const tracksStore = useTracksStore();
   const { tracks, hasNextPage } = storeToRefs(tracksStore);
-
+  const queueModalShow = ref(false);
   const isShuffle = useLocalStorage("isShuffle", false);
   const loopingMode = useLocalStorage<"noLoop" | "loopPlaylist" | "loopTrack">(
     "loopingMode",
@@ -19,6 +19,10 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   const tracksWithAudioFiles = computed(() =>
     tracks.value?.filter((t) => t.audioFile)
   );
+
+  const toggleQueueModal = () => {
+    queueModalShow.value = !queueModalShow.value;
+  };
 
   const globalQueue = ref<Track[]>(
     (cloneDeep(tracksWithAudioFiles.value) as Track[]) || []
@@ -160,16 +164,10 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
 
   watchEffect(() => {
     if (
-      globalPlayingTrackIndex.value === -1 ||
+      (globalPlayingTrackIndex.value === -1 && playingTrackId.value != null) ||
       (!hasNextTrack.value && hasNextPage.value)
     ) {
       console.log("fetch next trackkkkkkkssssss");
-      tracksStore.fetchNextPage();
-    }
-  });
-
-  watchEffect(() => {
-    if (globalPlayingTrackIndex.value === -1 || !hasPrevTrack.value) {
       tracksStore.fetchNextPage();
     }
   });
@@ -183,6 +181,8 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     currentPlaybackTime: readonly(currentPlaybackTime),
     currentTrackSourceUrl: readonly(currentTrackSourceUrl),
     currentTrackInfo: readonly(currentTrackInfo),
+    queueModalShow: readonly(queueModalShow),
+    toggleQueueModal,
     togglePlayTrack,
     hasNextPage,
     changePlaybackTime,

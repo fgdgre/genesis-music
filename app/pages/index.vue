@@ -13,6 +13,10 @@ const filtersStore = useFiltersStore();
 const { search, order, artist, genre, sort, filtersEmpty } =
   storeToRefs(filtersStore);
 
+const playbackStore = usePlaybackStore();
+
+const { queue, queueModalShow } = storeToRefs(playbackStore);
+
 const isCreateTrackModalOpen = ref(false);
 
 const fetchTracks = () => {
@@ -65,52 +69,71 @@ watch(
       @create-track="isCreateTrackModalOpen = true"
     />
 
-    <div v-else class="flex flex-col gap-4 flex-1 max-h-full">
-      <div class="flex gap-4 justify-between items-end px-6 pt-4">
-        <TracksFilters />
+    <div v-else class="flex flex-1 max-h-full translate-all">
+      <div class="flex flex-col gap-4 flex-1 max-h-full">
+        <div class="flex gap-4 justify-between items-end px-6 pt-4">
+          <TracksFilters />
 
-        <BaseButton
-          @click="isCreateTrackModalOpen = true"
-          data-testid="create-track-button"
+          <BaseButton
+            @click="isCreateTrackModalOpen = true"
+            data-testid="create-track-button"
+          >
+            Add track
+          </BaseButton>
+        </div>
+        <div
+          v-if="
+            isLoading &&
+            !tracks.length &&
+            filtersEmpty &&
+            tracksMeta?.page === 1
+          "
+          class="flex flex-col gap-4 justify-center items-center h-full"
+          data-testid="loading-tracks"
+          :data-loading="true"
         >
-          Add track
-        </BaseButton>
-      </div>
+          <p>Loading...</p>
+        </div>
 
-      <div
-        v-if="
-          isLoading && !tracks.length && filtersEmpty && tracksMeta?.page === 1
-        "
-        class="flex flex-col gap-4 justify-center items-center h-full"
-        data-testid="loading-tracks"
-        :data-loading="true"
-      >
-        <p>Loading...</p>
-      </div>
+        <div
+          v-else-if="tracks.length"
+          class="flex w-full flex-1 gap-4 overflow-hidden"
+        >
+          <ul
+            class="flex-1 flex flex-col overflow-auto gap-2 px-6 pr-2.5 pb-10"
+            data-testid="tracks-list"
+            ref="tracksList"
+          >
+            <li v-for="track in tracks">
+              <Track :track />
+            </li>
 
-      <ul
-        v-else-if="tracks.length"
-        class="flex-1 flex flex-col overflow-auto gap-2 px-6 pr-2.5 pb-10"
-        data-testid="tracks-list"
-        ref="tracksList"
-      >
-        <li v-for="track in tracks">
-          <Track :track />
-        </li>
+            <FetchMoreButton
+              v-if="tracksMeta?.page && tracksMeta.page < tracksMeta.totalPages"
+              :disabled="isLoading"
+              @click="tracksStore.fetchNextPage"
+              @in-viewport="tracksStore.fetchNextPage"
+            />
+          </ul>
 
-        <FetchMoreButton
-          v-if="tracksMeta?.page && tracksMeta.page < tracksMeta.totalPages"
-          :disabled="isLoading"
-          @click="tracksStore.fetchNextPage"
-          @in-viewport="tracksStore.fetchNextPage"
-        />
-      </ul>
+          <div
+            v-if="queueModalShow"
+            class="flex flex-col gap-4 flex-1 overflow-auto"
+          >
+            <ul>
+              <li v-for="track in queue">
+                {{ track }}
+              </li>
+            </ul>
+          </div>
+        </div>
 
-      <div
-        v-else
-        class="flex flex-col gap-4 justify-center items-center h-full"
-      >
-        Nothing is found
+        <div
+          v-else
+          class="flex flex-col gap-4 justify-center items-center h-full"
+        >
+          Nothing is found
+        </div>
       </div>
     </div>
   </main>
