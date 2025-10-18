@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { DEFAULT_TRACK_COVER } from "~/consts";
 
+const tracksStore = useTracksStore();
+const { initialized, tracks, isError } = storeToRefs(tracksStore);
+
 const playbackStore = usePlaybackStore();
 
 const {
@@ -16,23 +19,29 @@ const {
 </script>
 
 <template>
-  <Teleport to="body" v-if="playingTrackId">
+  <Teleport
+    to="body"
+    v-if="initialized && tracks && !isError && playingTrackId"
+  >
     <div
-      class="fixed left-0 bottom-0 w-full bg-white grid grid-cols-[160px_1fr_160px] gap-x-4 p-1 select-none shadow-[0_0_1.5px_0_#181818]"
+      class="fixed left-0 bottom-0 w-full grid max-xs:grid-cols-[1fr_auto] max-md:grid-cols-[40%_1fr_40%] grid-cols-[35%_1fr_35%] max-sm:grid-rows-[1fr_auto] grid-rows-1 max-md:gap-x-2 gap-x-4 p-1 items-center select-none bg-transparent max-sm:gap-y-1 h-min"
     >
-      <div class="flex gap-1 row-span-2">
+      <!-- <div
+      class="row-start-1 row-span-1 col-span-full max-sm:grid grid-cols-subgrid grid-rows-subgrid contents"
+    > -->
+      <div class="flex gap-1">
         <img
           :src="currentTrackInfo?.coverImage || DEFAULT_TRACK_COVER"
-          class="h-full size-15 shrink-0 rounded-md relative select-none"
+          class="h-full max-md:size-12 size-15 shrink-0 rounded-md relative select-none"
         />
 
         <div class="flex gap-4 items-center col-start-2">
           <div class="flex gap-4">
             <div class="flex flex-col">
-              <p class="font-medium">
+              <p class="font-medium max-md:text-xs">
                 {{ currentTrackInfo?.title }}
               </p>
-              <p class="text-gray-400 text-xs">
+              <p class="text-gray-400 max-md:text-[12px] text-xs">
                 {{ currentTrackInfo?.artist }}
               </p>
             </div>
@@ -40,25 +49,41 @@ const {
         </div>
       </div>
 
-      <div>
-        <div class="flex items-center col-start-2 justify-self-center">
-          <BaseButton transparent square @click.stop="playbackStore.prevTrack">
-            <Icon name="mage:previous-fill" class="size-4" />
+      <div class="flex flex-col max-xs:items-end max-xs:pr-4 items-center">
+        <div class="flex items-center max-md:gap-1">
+          <BaseButton
+            class="max-md:p-1 h-min"
+            transparent
+            square
+            @click.stop="playbackStore.prevTrack"
+          >
+            <Icon name="mage:previous-fill" class="max-md:size-3.5 size-4" />
           </BaseButton>
           <BaseButton
+            class="max-md:p-1 h-min"
             transparent
             square
             @click.stop="playbackStore.togglePlayTrack()"
           >
-            <Icon v-if="isPlaying" name="mage:pause" class="size-4" />
-            <Icon v-else name="mage:play" class="size-4" />
+            <Icon
+              v-if="isPlaying"
+              name="mage:pause"
+              class="max-md:size-3.5 size-4"
+            />
+            <Icon v-else name="mage:play" class="max-md:size-3.5 size-4" />
           </BaseButton>
-          <BaseButton transparent square @click.stop="playbackStore.nextTrack">
-            <Icon name="mage:next-fill" class="size-4" />
+          <BaseButton
+            class="md:p-1 h-min"
+            transparent
+            square
+            @click.stop="playbackStore.nextTrack"
+          >
+            <Icon name="mage:next-fill" class="max-md:size-3.5 size-4" />
           </BaseButton>
         </div>
 
         <BaseAudioPlay
+          class="max-sm:hidden"
           :key="currentTrackSourceUrl"
           :track-source="currentTrackSourceUrl"
           :playing-track-id
@@ -70,7 +95,7 @@ const {
         />
       </div>
 
-      <div class="col-start-3 flex">
+      <div class="col-start-3 row-start-1 flex justify-end max-xs:hidden">
         <BaseButton
           @click.stop="playbackStore.changeLoopMode"
           transparent
@@ -110,6 +135,19 @@ const {
           />
         </BaseButton>
       </div>
+      <!-- </div> -->
+
+      <BaseAudioPlay
+        class="row-start-2 col-span-full sm:hidden"
+        :key="currentTrackSourceUrl"
+        :track-source="currentTrackSourceUrl"
+        :playing-track-id
+        :current-playback-time
+        :is-playing
+        :current-track-source-url
+        @time-change="playbackStore.changePlaybackTime"
+        @track-end="playbackStore.nextTrack"
+      />
     </div>
   </Teleport>
 </template>

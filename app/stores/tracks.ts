@@ -21,7 +21,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
 
   const hasNextPage = computed(
     () =>
-      tracksMeta.value && tracksMeta.value?.page < tracksMeta.value?.totalPages
+      tracksMeta.value && tracksMeta.value.page < tracksMeta.value.totalPages
   );
 
   const clearErrors = () => {
@@ -94,6 +94,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const fetchNextPage = () => {
     if (!tracksMeta.value) return;
     if (tracksMeta.value.page === tracksMeta.value.totalPages) return;
+    if (tracksMeta.value.page > tracksMeta.value.totalPages) return;
 
     fetchTracks({
       page: tracksMeta.value.page + 1,

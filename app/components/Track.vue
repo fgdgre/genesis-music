@@ -30,7 +30,7 @@ const handleTogglePlay = () => {
 
 <template>
   <div
-    class="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-1 rounded-md border border-gray-400 p-1 select-none"
+    class="grid grid-cols-[auto_1fr] grid-rows-1 gap-1 rounded-md border border-gray-400 p-1 select-none w-full"
     :class="[
       track.audioFile && 'hover:bg-gray-100 transition-colors cursor-pointer',
     ]"
@@ -38,9 +38,7 @@ const handleTogglePlay = () => {
     :data-track-id="track.id"
     :data-testid="`track-item-${track.id}`"
   >
-    <div
-      class="size-20 shrink-0 rounded-md col-start-1 row-span-2 relative select-none"
-    >
+    <div class="size-10 shrink-0 rounded-md col-start-1 relative select-none">
       <div
         v-if="track.audioFile"
         class="absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] text-orange-400"
@@ -79,25 +77,25 @@ const handleTogglePlay = () => {
     </div>
 
     <div class="flex gap-4 items-center col-start-2 row-start-1">
-      <div class="flex gap-4 w-full">
+      <div class="flex gap-4 w-full items-start">
         <div class="flex flex-col">
           <p
-            class="font-medium"
+            class="font-medium text-sm"
             :data-testid="`track-item-${track.id}-title`"
             :class="[playingTrackId === track.id && 'text-orange-400']"
           >
             {{ track.title }}
           </p>
-          <p class="text-gray-400 text-xs">
+          <p class="text-gray-400 text-[12px]">
             <span :data-testid="`track-item-${track.id}-artist`">
               {{ track.artist }}
             </span>
             -
-            <span>{{ track.album }}</span>
+            <span class="text-sm">{{ track.album }}</span>
           </p>
         </div>
 
-        <div class="max-w-full overflow-hidden">
+        <div class="max-w-full overflow-hidden text-xs pt-1">
           Genres:
           <span class="truncate" v-for="(genre, index) in track.genres">
             {{ `${genre}${index !== track.genres.length - 1 ? ", " : ""}` }}

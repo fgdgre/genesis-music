@@ -15,7 +15,7 @@ const { search, order, artist, genre, sort, filtersEmpty } =
 
 const playbackStore = usePlaybackStore();
 
-const { queueListVisible } = storeToRefs(playbackStore);
+const { playingTrackId, queueListVisible } = storeToRefs(playbackStore);
 
 const isCreateTrackModalOpen = ref(false);
 
@@ -56,9 +56,10 @@ watch(
 <template>
   <AppHeader title="Tracks page" :is-loading="isLoading" />
 
+  <!-- :class="playingTrackId && 'pb-17.5'" -->
   <main
     v-if="initialized"
-    class="flex flex-col h-[calc(100svh-61px)] w-full overflow-hidden"
+    class="flex flex-col h-[calc(100svh-124px)] w-full overflow-hidden"
   >
     <AppErrorPage
       v-if="initializedWithEmptyTracks && isError"
@@ -74,9 +75,11 @@ watch(
 
     <div
       v-else
-      class="flex flex-1 max-h-full translate-all w-full overflow-hidden"
+      class="flex flex-1 max-h-full translate-all w-full overflow-hidden gap-2"
     >
-      <div class="flex flex-col gap-4 flex-1 max-h-full pb-20">
+      <div
+        class="flex flex-col gap-4 flex-1 max-h-full bg-neutral-200 rounded-md"
+      >
         <div class="flex gap-4 justify-between items-end px-4 pt-4">
           <TracksFilters />
 
@@ -101,29 +104,29 @@ watch(
           <p>Loading...</p>
         </div>
 
-        <div
+        <ul
           v-else-if="tracks.length"
-          class="flex flex-1 gap-4 w-full overflow-hidden"
+          class="flex-1 flex flex-col overflow-auto gap-2 pl-4 pb-2 pr-2"
+          data-testid="tracks-list"
+          ref="tracksList"
         >
-          <ul
-            class="flex-4 flex flex-col overflow-auto gap-2 pl-4 pr-2.5"
-            data-testid="tracks-list"
-            ref="tracksList"
+          <li
+            v-for="(track, index) in tracks"
+            class="flex w-full gap-1 items-center"
           >
-            <li v-for="track in tracks">
-              <Track :track />
-            </li>
+            <span class="min-w-[26.5px] text-xs text-gray-400 text-center"
+              >#{{ index + 1 }}</span
+            >
+            <Track :track />
+          </li>
 
-            <FetchMoreButton
-              v-if="tracksMeta?.page && tracksMeta.page < tracksMeta.totalPages"
-              :disabled="isLoading"
-              @click="tracksStore.fetchNextPage"
-              @in-viewport="tracksStore.fetchNextPage"
-            />
-          </ul>
-
-          <QueueList v-if="queueListVisible" class="pr-2" />
-        </div>
+          <FetchMoreButton
+            v-if="tracksMeta?.page && tracksMeta.page < tracksMeta.totalPages"
+            :disabled="isLoading"
+            @click="tracksStore.fetchNextPage"
+            @in-viewport="tracksStore.fetchNextPage"
+          />
+        </ul>
 
         <div
           v-else
@@ -132,6 +135,7 @@ watch(
           Nothing is found
         </div>
       </div>
+      <QueueList v-if="queueListVisible" class="mr-2 max-w-[25%] rounded-md" />
     </div>
   </main>
 

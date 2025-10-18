@@ -16,8 +16,8 @@ const handleTogglePlay = (trackId: string) => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 flex-1 overflow-hidden px-2">
-    <div class="flex justify-between gap-4">
+  <div class="flex flex-col flex-1 overflow-hidden bg-neutral-300">
+    <div class="flex justify-between gap-4 px-2 pt-1">
       <p class="text-xl">Queue</p>
 
       <BaseButton
@@ -28,7 +28,7 @@ const handleTogglePlay = (trackId: string) => {
         <Icon name="heroicons:x-mark" />
       </BaseButton>
     </div>
-    <ul class="flex flex-col flex-1 overflow-y-auto w-full gap-2">
+    <ul class="flex flex-col flex-1 overflow-y-auto w-full gap-2 px-2 pb-2">
       <li v-for="track in queue" class="w-full break-all">
         <div
           class="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-1 rounded-md border border-gray-400 p-1 select-none"

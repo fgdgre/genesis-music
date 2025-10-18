@@ -1,7 +1,15 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-xs: 430px;
+}
+
 html,
 body,
 #app {
   height: 100%;
+}
+
+body {
+  background-color: var(--color-neutral-100);
 }

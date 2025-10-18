@@ -72,7 +72,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-full">
+  <div class="w-full h-min flex">
     <audio
       :src="currentTrackSourceUrl"
       preload="metadata"
@@ -83,7 +83,7 @@ onMounted(() => {
     <input
       v-if="audioPlyerRef"
       type="range"
-      class="w-full transition-all duration-300 ease-linear"
+      class="w-full transition-all duration-300 ease-linear [&::-webkit-slider-thumb]:scale-0 h-1!"
       :step="0.1"
       :max="audioPlyerRef?.duration"
       :value="currentPlaybackTime"
