@@ -11,7 +11,7 @@ const {
   currentPlaybackTime,
   loopingMode,
   isShuffle,
-  queueModalShow,
+  queueListVisible,
 } = storeToRefs(playbackStore);
 </script>
 
@@ -104,9 +104,9 @@ const {
         <BaseButton transparent square @click="">
           <Icon
             name="material-symbols-light:queue-music-rounded"
-            @click.stop="playbackStore.toggleQueueModal"
+            @click.stop="playbackStore.toggleQueueListVisibility"
             class="size-5"
-            :class="[queueModalShow ? 'text-orange-400' : 'text-black']"
+            :class="[queueListVisible ? 'text-orange-400' : 'text-black']"
           />
         </BaseButton>
       </div>

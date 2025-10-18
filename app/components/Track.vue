@@ -81,7 +81,11 @@ const handleTogglePlay = () => {
     <div class="flex gap-4 items-center col-start-2 row-start-1">
       <div class="flex gap-4 w-full">
         <div class="flex flex-col">
-          <p class="font-medium" :data-testid="`track-item-${track.id}-title`">
+          <p
+            class="font-medium"
+            :data-testid="`track-item-${track.id}-title`"
+            :class="[playingTrackId === track.id && 'text-orange-400']"
+          >
             {{ track.title }}
           </p>
           <p class="text-gray-400 text-xs">

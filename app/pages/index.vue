@@ -15,7 +15,7 @@ const { search, order, artist, genre, sort, filtersEmpty } =
 
 const playbackStore = usePlaybackStore();
 
-const { queue, queueModalShow } = storeToRefs(playbackStore);
+const { queueListVisible } = storeToRefs(playbackStore);
 
 const isCreateTrackModalOpen = ref(false);
 
@@ -56,7 +56,10 @@ watch(
 <template>
   <AppHeader title="Tracks page" :is-loading="isLoading" />
 
-  <main v-if="initialized" class="flex flex-col h-[calc(100svh-61px)]">
+  <main
+    v-if="initialized"
+    class="flex flex-col h-[calc(100svh-61px)] w-full overflow-hidden"
+  >
     <AppErrorPage
       v-if="initializedWithEmptyTracks && isError"
       :error-message="errorMessage"
@@ -69,9 +72,12 @@ watch(
       @create-track="isCreateTrackModalOpen = true"
     />
 
-    <div v-else class="flex flex-1 max-h-full translate-all">
-      <div class="flex flex-col gap-4 flex-1 max-h-full">
-        <div class="flex gap-4 justify-between items-end px-6 pt-4">
+    <div
+      v-else
+      class="flex flex-1 max-h-full translate-all w-full overflow-hidden"
+    >
+      <div class="flex flex-col gap-4 flex-1 max-h-full pb-20">
+        <div class="flex gap-4 justify-between items-end px-4 pt-4">
           <TracksFilters />
 
           <BaseButton
@@ -97,10 +103,10 @@ watch(
 
         <div
           v-else-if="tracks.length"
-          class="flex w-full flex-1 gap-4 overflow-hidden"
+          class="flex flex-1 gap-4 w-full overflow-hidden"
         >
           <ul
-            class="flex-1 flex flex-col overflow-auto gap-2 px-6 pr-2.5 pb-10"
+            class="flex-4 flex flex-col overflow-auto gap-2 pl-4 pr-2.5"
             data-testid="tracks-list"
             ref="tracksList"
           >
@@ -116,16 +122,7 @@ watch(
             />
           </ul>
 
-          <div
-            v-if="queueModalShow"
-            class="flex flex-col gap-4 flex-1 overflow-auto"
-          >
-            <ul>
-              <li v-for="track in queue">
-                {{ track }}
-              </li>
-            </ul>
-          </div>
+          <QueueList v-if="queueListVisible" class="pr-2" />
         </div>
 
         <div

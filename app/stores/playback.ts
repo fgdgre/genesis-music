@@ -5,7 +5,7 @@ import type { Track } from "~/types";
 export const usePlaybackStore = defineStore("playbackStore", () => {
   const tracksStore = useTracksStore();
   const { tracks, hasNextPage } = storeToRefs(tracksStore);
-  const queueModalShow = ref(false);
+  const queueListVisible = useLocalStorage("queueListVisible", false);
   const isShuffle = useLocalStorage("isShuffle", false);
   const loopingMode = useLocalStorage<"noLoop" | "loopPlaylist" | "loopTrack">(
     "loopingMode",
@@ -20,8 +20,8 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     tracks.value?.filter((t) => t.audioFile)
   );
 
-  const toggleQueueModal = () => {
-    queueModalShow.value = !queueModalShow.value;
+  const toggleQueueListVisibility = () => {
+    queueListVisible.value = !queueListVisible.value;
   };
 
   const globalQueue = ref<Track[]>(
@@ -141,7 +141,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
       globalQueue.value = cloneDeep(shuffleArray(globalQueue.value));
     }
 
-    playingTrackId.value = globalQueue.value[0]!.id;
+    // playingTrackId.value = globalQueue.value[0]!.id;
   };
 
   const changeLoopMode = () => {
@@ -181,8 +181,8 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     currentPlaybackTime: readonly(currentPlaybackTime),
     currentTrackSourceUrl: readonly(currentTrackSourceUrl),
     currentTrackInfo: readonly(currentTrackInfo),
-    queueModalShow: readonly(queueModalShow),
-    toggleQueueModal,
+    queueListVisible: readonly(queueListVisible),
+    toggleQueueListVisibility,
     togglePlayTrack,
     hasNextPage,
     changePlaybackTime,
