@@ -1,22 +1,10 @@
 <script setup lang="ts">
-import BaseProgress from "./BaseProgress.vue";
+const route = useRoute();
 
-defineProps<{
-  title: string;
-  isLoading: boolean;
-}>();
+const tracksStore = useTracksStore();
+const { isLoading } = storeToRefs(tracksStore);
 </script>
 
 <template>
-  <div class="min-h-15 p-4 relative">
-    <h1 class="text-xl" data-testid="tracks-header">{{ title }}</h1>
-
-    <BaseProgress
-      v-if="isLoading"
-      infinite
-      class="absolute bottom-0 left-0"
-      data-testid="loading-indicator"
-      :data-loading="true"
-    />
-  </div>
+  <PureAppHeader :title="(route.meta.title as string)" :is-loading />
 </template>

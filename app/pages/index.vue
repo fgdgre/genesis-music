@@ -3,6 +3,10 @@ import { computed, ref, useTemplateRef, watch } from "vue";
 import { useTracksStore } from "@/stores/tracks";
 import { storeToRefs } from "pinia";
 
+definePageMeta({
+  title: "Tracks Page",
+});
+
 const tracksStore = useTracksStore();
 
 const { isLoading, isError, errorMessage, initialized, tracks, tracksMeta } =
@@ -54,13 +58,10 @@ watch(
 </script>
 
 <template>
-  <AppHeader title="Tracks page" :is-loading="isLoading" />
+  <!-- <AppHeader title="Tracks page" :is-loading="isLoading" /> -->
 
   <!-- :class="playingTrackId && 'pb-17.5'" -->
-  <main
-    v-if="initialized"
-    class="flex flex-col h-[calc(100svh-124px)] w-full overflow-hidden"
-  >
+  <main v-if="initialized" class="flex flex-col w-full overflow-hidden">
     <AppErrorPage
       v-if="initializedWithEmptyTracks && isError"
       :error-message="errorMessage"
@@ -135,12 +136,11 @@ watch(
           Nothing is found
         </div>
       </div>
-      <QueueList v-if="queueListVisible" class="mr-2 max-w-[25%] rounded-md" />
+      <!-- <QueueList v-if="queueListVisible" class="mr-2 max-w-[25%] rounded-md" /> -->
     </div>
+    <CreateTrackModal
+      v-if="isCreateTrackModalOpen"
+      @close="isCreateTrackModalOpen = false"
+    />
   </main>
-
-  <CreateTrackModal
-    v-if="isCreateTrackModalOpen"
-    @close="isCreateTrackModalOpen = false"
-  />
 </template>

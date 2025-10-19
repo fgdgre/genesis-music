@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { DEFAULT_TRACK_COVER } from "~/consts";
 import { fetchTrackAPI } from "~/entities/track";
+
+definePageMeta({
+  title: "Track info",
+});
+
 const { slug } = useRoute().params;
 
 const { data: track, error } = await fetchTrackAPI(slug as string);

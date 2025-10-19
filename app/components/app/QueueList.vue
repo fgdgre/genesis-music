@@ -4,7 +4,8 @@ import BaseButton from "../base/BaseButton.vue";
 
 const playbackStore = usePlaybackStore();
 
-const { queue, playingTrackId, isPlaying } = storeToRefs(playbackStore);
+const { queueListVisible, queue, playingTrackId, isPlaying } =
+  storeToRefs(playbackStore);
 
 const handleTogglePlay = (trackId: string) => {
   if (trackId === playingTrackId.value) {
@@ -16,7 +17,10 @@ const handleTogglePlay = (trackId: string) => {
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 overflow-hidden bg-neutral-300">
+  <div
+    v-if="queueListVisible"
+    class="flex flex-col overflow-hidden bg-neutral-300 rounded-md"
+  >
     <div class="flex justify-between gap-4 px-2 pt-1">
       <p class="text-xl">Queue</p>
 
