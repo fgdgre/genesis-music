@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { DEFAULT_TRACK_COVER } from "~/consts";
 import BaseButton from "../base/BaseButton.vue";
+import { TransitionGroup } from "vue";
 
 const playbackStore = usePlaybackStore();
 
@@ -32,13 +33,22 @@ const handleTogglePlay = (trackId: string) => {
         <Icon name="heroicons:x-mark" />
       </BaseButton>
     </div>
-    <ul class="flex flex-col flex-1 overflow-y-auto w-full gap-2 px-2 pb-2">
-      <li v-for="track in queue" class="w-full break-all">
+    <TransitionGroup
+      tag="ul"
+      class="flex flex-col flex-1 overflow-y-auto w-full gap-2 px-2 pb-2 relative"
+    >
+      <li
+        v-for="(track, index) in queue"
+        :key="track.id"
+        class="w-full break-all"
+        :class="index === 0 && 'sticky top-0 z-10 bg-neutral-300'"
+      >
         <div
           class="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-1 rounded-md border border-gray-400 p-1 select-none"
           :class="[
             track.audioFile &&
               'hover:bg-gray-100 transition-colors cursor-pointer',
+            index === 0 && 'shadow-sm',
           ]"
           @click="() => handleTogglePlay(track.id)"
           :data-track-id="track.id"
@@ -101,64 +111,26 @@ const handleTogglePlay = (trackId: string) => {
                 </p>
               </div>
             </div>
-
-            <!-- <div class="flex gap-2 items-center h-full">
-            <BaseButton
-              color="red"
-              square
-              @click.stop="isDeleteTrackModalOpen = true"
-              :data-testid="`delete-track-${track.id}`"
-            >
-              <Icon name="heroicons:trash" class="size-6" />
-            </BaseButton>
-            <BaseButton
-              color="yellow"
-              square
-              @click.stop="isEditTrackModalOpen = true"
-              :data-testid="`edit-track-${track.id}`"
-            >
-              <Icon name="heroicons:pencil-square" class="size-6" />
-            </BaseButton>
-            <BaseButton
-              v-if="!track.audioFile"
-              color="green"
-              square
-              :data-testid="`upload-track-${track.id}`"
-              @click.stop="isUploadTrackFileModalOpen = true"
-            >
-              <Icon
-                name="material-symbols:upload-file-outline-rounded"
-                class="size-6"
-              />
-            </BaseButton>
-            <BaseButton
-              v-else
-              color="orange"
-              square
-              :data-testid="`delete-track-${track.id}`"
-              @click.stop="isDeleteTrackFileModal = true"
-              class="w-10!"
-            >
-              <Icon
-                name="streamline:file-delete-alternate"
-                class="size-5 shrink-0"
-              />
-            </BaseButton>
-            <NuxtLink
-              class="flex gap-x-[5px] items-center justify-center rounded-md w-fit select-none transition-colors pointer-events-auto font-medium text-sm cursor-pointer h-9 bg-gray-500 text-white hover:bg-gray-400/80 p-2"
-              :data-testid="`info-track-${track.id}`"
-              @click.stop
-              :to="`/${track.slug}`"
-            >
-              <Icon
-                name="material-symbols:more-horiz"
-                class="size-5 shrink-0"
-              />
-            </NuxtLink>
-          </div> -->
           </div>
         </div>
       </li>
-    </ul>
+    </TransitionGroup>
   </div>
 </template>
+
+<style>
+.v-move,
+.v-enter-active,
+.v-leave-active {
+  transition: all 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
+.v-leave-active {
+  position: absolute;
+}
+</style>
