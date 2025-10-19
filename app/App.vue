@@ -7,11 +7,11 @@ const { toasts } = storeToRefs(store);
 </script>
 
 <template>
-  <div class="flex flex-col h-full max-h-[100svh] w-full overflow-hidden">
+  <div class="flex flex-col h-[100dvh] w-full overflow-hidden">
     <!-- TODO: maybe also refactor to pure component and smart wrapper for make app.vue as simple as possible -->
     <BaseToastsGroup :toasts @close-toast="(id) => store.removeToast(id)" />
 
-    <div class="flex flex-col flex-1 overflow-hidden max-h-full m-2">
+    <div class="flex flex-col flex-1 overflow-hidden p-2">
       <AppHeader />
 
       <div
