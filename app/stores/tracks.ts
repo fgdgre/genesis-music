@@ -35,7 +35,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
   };
 
   const setTracks = (data: TracksResponse) => {
-    if (data.meta.page === tracksMeta.value?.page) return;
+    // if (data.meta.page === tracksMeta.value?.page) return;
 
     if (data.meta.page > 1) {
       tracks.value = [...tracks.value, ...data.data];
