@@ -5,7 +5,7 @@ import type { Track } from "~/types";
 
 export const usePlaybackStore = defineStore("playbackStore", () => {
   const tracksStore = useTracksStore();
-  const { tracks, hasNextPage } = storeToRefs(tracksStore);
+  const { tracks, tracksMeta, hasNextPage } = storeToRefs(tracksStore);
   const queueListVisible = useLocalStorage("queueListVisible", false);
   const isShuffle = useLocalStorage("isShuffle", false);
   const loopingMode = useLocalStorage<"noLoop" | "loopPlaylist" | "loopTrack">(
@@ -29,6 +29,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
 
   const updateQueueList = (
     isShuffle: boolean,
+    globalQueue: Track[],
     tracksWithAudioFiles: Track[] | DeepReadonly<Track[]>
   ): Track[] => {
     let updatedQueue = [];
@@ -36,7 +37,17 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     if (!isShuffle) {
       updatedQueue = cloneDeep(tracksWithAudioFiles) as Track[];
     } else {
-      updatedQueue = shuffleArray(cloneDeep(tracksWithAudioFiles) as Track[]);
+      const loadedTracks = tracksWithAudioFiles.filter(
+        (t) => !globalQueue.find((i) => i.id === t.id)
+      );
+      if (loadedTracks.length) {
+        updatedQueue = [
+          ...globalQueue,
+          ...shuffleArray(cloneDeep(loadedTracks) as Track[]),
+        ];
+      } else {
+        updatedQueue = shuffleArray(cloneDeep(tracksWithAudioFiles) as Track[]);
+      }
     }
 
     return updatedQueue;
@@ -57,6 +68,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   watch(tracksWithAudioFiles, () => {
     globalQueue.value = updateQueueList(
       isShuffle.value,
+      globalQueue.value,
       tracksWithAudioFiles.value
     );
 
@@ -166,6 +178,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
 
     globalQueue.value = updateQueueList(
       isShuffle.value,
+      globalQueue.value,
       tracksWithAudioFiles.value
     );
 
