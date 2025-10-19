@@ -1,5 +1,6 @@
 import { cloneDeep } from "lodash";
 import { defineStore } from "pinia";
+import type { DeepReadonly } from "vue";
 import type { Track } from "~/types";
 
 export const usePlaybackStore = defineStore("playbackStore", () => {
@@ -24,13 +25,44 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     queueListVisible.value = !queueListVisible.value;
   };
 
-  const globalQueue = ref<Track[]>(
-    (cloneDeep(tracksWithAudioFiles.value) as Track[]) || []
-  );
+  const globalQueue = ref<Track[]>([]);
+
+  const updateQueueList = (
+    isShuffle: boolean,
+    tracksWithAudioFiles: Track[] | DeepReadonly<Track[]>
+  ): Track[] => {
+    let updatedQueue = [];
+
+    if (!isShuffle) {
+      updatedQueue = cloneDeep(tracksWithAudioFiles) as Track[];
+    } else {
+      updatedQueue = shuffleArray(cloneDeep(tracksWithAudioFiles) as Track[]);
+    }
+
+    return updatedQueue;
+  };
+
+  const updateCurrentTrackPosition = () => {
+    const playedTrack = globalQueue.value[globalPlayingTrackIndex.value];
+
+    if (playedTrack) {
+      globalQueue.value = globalQueue.value.filter(
+        (i) => i.id !== playedTrack.id
+      );
+
+      globalQueue.value.unshift(playedTrack);
+    }
+  };
 
   watch(tracksWithAudioFiles, () => {
-    globalQueue.value =
-      (cloneDeep(tracksWithAudioFiles.value) as Track[]) || [];
+    globalQueue.value = updateQueueList(
+      isShuffle.value,
+      tracksWithAudioFiles.value
+    );
+
+    if (isShuffle.value) {
+      updateCurrentTrackPosition();
+    }
   });
 
   const globalPlayingTrackIndex = computed(() =>
@@ -130,18 +162,16 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   };
 
   const toggleShuffle = () => {
+    isShuffle.value = !isShuffle.value;
+
+    globalQueue.value = updateQueueList(
+      isShuffle.value,
+      tracksWithAudioFiles.value
+    );
+
     if (isShuffle.value) {
-      isShuffle.value = false;
-
-      globalQueue.value =
-        (cloneDeep(tracksWithAudioFiles.value) as Track[]) || [];
-    } else {
-      isShuffle.value = true;
-
-      globalQueue.value = cloneDeep(shuffleArray(globalQueue.value));
+      updateCurrentTrackPosition();
     }
-
-    // playingTrackId.value = globalQueue.value[0]!.id;
   };
 
   const changeLoopMode = () => {

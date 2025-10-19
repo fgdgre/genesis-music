@@ -19,7 +19,7 @@ const handleTogglePlay = (trackId: string) => {
 <template>
   <div
     v-if="queueListVisible"
-    class="flex flex-col overflow-hidden bg-neutral-300 rounded-md"
+    class="flex flex-col overflow-hidden bg-neutral-300 rounded-md min-w-[300px]"
   >
     <div class="flex justify-between gap-4 px-2 pt-1">
       <p class="text-xl">Queue</p>
