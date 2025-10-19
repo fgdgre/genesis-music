@@ -19,17 +19,10 @@ const {
 </script>
 
 <template>
-  <!-- <Teleport
-    to="body"
-    v-if="initialized && tracks && !isError && playingTrackId"
-  > -->
   <div
     v-if="initialized && tracks && !isError && playingTrackId"
-    class="w-full grid max-xs:grid-cols-[1fr_auto] max-md:grid-cols-[40%_1fr_40%] grid-cols-[35%_1fr_35%] max-sm:grid-rows-[1fr_auto] grid-rows-1 max-md:gap-x-2 gap-x-4 p-1 items-center select-none bg-transparent max-sm:gap-y-1 h-min"
+    class="w-full grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] max-md:gap-x-2 gap-x-4 p-1 items-center select-none bg-transparent max-sm:gap-y-1 h-min relative"
   >
-    <!-- <div
-      class="row-start-1 row-span-1 col-span-full max-sm:grid grid-cols-subgrid grid-rows-subgrid contents"
-    > -->
     <div class="flex gap-1">
       <img
         :src="currentTrackInfo?.coverImage || DEFAULT_TRACK_COVER"
@@ -74,7 +67,7 @@ const {
           <Icon v-else name="mage:play" class="max-md:size-3.5 size-4" />
         </BaseButton>
         <BaseButton
-          class="md:p-1 h-min"
+          class="max-md:p-1 h-min"
           transparent
           square
           @click.stop="playbackStore.nextTrack"
@@ -84,7 +77,7 @@ const {
       </div>
 
       <BaseAudioPlay
-        class="max-sm:hidden"
+        class="max-md:absolute max-md:bottom-0"
         :key="currentTrackSourceUrl"
         :track-source="currentTrackSourceUrl"
         :playing-track-id
@@ -131,19 +124,5 @@ const {
         />
       </BaseButton>
     </div>
-    <!-- </div> -->
-
-    <BaseAudioPlay
-      class="row-start-2 col-span-full sm:hidden"
-      :key="currentTrackSourceUrl"
-      :track-source="currentTrackSourceUrl"
-      :playing-track-id
-      :current-playback-time
-      :is-playing
-      :current-track-source-url
-      @time-change="playbackStore.changePlaybackTime"
-      @track-end="playbackStore.nextTrack"
-    />
   </div>
-  <!-- </Teleport> -->
 </template>

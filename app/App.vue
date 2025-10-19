@@ -11,15 +11,17 @@ const { toasts } = storeToRefs(store);
     <!-- TODO: maybe also refactor to pure component and smart wrapper for make app.vue as simple as possible -->
     <BaseToastsGroup :toasts @close-toast="(id) => store.removeToast(id)" />
 
-    <div class="flex flex-col flex-1 overflow-hidden p-2">
+    <div class="flex flex-col flex-1 overflow-hidden">
       <AppHeader />
 
       <div
         class="grid grid-cols-[1fr_auto] grid-rows-[1fr_auto] w-full overflow-hidden flex-1"
       >
-        <NuxtPage />
+        <div class="p-2 grid grid-cols-subgrid grid-rows-subgrid col-span-2">
+          <NuxtPage />
 
-        <QueueList class="ml-2" />
+          <QueueList class="ml-2" />
+        </div>
 
         <TracksPlayer class="row-start-2 col-span-full" />
       </div>
