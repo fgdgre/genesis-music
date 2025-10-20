@@ -5,7 +5,8 @@ import type { Track } from "~/types";
 
 export const usePlaybackStore = defineStore("playbackStore", () => {
   const tracksStore = useTracksStore();
-  const { tracks, tracksMeta, hasNextPage } = storeToRefs(tracksStore);
+  const { tracks, tracksMeta, hasNextPage, isLoading } =
+    storeToRefs(tracksStore);
   const queueListVisible = useLocalStorage("queueListVisible", false);
   const isShuffle = useLocalStorage("isShuffle", false);
   const loopingMode = useLocalStorage<"noLoop" | "loopPlaylist" | "loopTrack">(
@@ -33,18 +34,18 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     tracksWithAudioFiles: Track[] | DeepReadonly<Track[]>
   ): Track[] => {
     let updatedQueue = [];
-
     if (!isShuffle) {
       updatedQueue = cloneDeep(tracksWithAudioFiles) as Track[];
     } else {
       const loadedTracks = tracksWithAudioFiles.filter(
         (t) => !globalQueue.find((i) => i.id === t.id)
       );
+      const next = shuffleArray(cloneDeep(loadedTracks) as Track[]);
+      // console.log(tracksWithAudioFiles);
+      // console.log(loadedTracks);
+      // console.log(next);
       if (loadedTracks.length) {
-        updatedQueue = [
-          ...globalQueue,
-          ...shuffleArray(cloneDeep(loadedTracks) as Track[]),
-        ];
+        updatedQueue = [...globalQueue, ...next];
       } else {
         updatedQueue = shuffleArray(cloneDeep(tracksWithAudioFiles) as Track[]);
       }
@@ -72,7 +73,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
       tracksWithAudioFiles.value
     );
 
-    if (isShuffle.value) {
+    if (isShuffle.value && tracksMeta.value?.page === 1) {
       updateCurrentTrackPosition();
     }
   });
@@ -207,8 +208,9 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
 
   watchEffect(() => {
     if (
-      (globalPlayingTrackIndex.value === -1 && playingTrackId.value != null) ||
-      (!hasNextTrack.value && hasNextPage.value)
+      !isLoading.value &&
+      ((globalPlayingTrackIndex.value === -1 && playingTrackId.value != null) ||
+        (!hasNextTrack.value && hasNextPage.value))
     ) {
       console.log("fetch next trackkkkkkkssssss");
       tracksStore.fetchNextPage();

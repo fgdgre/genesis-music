@@ -18,7 +18,13 @@ const {
 } = storeToRefs(playbackStore);
 
 const handleKeyboardShortcut = (e: KeyboardEvent) => {
+  // TODO
+  // console.log(document.activeElement);
+  // console.log(document.activeElement?.ELEMENT_NODE);
+  // if (document.activeElement?.ELEMENT_NODE !== "input")
   if (e.code === "Space") {
+    e.preventDefault();
+    e.stopPropagation();
     playbackStore.togglePlayTrack();
   }
   if (e.code === "ArrowRight" && e.ctrlKey) {
@@ -29,10 +35,12 @@ const handleKeyboardShortcut = (e: KeyboardEvent) => {
   }
 };
 onMounted(() => {
-  document.addEventListener("keyup", handleKeyboardShortcut);
+  document.addEventListener("keyup", handleKeyboardShortcut, { capture: true });
 });
 onUnmounted(() => {
-  document.removeEventListener("keyup", handleKeyboardShortcut);
+  document.removeEventListener("keyup", handleKeyboardShortcut, {
+    capture: true,
+  });
 });
 </script>
 
