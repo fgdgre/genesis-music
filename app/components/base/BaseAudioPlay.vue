@@ -61,14 +61,11 @@ onMounted(() => {
 });
 
 // TODOOOOOOOOOOOOOOOO
-// watch(
-//   () => props.isPlaying,
-//   () => {
-//     if (audioPlyerRef.value) {
-//       audioPlyerRef.value.currentTime = props.currentPlaybackTime;
-//     }
-//   }
-// );
+watch([() => props.isPlaying, () => props.currentPlaybackTime], () => {
+  if (audioPlyerRef.value && !props.isPlaying) {
+    audioPlyerRef.value.currentTime = props.currentPlaybackTime;
+  }
+});
 </script>
 
 <template>
