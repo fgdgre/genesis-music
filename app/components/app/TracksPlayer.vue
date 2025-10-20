@@ -16,6 +16,24 @@ const {
   isShuffle,
   queueListVisible,
 } = storeToRefs(playbackStore);
+
+const handleKeyboardShortcut = (e: KeyboardEvent) => {
+  if (e.code === "Space") {
+    playbackStore.togglePlayTrack();
+  }
+  if (e.code === "ArrowRight" && e.ctrlKey) {
+    playbackStore.nextTrack();
+  }
+  if (e.key === "ArrowLeft" && e.ctrlKey) {
+    playbackStore.prevTrack();
+  }
+};
+onMounted(() => {
+  document.addEventListener("keyup", handleKeyboardShortcut);
+});
+onUnmounted(() => {
+  document.removeEventListener("keyup", handleKeyboardShortcut);
+});
 </script>
 
 <template>
