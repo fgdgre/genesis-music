@@ -15,10 +15,11 @@ const emit = defineEmits<{
 const audioPlyerRef = useTemplateRef("audioPlyerRef");
 
 const isChangingManually = ref(false);
+const currentTime = ref(props.currentPlaybackTime);
 
 const handlePlay = (e: any) => {
   if (!isChangingManually.value) {
-    emit("timeChange", e.target.currentTime);
+    currentTime.value = e.target.currentTime;
   }
 
   if (
@@ -33,8 +34,10 @@ const handlePlay = (e: any) => {
 };
 
 const onSliderInput = (e: Event) => {
-  const value = parseFloat((e.target as HTMLInputElement).value);
-  emit("timeChange", value);
+  // const value = parseFloat((e.target as HTMLInputElement).value);
+  // emit("timeChange", value);
+
+  // console.log("timeUpdate");
   isChangingManually.value = true;
 };
 
@@ -43,6 +46,8 @@ const onSliderChange = (e: Event) => {
   if (audioPlyerRef.value) {
     audioPlyerRef.value.currentTime = value;
   }
+
+  console.log("timeUpdate");
   isChangingManually.value = false;
 };
 
@@ -61,9 +66,10 @@ onMounted(() => {
 });
 
 // TODOOOOOOOOOOOOOOOO
-watch([() => props.isPlaying, () => props.currentPlaybackTime], () => {
-  if (audioPlyerRef.value && !props.isPlaying) {
+watchEffect(() => {
+  if (audioPlyerRef.value) {
     audioPlyerRef.value.currentTime = props.currentPlaybackTime;
+    currentTime.value = props.currentPlaybackTime;
   }
 });
 </script>
@@ -75,6 +81,7 @@ watch([() => props.isPlaying, () => props.currentPlaybackTime], () => {
       preload="metadata"
       ref="audioPlyerRef"
       @timeupdate="handlePlay"
+      @pause="(e: any) => emit('timeChange', (e.target?.currentTime))"
     ></audio>
 
     <input
@@ -83,7 +90,7 @@ watch([() => props.isPlaying, () => props.currentPlaybackTime], () => {
       class="w-full transition-all duration-300 ease-linear [&::-webkit-slider-thumb]:scale-0 h-1!"
       :step="0.1"
       :max="audioPlyerRef?.duration"
-      :value="currentPlaybackTime"
+      :value="currentTime"
       @input="onSliderInput"
       @change="onSliderChange"
       @click.stop

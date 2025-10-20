@@ -126,9 +126,9 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
 
   const nextTrack = () => {
     if (loopingMode.value === "loopTrack") {
-      currentPlaybackTime.value = 0;
-      isPlaying.value = false;
-      isPlaying.value = true;
+      setPlayingTrackId(currentTrackInfo.value!.id); // TODO
+      // currentPlaybackTime.value = 0;
+      // isPlaying.value = true;
       return;
     }
 
