@@ -20,6 +20,7 @@ const trackDuration = ref(0);
 
 const handlePlay = (e: any) => {
   if (!isChangingManually.value) {
+    emit("timeChange", e.target.currentTime);
     currentTime.value = e.target.currentTime;
   }
 
@@ -48,7 +49,6 @@ const onSliderChange = (e: Event) => {
     audioPlyerRef.value.currentTime = value;
   }
 
-  console.log("timeUpdate");
   isChangingManually.value = false;
 };
 
@@ -67,7 +67,7 @@ onMounted(() => {
 });
 
 watchEffect(() => {
-  if (audioPlyerRef.value) {
+  if (audioPlyerRef.value && !props.isPlaying) {
     audioPlyerRef.value.currentTime = props.currentPlaybackTime;
     currentTime.value = props.currentPlaybackTime;
   }
@@ -75,7 +75,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="w-full h-min flex">
+  <div class="w-full flex h-1">
     <audio
       :src="currentTrackSourceUrl"
       preload="metadata"
@@ -88,7 +88,7 @@ watchEffect(() => {
     <input
       v-if="audioPlyerRef"
       type="range"
-      class="flex-1 translate-all [&::-webkit-slider-thumb]:scale-0 h-1!"
+      class="flex-1 [&::-webkit-slider-thumb]:scale-0"
       tabindex="-1"
       :max="trackDuration"
       :value="currentTime"

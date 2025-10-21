@@ -125,10 +125,10 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   const clearPlayingTrackId = () => (playingTrackId.value = null);
 
   const nextTrack = () => {
+    console.log("nextTrack");
     if (loopingMode.value === "loopTrack") {
-      setPlayingTrackId(currentTrackInfo.value!.id); // TODO
-      // currentPlaybackTime.value = 0;
-      // isPlaying.value = true;
+      currentPlaybackTime.value = 0;
+      isPlaying.value = false;
       return;
     }
 
@@ -143,26 +143,29 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
 
     const id = globalQueue.value[globalPlayingTrackIndex.value + 1]?.id;
 
-    if (!id) {
-      currentPlaybackTime.value = 0;
-      isPlaying.value = false;
-    } else {
-      setPlayingTrackId(id);
-    }
+    currentPlaybackTime.value = 0;
+    isPlaying.value = false;
+
+    if (!id) return;
+
+    setPlayingTrackId(id);
   };
 
   const prevTrack = () => {
-    if (!hasPrevTrack.value && loopingMode.value === "loopPlaylist") {
-      // setPlayingTrackId(globalQueue.value[globalQueue.value.length - 1]!.id);
-      return; // TODO
-    }
-
+    console.log("prevTrack");
     if (loopingMode.value === "loopTrack") {
       if (currentPlaybackTime.value < 3) {
         loopingMode.value = "loopPlaylist";
       } else {
-        setPlayingTrackId(globalQueue.value[0]!.id);
+        isPlaying.value = false;
+        currentPlaybackTime.value = 0;
+        return;
       }
+    }
+
+    if (!hasPrevTrack.value && loopingMode.value === "loopPlaylist") {
+      // setPlayingTrackId(globalQueue.value[globalQueue.value.length - 1]!.id);
+      return; // TODO
     }
 
     const id = globalQueue.value[globalPlayingTrackIndex.value - 1]?.id;
@@ -171,7 +174,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     currentPlaybackTime.value = 0;
 
     if (!id) return;
-    playingTrackId.value = id;
+    setPlayingTrackId(id);
   };
 
   const toggleShuffle = () => {
