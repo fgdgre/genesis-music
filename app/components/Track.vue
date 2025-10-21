@@ -3,13 +3,6 @@ import type { Track } from "@/types";
 import { DEFAULT_TRACK_COVER } from "@/consts";
 import { storeToRefs } from "pinia";
 import type { DeepReadonly } from "vue";
-import {
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuPortal,
-  DropdownMenuRoot,
-  DropdownMenuTrigger,
-} from "radix-vue";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -24,15 +17,6 @@ const isDeleteTrackModalOpen = ref(false);
 const isUploadTrackFileModalOpen = ref(false);
 const isDeleteTrackFileModal = ref(false);
 
-const handleTogglePlay = () => {
-  if (!props.track.audioFile) return;
-
-  if (props.track.id === playingTrackId.value) {
-    playbackStore.togglePlayTrack();
-  } else {
-    playbackStore.setPlayingTrackId(props.track.id);
-  }
-};
 const actionsItems = computed(() => {
   const initialActions = [
     { label: "Edit", value: "edit", icon: "heroicons:pencil-square" },
@@ -63,8 +47,6 @@ const actionsItems = computed(() => {
       ];
 });
 
-const isTrackMenuOpen = ref(false);
-
 const handleTrackAction = (action: string) => {
   switch (action) {
     case "edit": {
@@ -89,13 +71,28 @@ const handleTrackAction = (action: string) => {
     }
   }
 };
+
+const handleTogglePlay = () => {
+  if (!props.track.audioFile) return;
+
+  if (props.track.id === playingTrackId.value) {
+    playbackStore.togglePlayTrack();
+  } else {
+    playbackStore.setPlayingTrackId(props.track.id);
+  }
+};
+
+const actionsMenuRef = useTemplateRef("actionsMenuRef");
 </script>
 
 <template>
   <div
-    class="grid grid-cols-[auto_1fr] grid-rows-1 gap-1 rounded-md border border-gray-400 p-1 select-none w-full"
+    class="grid grid-cols-[auto_1fr] grid-rows-1 gap-1 rounded-md p-1 select-none w-full"
     :class="[
-      track.audioFile && 'hover:bg-gray-100 transition-colors cursor-pointer',
+      track.audioFile &&
+        !actionsMenuRef?.isTrackMenuOpen &&
+        'hover:bg-foreground/10 transition-colors cursor-pointer',
+      actionsMenuRef?.isTrackMenuOpen && 'bg-foreground/20 cursor-default',
     ]"
     @click="handleTogglePlay"
     :data-track-id="track.id"
@@ -104,7 +101,7 @@ const handleTrackAction = (action: string) => {
     <div class="size-10 shrink-0 rounded-md col-start-1 relative select-none">
       <div
         v-if="track.audioFile"
-        class="absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] text-orange-400"
+        class="absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] text-primary"
       >
         <svg
           v-if="!isPlaying || (isPlaying && playingTrackId !== track.id)"
@@ -145,11 +142,11 @@ const handleTrackAction = (action: string) => {
           <p
             class="font-medium text-sm"
             :data-testid="`track-item-${track.id}-title`"
-            :class="[playingTrackId === track.id && 'text-orange-400']"
+            :class="[playingTrackId === track.id && 'text-primary']"
           >
             {{ track.title }}
           </p>
-          <p class="text-gray-400 text-[12px]">
+          <p class="text-placeholder text-[12px]">
             <span :data-testid="`track-item-${track.id}-artist`">
               {{ track.artist }}
             </span>
@@ -166,38 +163,14 @@ const handleTrackAction = (action: string) => {
         </div>
       </div>
 
-      <DropdownMenuRoot v-model:open="isTrackMenuOpen" :modal="false">
-        <DropdownMenuTrigger
-          class="p-1 flex items-center justify-between select-none cursor-pointer focus-visible:outline-none focus-visible:ring focus-visible:ring-black h-9 w-9"
-          data-control
-          @click.stop="isTrackMenuOpen = !isTrackMenuOpen"
-        >
-          <Icon name="material-symbols:more-horiz" />
-        </DropdownMenuTrigger>
-
-        <DropdownMenuPortal v-if="isTrackMenuOpen">
-          <DropdownMenuContent
-            @interact-outside="isTrackMenuOpen = false"
-            :side-offset="5"
-            class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 bg-white w-[var(--radix-dropdown-menu-trigger-width)] min-w-max max-h-[150px] overflow-auto"
-            data-control
-          >
-            <DropdownMenuItem
-              v-for="item in actionsItems"
-              :key="item.value"
-              class="[&:not(:first-child)]:mt-1 flex items-center text-sm rounded-md cursor-pointer w-full text-foreground px-2 py-1.5 gap-2 select-none hover:bg-gray-200"
-              @select="handleTrackAction(item.value)"
-            >
-              <div class="flex items-center gap-3">
-                <Icon :name="item.icon!" />
-                <p>
-                  {{ item.label }}
-                </p>
-              </div>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenuPortal>
-      </DropdownMenuRoot>
+      <BaseDropdownMenu
+        :items="actionsItems"
+        @select="(i) => handleTrackAction(i.value)"
+        menuAlign="end"
+        ref="actionsMenuRef"
+      >
+        <Icon name="material-symbols:more-horiz" class="flex w-full" />
+      </BaseDropdownMenu>
     </div>
   </div>
 
@@ -225,21 +198,3 @@ const handleTrackAction = (action: string) => {
     @close="isDeleteTrackFileModal = false"
   />
 </template>
-
-<style scoped>
-:deep(div[data-radix-menu-content][data-state="open"]) {
-  animation: dropdownAppear 0.15s ease;
-}
-
-@keyframes dropdownAppear {
-  0% {
-    opacity: 0.5;
-    transform: scale(0.9);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-</style>

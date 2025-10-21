@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    color?: "red" | "black" | "yellow" | "green" | "orange" | "gray";
+    color?: "error" | "black" | "secondary" | "success" | "primary" | "muted";
     disabled?: boolean;
     transparent?: boolean;
     type?: "button" | "submit";
@@ -23,12 +23,12 @@ defineEmits<{
   <button
     class="flex gap-x-[5px] items-center justify-center rounded-md w-fit select-none transition-colors pointer-events-auto font-medium text-sm cursor-pointer h-9"
     :class="[
-      color === 'red' && 'bg-red-400 text-[#18181b] hover:bg-red-400/80',
-      color === 'orange' && 'bg-orange-400 text-black hover:bg-orange-400/80',
+      color === 'error' && 'bg-error text-[#18181b] hover:bg-error/80',
+      color === 'primary' && 'bg-primary text-black hover:bg-primary/80',
       color === 'black' && 'bg-black text-white hover:bg-black/80',
-      color === 'yellow' && 'bg-yellow-400 text-black hover:bg-yellow-400/80',
-      color === 'green' && 'bg-green-400 text-black hover:bg-green-400/80',
-      color === 'gray' && 'bg-gray-500 text-white hover:bg-gray-400/80',
+      color === 'secondary' && 'bg-secondary text-black hover:bg-secondary/80',
+      color === 'success' && 'bg-success text-black hover:bg-success/80',
+      color === 'muted' && 'bg-muted text-white hover:bg-muted/80',
       transparent && 'bg-transparent !text-black hover:bg-transparent',
       square ? 'p-2' : 'px-4 py-2',
       (disabled || isLoading) && 'opacity-70',

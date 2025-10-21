@@ -61,8 +61,8 @@ onMounted(() => {
     <label
       v-if="label"
       :for="id"
-      class="flex text-sm font-medium leading-none text-foreground select-none mb-1"
-      :class="[Boolean(errorMessage) && 'text-red-400']"
+      class="flex text-sm font-medium leading-none select-none mb-1"
+      :class="[Boolean(errorMessage) ? 'text-error' : 'text-foreground']"
     >
       {{ label }}
     </label>
@@ -73,11 +73,12 @@ onMounted(() => {
       :aria-describedby="errorMessage"
       data-control
       v-bind="$attrs"
-      class="px-3 py-1 bg-transparent rounded-md border border-border text-base md:text-sm font-normal placeholder:text-placeholder focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-focus text-foreground w-full h-9"
+      class="px-3 py-1 bg-transparent rounded-md border text-base md:text-sm font-normal w-full h-9 input-shadow focus-visible:outline-none focus-visible:ring"
       :class="[
         (disabled || isLoading) && 'cursor-not-allowed select-none',
-        Boolean(errorMessage) &&
-          'border-red-400 text-red-400 placeholder:text-red-300 focus-visible:ring-red-400',
+        Boolean(errorMessage)
+          ? 'border-error text-error placeholder:text-error/70 focus-visible:ring-error'
+          : 'border-border placeholder:text-placeholder focus-visible:ring-border-focus text-foreground',
       ]"
       ref="inputFieldRef"
       :placeholder
@@ -91,7 +92,7 @@ onMounted(() => {
 
     <p
       v-if="errorMessage"
-      class="text-red-400 text-xs mt-1"
+      class="text-error text-xs mt-1"
       :data-testid="errorMessageTestid"
     >
       {{ errorMessage }}

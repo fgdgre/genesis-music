@@ -16,10 +16,10 @@ const closeToast = (id: string) => {
 };
 
 const getToastType = (color: Toast["color"]) => {
-  if (color === "red") {
+  if (color === "error") {
     return "error";
   }
-  if (color === "green") {
+  if (color === "success") {
     return "success";
   }
 };

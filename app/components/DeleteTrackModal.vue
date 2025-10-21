@@ -58,7 +58,7 @@ const handleDeleteTrack = async () => {
           Cancel
         </BaseButton>
         <BaseButton
-          color="red"
+          color="error"
           class="w-full"
           type="submit"
           @click="handleDeleteTrack"

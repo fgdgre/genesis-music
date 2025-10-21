@@ -67,7 +67,7 @@ const handleDeleteTrackFile = async () => {
         <BaseButton
           class="w-full"
           type="submit"
-          color="orange"
+          color="error"
           @click="handleDeleteTrackFile"
           data-testid="confirm-delete-file"
         >

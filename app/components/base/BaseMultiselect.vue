@@ -75,17 +75,17 @@ const toggleItem = (item: string) => {
     <div class="h-min" v-bind="$attrs">
       <p
         v-if="label"
-        class="flex text-sm font-medium leading-none text-foreground select-none mb-1"
-        :class="[Boolean(errorMessage) && 'text-red-400']"
+        class="flex text-sm font-medium leading-none select-none mb-1"
+        :class="[Boolean(errorMessage) ? 'text-error' : 'text-foreground']"
       >
         {{ label }}
       </p>
 
       <DropdownMenuTrigger
-        class="w-full px-3 py-1 flex items-center justify-between border rounded-md select-none text-sm gap-2 min-w-[75px] cursor-pointer overflow-hidden focus-visible:outline-none focus-visible:ring focus-visible:ring-black h-9"
+        class="w-full px-3 py-1 flex items-center justify-between border border-border rounded-md select-none text-sm gap-2 min-w-[75px] cursor-pointer overflow-hidden focus-visible:outline-none focus-visible:ring focus-visible:ring-border-focus input-shadow h-9"
         :class="[
           Boolean(errorMessage) &&
-            'border-red-400 text-red-400 placeholder:text-red-400/70 focus-visible:ring-red-400',
+            'border-error text-error placeholder:text-error/70 focus-visible:ring-error',
           Boolean(selected.length) && 'min-w-[150px]',
           selected.length > maxCount && 'min-w-[230px]',
           disabled && 'opacity-70',
@@ -100,10 +100,13 @@ const toggleItem = (item: string) => {
       >
         <div
           v-if="placeholder && (!selected?.length || isLoading)"
-          class="text-gray-400 flex gap-2"
+          class="text-placeholder flex gap-2"
           :class="[Boolean(errorMessage) && 'text-red-300']"
         >
-          <div v-if="isLoading" class="text-gray-400 flex gap-2 items-center">
+          <div
+            v-if="isLoading"
+            class="text-placeholder flex gap-2 items-center"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -159,13 +162,14 @@ const toggleItem = (item: string) => {
 
           <p
             v-if="selected?.length > maxCount"
-            class="text-gray-400 flex gap-2 text-sm"
+            class="text-placeholder flex gap-2 text-sm"
           >
             And {{ selected.length - maxCount }} more
           </p>
 
           <BaseButton
             @click.stop="clearSelectedItems"
+            tabindex="-1"
             transparent
             class="w-min h-min !p-0.5 ml-auto"
           >
@@ -205,7 +209,7 @@ const toggleItem = (item: string) => {
 
       <p
         v-if="errorMessage"
-        class="text-red-400 text-xs mt-1"
+        class="text-error text-xs mt-1"
         :data-testid="errorMessageTestid"
       >
         {{ errorMessage }}
@@ -216,7 +220,7 @@ const toggleItem = (item: string) => {
           data-control
           @interact-outside="(e) => $emit('blur', e)"
           :side-offset="5"
-          class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 bg-white w-[var(--radix-dropdown-menu-trigger-width)] min-w-max"
+          class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 w-[var(--radix-dropdown-menu-trigger-width)] min-w-max"
         >
           <template v-if="!(isEmpty || isLoading)">
             <div
@@ -225,12 +229,12 @@ const toggleItem = (item: string) => {
               <DropdownMenuItem
                 v-for="(item, i) in filteredItems"
                 :key="item.value"
-                class="[&:not(:first-child)]:mt-1 hover:bg-gray-200 rounded-md"
+                class="[&:not(:first-child)]:mt-1 hover:bg-foreground/10 rounded-md"
                 @select.prevent="toggleItem(item.value)"
               >
                 <BaseButton transparent class="justify-start w-full h-full">
                   <div
-                    class="flex appearance-none items-center justify-center rounded-[4px] cursor-pointer border border-gray-400"
+                    class="flex appearance-none items-center justify-center rounded-[4px] cursor-pointer border border-placeholder"
                     :class="[
                       isItemSelected(item.value)
                         ? 'bg-black text-white'
@@ -308,21 +312,3 @@ const toggleItem = (item: string) => {
     </div>
   </DropdownMenuRoot>
 </template>
-
-<style scoped>
-:deep(div[data-radix-menu-content][data-state="open"]) {
-  animation: dropdownAppear 0.15s ease;
-}
-
-@keyframes dropdownAppear {
-  0% {
-    opacity: 0.5;
-    transform: scale(0.9);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-</style>

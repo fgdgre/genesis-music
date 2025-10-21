@@ -55,16 +55,16 @@ const selectItem = (item: DropdownItem) => {
       <p
         v-if="label"
         class="flex text-sm font-medium leading-none text-foreground select-none mb-1"
-        :class="[Boolean(errorMessage) && 'text-red-400']"
+        :class="[Boolean(errorMessage) && 'text-error']"
       >
         {{ label }}
       </p>
 
       <DropdownMenuTrigger
-        class="w-full px-3 py-1 flex items-center justify-between border rounded-md select-none text-sm gap-2 min-w-[75px] cursor-pointer overflow-hidden focus-visible:outline-none focus-visible:ring focus-visible:ring-black h-9"
+        class="w-full px-3 py-1 flex items-center justify-between border border-border rounded-md select-none text-sm gap-2 min-w-[75px] cursor-pointer overflow-hidden focus-visible:outline-none focus-visible:ring focus-visible:ring-border-focus h-9 input-shadow"
         :class="[
           Boolean(errorMessage) &&
-            'border-red-400 text-red-400 placeholder:text-red-400/70 focus-visible:ring-red-400',
+            'border-error text-error placeholder:text-error/70 focus-visible:ring-error',
           disabled && 'opacity-70',
         ]"
         data-control
@@ -77,10 +77,13 @@ const selectItem = (item: DropdownItem) => {
       >
         <div
           v-if="placeholder && (!selected || isLoading)"
-          class="text-gray-400 flex gap-2"
-          :class="[Boolean(errorMessage) && 'text-red-300']"
+          class="text-placeholder flex gap-2"
+          :class="[Boolean(errorMessage) && 'text-error/70']"
         >
-          <div v-if="isLoading" class="text-gray-400 flex gap-2 items-center">
+          <div
+            v-if="isLoading"
+            class="text-placeholder flex gap-2 items-center"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -108,6 +111,7 @@ const selectItem = (item: DropdownItem) => {
           <BaseButton
             @click.stop="clearSelectedItem"
             transparent
+            tabindex="-1"
             class="w-min h-min !p-0.5 ml-auto"
           >
             <svg
@@ -146,7 +150,7 @@ const selectItem = (item: DropdownItem) => {
 
       <p
         v-if="errorMessage"
-        class="text-red-400 text-xs mt-1"
+        class="text-error text-xs mt-1"
         :data-testid="errorMessageTestid"
       >
         {{ errorMessage }}
@@ -156,7 +160,7 @@ const selectItem = (item: DropdownItem) => {
         <DropdownMenuContent
           @interact-outside="(e) => $emit('blur', e)"
           :side-offset="5"
-          class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 bg-white w-[var(--radix-dropdown-menu-trigger-width)] min-w-max max-h-[150px] overflow-auto"
+          class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 w-[var(--radix-dropdown-menu-trigger-width)] min-w-max max-h-[150px] overflow-auto"
           :class="isLoading && 'p-0'"
           data-control
         >
@@ -164,7 +168,7 @@ const selectItem = (item: DropdownItem) => {
             <DropdownMenuItem
               v-for="(item, i) in items"
               :key="item.value"
-              class="[&:not(:first-child)]:mt-1 flex items-center text-sm rounded-md cursor-pointer w-full text-foreground px-2 py-1.5 gap-2 select-none hover:bg-gray-200"
+              class="[&:not(:first-child)]:mt-1 flex items-center text-sm rounded-md cursor-pointer w-full text-foreground px-2 py-1.5 gap-2 select-none hover:bg-foreground/10"
               @select="selectItem(item)"
             >
               <div class="flex items-center gap-3">
@@ -226,21 +230,3 @@ const selectItem = (item: DropdownItem) => {
     </div>
   </DropdownMenuRoot>
 </template>
-
-<style scoped>
-:deep(div[data-radix-menu-content][data-state="open"]) {
-  animation: dropdownAppear 0.15s ease;
-}
-
-@keyframes dropdownAppear {
-  0% {
-    opacity: 0.5;
-    transform: scale(0.9);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-</style>

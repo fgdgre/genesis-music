@@ -41,7 +41,7 @@ const handleTogglePlay = (trackId: string) => {
     <TransitionGroup
       v-else
       tag="ul"
-      class="flex flex-col flex-1 overflow-y-auto w-full gap-2 pb-2 relative"
+      class="flex flex-col flex-1 overflow-y-auto w-full pb-2 relative"
     >
       <li
         v-for="(track, index) in queue"
@@ -50,12 +50,7 @@ const handleTogglePlay = (trackId: string) => {
         :class="index === 0 && 'sticky top-0 z-10 bg-neutral-300'"
       >
         <div
-          class="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-1 rounded-md border border-gray-400 p-1 select-none"
-          :class="[
-            track.audioFile &&
-              'hover:bg-gray-100 transition-colors cursor-pointer',
-            index === 0 && 'shadow-sm',
-          ]"
+          class="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-1 p-1 select-none rounded-md hover:bg-foreground/10 transition-colors cursor-pointer"
           @click="() => handleTogglePlay(track.id)"
           :data-track-id="track.id"
           :data-testid="`track-item-${track.id}`"
@@ -65,7 +60,7 @@ const handleTogglePlay = (trackId: string) => {
           >
             <div
               v-if="track.audioFile"
-              class="absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] text-orange-400"
+              class="absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] text-primary"
             >
               <svg
                 v-if="!isPlaying || (isPlaying && playingTrackId !== track.id)"
@@ -105,12 +100,12 @@ const handleTogglePlay = (trackId: string) => {
               <div class="flex flex-col">
                 <p
                   class="font-medium text-sm"
-                  :class="[playingTrackId === track.id && 'text-orange-400']"
+                  :class="[playingTrackId === track.id && 'text-primary']"
                   :data-testid="`track-item-${track.id}-title`"
                 >
                   {{ track.title }}
                 </p>
-                <p class="text-gray-400 text-xs">
+                <p class="text-placeholder text-xs">
                   <span :data-testid="`track-item-${track.id}-artist`">
                     {{ track.artist }}
                   </span>

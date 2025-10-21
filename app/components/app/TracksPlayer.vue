@@ -36,18 +36,21 @@ function handleKeyboardShortcut(e: KeyboardEvent) {
 
   if (e.code === "Space") {
     e.preventDefault();
+    e.stopPropagation();
     playbackStore.togglePlayTrack();
     return;
   }
 
   if (e.code === "ArrowRight" && ctrlLike && !e.altKey && !e.shiftKey) {
     e.preventDefault();
+    e.stopPropagation();
     playbackStore.nextTrack();
     return;
   }
 
   if (e.code === "ArrowLeft" && ctrlLike && !e.altKey && !e.shiftKey) {
     e.preventDefault();
+    e.stopPropagation();
     playbackStore.prevTrack();
     return;
   }
@@ -80,7 +83,7 @@ onUnmounted(() => {
             <p class="font-medium text-xs">
               {{ currentTrackInfo?.title }}
             </p>
-            <p class="text-gray-400 text-[12px]">
+            <p class="text-placeholder text-[12px]">
               {{ currentTrackInfo?.artist }}
             </p>
           </div>

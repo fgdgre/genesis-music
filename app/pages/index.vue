@@ -104,7 +104,7 @@ watch(
 
         <ul
           v-else-if="tracks.length"
-          class="flex-1 flex flex-col overflow-auto gap-2 pl-4 pb-2 pr-2"
+          class="flex-1 flex flex-col overflow-auto pl-4 pb-2 pr-2"
           data-testid="tracks-list"
           ref="tracksList"
         >
@@ -112,7 +112,7 @@ watch(
             v-for="(track, index) in tracks"
             class="flex w-full gap-1 items-center"
           >
-            <span class="min-w-[26.5px] text-xs text-gray-400 text-center"
+            <span class="min-w-[26.5px] text-xs text-placeholder text-center"
               >#{{ index + 1 }}</span
             >
             <Track :track />

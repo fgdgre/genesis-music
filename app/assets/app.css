@@ -1,15 +1,64 @@
 @import "tailwindcss";
 
+html {
+  --primary: rgb(255, 137, 4);
+  --secondary: rgb(253, 199, 0);
+  --error: rgb(255, 100, 103);
+  --success: rgb(6, 223, 114);
+  --background: rgb(255, 255, 255);
+  --foreground: rgb(9, 9, 11);
+  --border: rgb(190, 190, 190);
+  --border-focus: rgb(145, 145, 155);
+  --placeholder: rgb(113 113 122);
+  --modal: rgb(255, 255, 255);
+  --muted: rgb(106, 114, 130);
+}
+
 @theme {
   --breakpoint-xs: 430px;
+
+  --color-background: var(--background);
+  --color-modal: var(--modal);
+  --color-foreground: var(--foreground);
+  --color-error: var(--error);
+  --color-success: var(--success);
+  --color-placeholder: var(--placeholder);
+  --color-border: var(--border);
+  --color-border-focus: var(--border-focus);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-muted: var(--muted);
 }
 
 html,
 body,
 #app {
   height: 100%;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
 }
 
 body {
   background-color: var(--color-neutral-100);
+}
+
+div[data-radix-menu-content][data-state="open"] {
+  animation: dropdownAppear 0.15s ease;
+}
+
+@keyframes dropdownAppear {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.input-shadow {
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }

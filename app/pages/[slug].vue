@@ -28,24 +28,25 @@ const isPlaying = computed(() => playingTrackId.value === track?.id);
 
     <div class="flex flex-col gap-4">
       <p>
-        album - <span class="text-gray-400">{{ track?.album || "N/A" }}</span>
+        album -
+        <span class="text-placeholder">{{ track?.album || "N/A" }}</span>
       </p>
       <p>
-        artist - <span class="text-gray-400">{{ track?.artist }}</span>
+        artist - <span class="text-placeholder">{{ track?.artist }}</span>
       </p>
       <p>
         genres -
-        <span class="text-gray-400">{{ track?.genres.join(", ") }}</span>
+        <span class="text-placeholder">{{ track?.genres.join(", ") }}</span>
       </p>
       <p>
         Created at -
-        <span class="text-gray-400">{{
+        <span class="text-placeholder">{{
           formatDate(track?.createdAt) || "N/A"
         }}</span>
       </p>
       <p>
         Last update -
-        <span class="text-gray-400">{{
+        <span class="text-placeholder">{{
           formatDate(track?.updatedAt) || "N/A"
         }}</span>
       </p>

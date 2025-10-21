@@ -8,7 +8,7 @@ const props = defineProps<{
   title: string;
   description?: string;
   icon?: "check" | "warning";
-  color?: "default" | "red" | "yellow" | "green";
+  color?: "default" | "error" | "secondary" | "success";
   closable?: boolean;
   duration?: number;
   showProgress?: boolean;
@@ -39,7 +39,7 @@ const width = computed(() => {
     class="items-start w-full rounded-lg border p-4 border-gray-300 gap-x-[10px] shadow-sm relative overflow-hidden"
     :class="[
       Boolean(icon) ? 'icon-toast-message-layout' : 'toast-message-layout',
-      color === 'red' ? 'bg-red-400' : 'bg-white',
+      color === 'error' ? 'bg-error' : 'bg-white',
     ]"
     data-testid="toast-item"
   >
@@ -52,7 +52,7 @@ const width = computed(() => {
         stroke-width="1.5"
         stroke="currentColor"
         class="size-6"
-        :class="[color === 'green' ? 'text-green-400' : 'text-black']"
+        :class="[color === 'success' ? 'text-success' : 'text-black']"
       >
         <path
           stroke-linecap="round"
@@ -69,7 +69,7 @@ const width = computed(() => {
         stroke-width="1.5"
         stroke="currentColor"
         class="size-6"
-        :class="[color === 'green' ? 'text-green-400' : 'text-black']"
+        :class="[color === 'success' ? 'text-success' : 'text-black']"
       >
         <path
           stroke-linecap="round"

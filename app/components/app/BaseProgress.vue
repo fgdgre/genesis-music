@@ -3,9 +3,9 @@ withDefaults(
   defineProps<{
     infinite?: boolean;
     width?: number;
-    color?: "default" | "red" | "yellow" | "green";
+    color?: "default" | "error" | "secondary" | "success";
   }>(),
-  { color: "default" },
+  { color: "default" }
 );
 </script>
 
@@ -15,10 +15,10 @@ withDefaults(
       class="h-full"
       :class="[
         infinite && 'animate-indeterminate-bar',
-        color === 'green' && 'bg-green-400',
+        color === 'success' && 'bg-success',
         color === 'default' && 'bg-black',
-        color === 'yellow' && 'bg-yellow-400',
-        color === 'red' && 'bg-red-400',
+        color === 'secondary' && 'bg-secondary',
+        color === 'error' && 'bg-error',
       ]"
       :style="{ width: !infinite ? `${width ? width : 0}%` : 'auto' }"
     />

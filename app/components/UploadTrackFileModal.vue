@@ -57,7 +57,7 @@ const handleUploadTrackFile = async () => {
 
     const { data, error } = await postTrackFileAPI(
       props.track.id,
-      trackFile.value,
+      trackFile.value
     );
 
     if (error) {
@@ -77,7 +77,7 @@ const handleUploadTrackFile = async () => {
 <template>
   <AppModal title="Upload track file">
     <div class="flex flex-col gap-2">
-      <p class="text-gray-400">Please upload audio file for this track</p>
+      <p class="text-placeholder">Please upload audio file for this track</p>
 
       <div>
         <input
@@ -88,11 +88,11 @@ const handleUploadTrackFile = async () => {
           class="px-3 py-1 bg-transparent rounded-md border border-border text-base md:text-sm font-normal placeholder:text-placeholder focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-focus text-foreground w-full h-9"
           :class="[
             Boolean(trackFileInputErrorMessage) &&
-              'border-red-400 text-red-400 placeholder:text-red-300 focus-visible:ring-red-400',
+              'border-error text-error placeholder:text-red-300 focus-visible:ring-error',
           ]"
         />
 
-        <p v-if="trackFileInputErrorMessage" class="text-red-400 text-xs mt-1">
+        <p v-if="trackFileInputErrorMessage" class="text-error text-xs mt-1">
           {{ trackFileInputErrorMessage }}
         </p>
       </div>
