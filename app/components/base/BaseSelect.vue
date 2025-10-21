@@ -38,7 +38,7 @@ const clearSelectedItem = () => {
 };
 
 const currentItem = computed(() =>
-  props.items?.find((i) => i.value === selected.value),
+  props.items?.find((i) => i.value === selected.value)
 );
 
 const isDropdownOpen = ref(false);
@@ -67,6 +67,7 @@ const selectItem = (item: DropdownItem) => {
             'border-red-400 text-red-400 placeholder:text-red-400/70 focus-visible:ring-red-400',
           disabled && 'opacity-70',
         ]"
+        data-control
         :disabled="disabled || isLoading"
         :aria-disabled="disabled || isLoading"
         :aria-invalid="Boolean(errorMessage)"
@@ -157,6 +158,7 @@ const selectItem = (item: DropdownItem) => {
           :side-offset="5"
           class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 bg-white w-[var(--radix-dropdown-menu-trigger-width)] min-w-max max-h-[150px] overflow-auto"
           :class="isLoading && 'p-0'"
+          data-control
         >
           <template v-if="!(isEmpty || isLoading)">
             <DropdownMenuItem

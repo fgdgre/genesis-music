@@ -71,6 +71,7 @@ onMounted(() => {
       :id
       :aria-invalid="Boolean(errorMessage)"
       :aria-describedby="errorMessage"
+      data-control
       v-bind="$attrs"
       class="px-3 py-1 bg-transparent rounded-md border border-border text-base md:text-sm font-normal placeholder:text-placeholder focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-border-focus text-foreground w-full h-9"
       :class="[

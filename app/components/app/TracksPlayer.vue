@@ -17,23 +17,42 @@ const {
   queueListVisible,
 } = storeToRefs(playbackStore);
 
-const handleKeyboardShortcut = (e: KeyboardEvent) => {
-  // TODO
-  // console.log(document.activeElement);
-  // console.log(document.activeElement?.ELEMENT_NODE);
-  // if (document.activeElement?.ELEMENT_NODE !== "input")
+const isInteractive = (el: Element | null) => {
+  if (!el) return false;
+  return !!el.closest(
+    "[data-control], input, textarea, select, " +
+      '[contenteditable=""], [contenteditable="true"], ' +
+      '[role="textbox"], [role="combobox"], [role="listbox"]'
+  );
+};
+
+function handleKeyboardShortcut(e: KeyboardEvent) {
+  if (e.isComposing) return;
+
+  const target = e.target as Element | null;
+  if (isInteractive(target)) return;
+
+  const ctrlLike = e.ctrlKey || e.metaKey;
+
   if (e.code === "Space") {
     e.preventDefault();
-    e.stopPropagation();
     playbackStore.togglePlayTrack();
+    return;
   }
-  if (e.code === "ArrowRight" && e.ctrlKey) {
+
+  if (e.code === "ArrowRight" && ctrlLike && !e.altKey && !e.shiftKey) {
+    e.preventDefault();
     playbackStore.nextTrack();
+    return;
   }
-  if (e.key === "ArrowLeft" && e.ctrlKey) {
+
+  if (e.code === "ArrowLeft" && ctrlLike && !e.altKey && !e.shiftKey) {
+    e.preventDefault();
     playbackStore.prevTrack();
+    return;
   }
-};
+}
+
 onMounted(() => {
   document.addEventListener("keyup", handleKeyboardShortcut, { capture: true });
 });

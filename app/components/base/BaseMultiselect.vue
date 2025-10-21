@@ -29,7 +29,7 @@ const props = withDefaults(
   {
     maxCount: 2,
     menuAlign: "end",
-  },
+  }
 );
 
 const emit = defineEmits<{
@@ -48,8 +48,8 @@ const query = ref("");
 
 const filteredItems = computed(() =>
   props.items?.filter((i) =>
-    i.label.toLowerCase().includes(query.value.toLowerCase()),
-  ),
+    i.label.toLowerCase().includes(query.value.toLowerCase())
+  )
 );
 
 const isMultiselectOpen = ref(false);
@@ -62,7 +62,7 @@ const toggleItem = (item: string) => {
   if (isItemSelected(item)) {
     emit(
       "update:modelValue",
-      selected.value.filter((i) => i !== item),
+      selected.value.filter((i) => i !== item)
     );
   } else {
     emit("update:modelValue", [...selected.value, item]);
@@ -83,7 +83,6 @@ const toggleItem = (item: string) => {
 
       <DropdownMenuTrigger
         class="w-full px-3 py-1 flex items-center justify-between border rounded-md select-none text-sm gap-2 min-w-[75px] cursor-pointer overflow-hidden focus-visible:outline-none focus-visible:ring focus-visible:ring-black h-9"
-        :data-testid="triggerTestid"
         :class="[
           Boolean(errorMessage) &&
             'border-red-400 text-red-400 placeholder:text-red-400/70 focus-visible:ring-red-400',
@@ -91,10 +90,12 @@ const toggleItem = (item: string) => {
           selected.length > maxCount && 'min-w-[230px]',
           disabled && 'opacity-70',
         ]"
+        data-control
         :disabled="disabled || isLoading"
         :aria-disabled="disabled || isLoading"
         :aria-invalid="Boolean(errorMessage)"
         :aria-describedby="errorMessage"
+        :data-testid="triggerTestid"
         @click="isMultiselectOpen = !isMultiselectOpen"
       >
         <div
@@ -212,6 +213,7 @@ const toggleItem = (item: string) => {
 
       <DropdownMenuPortal>
         <DropdownMenuContent
+          data-control
           @interact-outside="(e) => $emit('blur', e)"
           :side-offset="5"
           class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 bg-white w-[var(--radix-dropdown-menu-trigger-width)] min-w-max"

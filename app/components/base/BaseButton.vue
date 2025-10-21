@@ -33,6 +33,7 @@ defineEmits<{
       square ? 'p-2' : 'px-4 py-2',
       (disabled || isLoading) && 'opacity-70',
     ]"
+    data-control
     :disabled="disabled || isLoading"
     :aria-disabled="disabled || isLoading"
     :type
