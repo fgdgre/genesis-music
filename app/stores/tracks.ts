@@ -39,12 +39,8 @@ export const useTracksStore = defineStore("tracksStore", () => {
       return;
 
     if (data.meta.page > 1) {
-      console.log(1);
-      console.log(tracks.value);
-      console.log(data.data);
       tracks.value = [...tracks.value, ...data.data];
     } else {
-      console.log(2);
       tracks.value = data.data;
     }
   };
@@ -100,7 +96,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
     if (!tracksMeta.value) return;
     if (tracksMeta.value.page === tracksMeta.value.totalPages) return;
     if (tracksMeta.value.page > tracksMeta.value.totalPages) return;
-    console.log(1111);
+
     fetchTracks({
       page: tracksMeta.value.page + 1,
       search: search.value,

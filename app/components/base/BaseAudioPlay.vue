@@ -15,7 +15,8 @@ const emit = defineEmits<{
 const audioPlyerRef = useTemplateRef("audioPlyerRef");
 
 const isChangingManually = ref(false);
-const currentTime = ref(props.currentPlaybackTime);
+const currentTime = ref(props.currentPlaybackTime || 0);
+const trackDuration = ref(0);
 
 const handlePlay = (e: any) => {
   if (!isChangingManually.value) {
@@ -65,7 +66,6 @@ onMounted(() => {
   }
 });
 
-// TODOOOOOOOOOOOOOOOO
 watchEffect(() => {
   if (audioPlyerRef.value) {
     audioPlyerRef.value.currentTime = props.currentPlaybackTime;
@@ -81,15 +81,16 @@ watchEffect(() => {
       preload="metadata"
       ref="audioPlyerRef"
       @timeupdate="handlePlay"
+      @loadeddata="(e: any) => trackDuration = e.target?.duration"
       @pause="(e: any) => emit('timeChange', (e.target?.currentTime))"
     ></audio>
 
     <input
       v-if="audioPlyerRef"
       type="range"
-      class="w-full transition-all duration-300 ease-linear [&::-webkit-slider-thumb]:scale-0 h-1!"
-      :step="0.1"
-      :max="audioPlyerRef?.duration"
+      class="flex-1 translate-all [&::-webkit-slider-thumb]:scale-0 h-1!"
+      tabindex="-1"
+      :max="trackDuration"
       :value="currentTime"
       @input="onSliderInput"
       @change="onSliderChange"

@@ -47,21 +47,21 @@ onUnmounted(() => {
 <template>
   <div
     v-if="initialized && tracks && !isError && playingTrackId"
-    class="w-full grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] max-md:gap-x-2 gap-x-4 p-1 items-center select-none bg-transparent max-sm:gap-y-1 h-min relative"
+    class="w-full grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] max-md:gap-x-2 gap-x-4 p-1 items-center select-none bg-transparent max-sm:gap-y-1 h-min relative max-md:pb-1.5"
   >
     <div class="flex gap-1">
       <img
         :src="currentTrackInfo?.coverImage || DEFAULT_TRACK_COVER"
-        class="h-full max-md:size-12 size-15 shrink-0 rounded-md relative select-none"
+        class="h-full size-12 shrink-0 rounded-md relative select-none"
       />
 
       <div class="flex gap-4 items-center col-start-2">
         <div class="flex gap-4">
           <div class="flex flex-col">
-            <p class="font-medium max-md:text-xs">
+            <p class="font-medium text-xs">
               {{ currentTrackInfo?.title }}
             </p>
-            <p class="text-gray-400 max-md:text-[12px] text-xs">
+            <p class="text-gray-400 text-[12px]">
               {{ currentTrackInfo?.artist }}
             </p>
           </div>
@@ -103,7 +103,7 @@ onUnmounted(() => {
       </div>
 
       <BaseAudioPlay
-        class="max-md:absolute max-md:bottom-0"
+        class="max-md:absolute max-md:bottom-0 max-md:left-0"
         :key="currentTrackSourceUrl"
         :track-source="currentTrackSourceUrl"
         :playing-track-id
