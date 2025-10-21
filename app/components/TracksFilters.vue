@@ -43,13 +43,13 @@ const orderSelectItems = [
         data-testid="filter-genre"
       />
 
-      <BaseInput
+      <!-- <BaseInput
         with-debounce
         label="Artist"
         placeholder="Artist name"
         v-model="artist"
         data-testid="filter-artist"
-      />
+      /> -->
 
       <BaseSelect
         label="Sort"
