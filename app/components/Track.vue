@@ -3,6 +3,13 @@ import type { Track } from "@/types";
 import { DEFAULT_TRACK_COVER } from "@/consts";
 import { storeToRefs } from "pinia";
 import type { DeepReadonly } from "vue";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+} from "radix-vue";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -24,6 +31,62 @@ const handleTogglePlay = () => {
     playbackStore.togglePlayTrack();
   } else {
     playbackStore.setPlayingTrackId(props.track.id);
+  }
+};
+const actionsItems = computed(() => {
+  const initialActions = [
+    { label: "Edit", value: "edit", icon: "heroicons:pencil-square" },
+    { label: "Delete", value: "delete", icon: "heroicons:trash" },
+    {
+      label: "Detailed info",
+      value: "detailedInfo",
+      icon: "material-symbols:more-horiz",
+    },
+  ];
+
+  return props.track.audioFile
+    ? [
+        ...initialActions,
+        {
+          label: "Delete Audio File",
+          value: "deleteAudioFile",
+          icon: "streamline:file-delete-alternate",
+        },
+      ]
+    : [
+        ...initialActions,
+        {
+          label: "Upload Audio File",
+          value: "uploadAudioFile",
+          icon: "material-symbols:upload-file-outline-rounded",
+        },
+      ];
+});
+
+const isTrackMenuOpen = ref(false);
+
+const handleTrackAction = (action: string) => {
+  switch (action) {
+    case "edit": {
+      isEditTrackModalOpen.value = true;
+      break;
+    }
+    case "delete": {
+      isDeleteTrackModalOpen.value = true;
+      break;
+    }
+    case "detailedInfo": {
+      navigateTo(`/${props.track.slug}`);
+      break;
+    }
+    case "deleteAudioFile": {
+      isDeleteTrackFileModal.value = true;
+      break;
+    }
+    case "uploadAudioFile": {
+      isUploadTrackFileModalOpen.value = true;
+      break;
+    }
   }
 };
 </script>
@@ -91,7 +154,7 @@ const handleTogglePlay = () => {
               {{ track.artist }}
             </span>
             -
-            <span class="text-sm">{{ track.album }}</span>
+            <span class="text-[12px]">{{ track.album }}</span>
           </p>
         </div>
 
@@ -103,57 +166,38 @@ const handleTogglePlay = () => {
         </div>
       </div>
 
-      <div class="flex gap-2 items-center h-full">
-        <BaseButton
-          color="red"
-          square
-          @click.stop="isDeleteTrackModalOpen = true"
-          :data-testid="`delete-track-${track.id}`"
+      <DropdownMenuRoot v-model:open="isTrackMenuOpen" :modal="false">
+        <DropdownMenuTrigger
+          class="p-1 flex items-center justify-between select-none cursor-pointer focus-visible:outline-none focus-visible:ring focus-visible:ring-black h-9 w-9"
+          data-control
+          @click.stop="isTrackMenuOpen = !isTrackMenuOpen"
         >
-          <Icon name="heroicons:trash" class="size-6" />
-        </BaseButton>
-        <BaseButton
-          color="yellow"
-          square
-          @click.stop="isEditTrackModalOpen = true"
-          :data-testid="`edit-track-${track.id}`"
-        >
-          <Icon name="heroicons:pencil-square" class="size-6" />
-        </BaseButton>
-        <BaseButton
-          v-if="!track.audioFile"
-          color="green"
-          square
-          :data-testid="`upload-track-${track.id}`"
-          @click.stop="isUploadTrackFileModalOpen = true"
-        >
-          <Icon
-            name="material-symbols:upload-file-outline-rounded"
-            class="size-6"
-          />
-        </BaseButton>
-        <BaseButton
-          v-else
-          color="orange"
-          square
-          :data-testid="`delete-track-${track.id}`"
-          @click.stop="isDeleteTrackFileModal = true"
-          class="w-10!"
-        >
-          <Icon
-            name="streamline:file-delete-alternate"
-            class="size-5 shrink-0"
-          />
-        </BaseButton>
-        <NuxtLink
-          class="flex gap-x-[5px] items-center justify-center rounded-md w-fit select-none transition-colors pointer-events-auto font-medium text-sm cursor-pointer h-9 bg-gray-500 text-white hover:bg-gray-400/80 p-2"
-          :data-testid="`info-track-${track.id}`"
-          @click.stop
-          :to="`/${track.slug}`"
-        >
-          <Icon name="material-symbols:more-horiz" class="size-5 shrink-0" />
-        </NuxtLink>
-      </div>
+          <Icon name="material-symbols:more-horiz" />
+        </DropdownMenuTrigger>
+
+        <DropdownMenuPortal v-if="isTrackMenuOpen">
+          <DropdownMenuContent
+            @interact-outside="isTrackMenuOpen = false"
+            :side-offset="5"
+            class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 bg-white w-[var(--radix-dropdown-menu-trigger-width)] min-w-max max-h-[150px] overflow-auto"
+            data-control
+          >
+            <DropdownMenuItem
+              v-for="item in actionsItems"
+              :key="item.value"
+              class="[&:not(:first-child)]:mt-1 flex items-center text-sm rounded-md cursor-pointer w-full text-foreground px-2 py-1.5 gap-2 select-none hover:bg-gray-200"
+              @select="handleTrackAction(item.value)"
+            >
+              <div class="flex items-center gap-3">
+                <Icon :name="item.icon!" />
+                <p>
+                  {{ item.label }}
+                </p>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenuPortal>
+      </DropdownMenuRoot>
     </div>
   </div>
 
@@ -181,3 +225,21 @@ const handleTogglePlay = () => {
     @close="isDeleteTrackFileModal = false"
   />
 </template>
+
+<style scoped>
+:deep(div[data-radix-menu-content][data-state="open"]) {
+  animation: dropdownAppear 0.15s ease;
+}
+
+@keyframes dropdownAppear {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+</style>

@@ -163,7 +163,7 @@ const selectItem = (item: DropdownItem) => {
           <template v-if="!(isEmpty || isLoading)">
             <DropdownMenuItem
               v-for="(item, i) in items"
-              :key="item.label"
+              :key="item.value"
               class="[&:not(:first-child)]:mt-1 flex items-center text-sm rounded-md cursor-pointer w-full text-foreground px-2 py-1.5 gap-2 select-none hover:bg-gray-200"
               @select="selectItem(item)"
             >

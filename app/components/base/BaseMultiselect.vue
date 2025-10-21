@@ -224,7 +224,7 @@ const toggleItem = (item: string) => {
             >
               <DropdownMenuItem
                 v-for="(item, i) in filteredItems"
-                :key="item.label"
+                :key="item.value"
                 class="[&:not(:first-child)]:mt-1 hover:bg-gray-200 rounded-md"
                 @select.prevent="toggleItem(item.value)"
               >
