@@ -4,9 +4,11 @@ import BaseButton from "../base/BaseButton.vue";
 import { TransitionGroup } from "vue";
 
 const playbackStore = usePlaybackStore();
+const tracksStore = useTracksStore();
 
 const { queueListVisible, queue, playingTrackId, isPlaying } =
   storeToRefs(playbackStore);
+const { tracks, initialized, isError } = storeToRefs(tracksStore);
 
 const handleTogglePlay = (trackId: string) => {
   if (trackId === playingTrackId.value) {
@@ -19,7 +21,7 @@ const handleTogglePlay = (trackId: string) => {
 
 <template>
   <div
-    v-if="queueListVisible"
+    v-if="initialized && !isError && queueListVisible"
     class="flex flex-col overflow-hidden bg-neutral-300 rounded-md min-w-[300px]"
   >
     <div class="flex justify-between gap-4 px-2 pt-1">
@@ -33,7 +35,11 @@ const handleTogglePlay = (trackId: string) => {
         <Icon name="heroicons:x-mark" />
       </BaseButton>
     </div>
+    <div v-if="!queue.length" class="flex flex-1 items-center justify-center">
+      <p>Queue are empty</p>
+    </div>
     <TransitionGroup
+      v-else
       tag="ul"
       class="flex flex-col flex-1 overflow-y-auto w-full gap-2 pb-2 relative"
     >

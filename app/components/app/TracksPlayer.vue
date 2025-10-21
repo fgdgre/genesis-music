@@ -46,13 +46,13 @@ onUnmounted(() => {
 
 <template>
   <div
-    v-if="initialized && tracks && !isError && playingTrackId"
+    v-if="initialized && tracks.length && !isError && playingTrackId"
     class="w-full grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] max-md:gap-x-2 gap-x-4 p-1 items-center select-none bg-transparent max-sm:gap-y-1 h-min relative max-md:pb-1.5"
   >
     <div class="flex gap-1">
       <img
         :src="currentTrackInfo?.coverImage || DEFAULT_TRACK_COVER"
-        class="h-full size-12 shrink-0 rounded-md relative select-none"
+        class="size-12 object-cover rounded-md relative select-none"
       />
 
       <div class="flex gap-4 items-center col-start-2">

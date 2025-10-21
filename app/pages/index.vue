@@ -58,9 +58,6 @@ watch(
 </script>
 
 <template>
-  <!-- <AppHeader title="Tracks page" :is-loading="isLoading" /> -->
-
-  <!-- :class="playingTrackId && 'pb-17.5'" -->
   <main v-if="initialized" class="flex flex-col w-full overflow-hidden">
     <AppErrorPage
       v-if="initializedWithEmptyTracks && isError"
@@ -136,8 +133,8 @@ watch(
           Nothing is found
         </div>
       </div>
-      <!-- <QueueList v-if="queueListVisible" class="mr-2 max-w-[25%] rounded-md" /> -->
     </div>
+
     <CreateTrackModal
       v-if="isCreateTrackModalOpen"
       @close="isCreateTrackModalOpen = false"
