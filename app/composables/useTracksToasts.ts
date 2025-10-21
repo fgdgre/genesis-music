@@ -10,13 +10,13 @@ export const useTracksToasts = () => {
     toastsStore.addToast({
       title: error?.message || "Error",
       description: error.details,
-      color: "red",
+      color: "error",
       icon: "warning",
     });
   };
 
   const addSuccessToast = (
-    action: "create" | "delete" | "edit" | "uploadFile" | "deleteFile",
+    action: "create" | "delete" | "edit" | "uploadFile" | "deleteFile"
   ) => {
     toastsStore.clearToasts();
 
@@ -45,7 +45,7 @@ export const useTracksToasts = () => {
 
     toastsStore.addToast({
       title,
-      color: "green",
+      color: "success",
       icon: "check",
       duration: 1500,
       showProgress: true,

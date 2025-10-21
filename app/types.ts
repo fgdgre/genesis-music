@@ -30,7 +30,7 @@ export type Toast = {
   id: string;
   title: string;
   description?: string;
-  color?: "red" | "green";
+  color?: "error" | "success";
   icon?: "check" | "warning";
   duration?: number;
   showProgress?: boolean;

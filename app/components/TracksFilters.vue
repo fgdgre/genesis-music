@@ -10,7 +10,7 @@ defineProps<{
 
 const store = useFiltersStore();
 
-const { search, order, artist, genre, sort } = storeToRefs(store);
+const { search, order, genre, sort } = storeToRefs(store);
 
 const sortSelectItems = [
   { label: "Artist", value: "artist" },
@@ -31,7 +31,7 @@ const orderSelectItems = [
         with-debounce
         label="Search"
         placeholder="Title, Artist, Album, Date"
-        v-model="search"
+        v-model.trim="search"
         data-testid="search-input"
       />
 
@@ -42,14 +42,6 @@ const orderSelectItems = [
         class="min-w-[150px]"
         data-testid="filter-genre"
       />
-
-      <!-- <BaseInput
-        with-debounce
-        label="Artist"
-        placeholder="Artist name"
-        v-model="artist"
-        data-testid="filter-artist"
-      /> -->
 
       <BaseSelect
         label="Sort"
