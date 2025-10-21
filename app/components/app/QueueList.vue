@@ -35,12 +35,12 @@ const handleTogglePlay = (trackId: string) => {
     </div>
     <TransitionGroup
       tag="ul"
-      class="flex flex-col flex-1 overflow-y-auto w-full gap-2 px-2 pb-2 relative"
+      class="flex flex-col flex-1 overflow-y-auto w-full gap-2 pb-2 relative"
     >
       <li
         v-for="(track, index) in queue"
         :key="track.id"
-        class="w-full break-all"
+        class="w-full break-all px-2"
         :class="index === 0 && 'sticky top-0 z-10 bg-neutral-300'"
       >
         <div
