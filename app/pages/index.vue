@@ -37,7 +37,7 @@ const fetchTracks = () => {
 const initializedWithEmptyTracks = computed(
   () =>
     filtersEmpty.value &&
-    tracksMeta.value?.page === 1 &&
+    (tracksMeta.value == null || tracksMeta.value?.page === 1) &&
     tracks.value?.length === 0
 );
 

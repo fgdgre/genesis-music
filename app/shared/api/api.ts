@@ -269,7 +269,7 @@ async function connector<T>(
         return res;
       }
 
-      if ((opts.parse || "json") === "json") {
+      if (res.data && (opts.parse || "json") === "json") {
         const { success, error } = opts.schema.safeParse(res.data);
 
         if (success) {
