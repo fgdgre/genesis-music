@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { describe, it, expect, vi } from "vitest";
 import { createApiClient, invalidateAll } from "@/shared/api";
 import { installFetchMock } from "../../utils/fetchMock";

@@ -1,26 +1,17 @@
-import { defineConfig } from "vitest/config";
+import { defineVitestConfig } from "@nuxt/test-utils/config";
 import { fileURLToPath } from "node:url";
 
-export default defineConfig({
-  resolve: {
-    alias: {
-      "~": fileURLToPath(new URL("./app", import.meta.url)),
-      "@": fileURLToPath(new URL("./app", import.meta.url)),
-      "~~": fileURLToPath(new URL(".", import.meta.url)),
-      "@@": fileURLToPath(new URL(".", import.meta.url)),
-    },
-  },
-  server: { port: 3000 },
+export default defineVitestConfig({
   test: {
+    environment: "nuxt",
+    globals: true,
+    pool: "forks",
     dir: "./app/tests/unit",
     include: ["**/*.test.ts"],
-    environment: "jsdom",
-    globals: true,
-    css: true,
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "lcov", "html"],
-      reportsDirectory: "coverage",
+    environmentOptions: {
+      nuxt: {
+        rootDir: fileURLToPath(new URL("./", import.meta.url)),
+      },
     },
   },
 });

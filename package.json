@@ -7,11 +7,13 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "test unit": "npx vitest"
   },
   "dependencies": {
     "@nuxt/icon": "2.0.0",
     "@pinia/nuxt": "^0.11.2",
+    "@pinia/testing": "^1.0.2",
     "@tailwindcss/vite": "^4.1.14",
     "lodash": "^4.17.21",
     "nuxt": "^4.1.3",
@@ -34,6 +36,7 @@
     "jsdom": "^27.0.0",
     "nuxt-lodash": "^2.5.3",
     "playwright-core": "^1.56.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "vitest-environment-nuxt": "^1.0.1"
   }
 }

@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
   ssr: false,
-  modules: ["@nuxt/icon", "@vueuse/nuxt", "nuxt-lodash", "@pinia/nuxt", "@nuxt/test-utils/module"],
+  modules: ["@nuxt/icon", "@vueuse/nuxt", "@pinia/nuxt", "@nuxt/test-utils/module"],
   css: ["~/assets/app.css"],
 
   vite: {

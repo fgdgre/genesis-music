@@ -1,0 +1,118 @@
+import { setActivePinia } from "pinia";
+import { test, beforeEach, describe, vi, expect } from "vitest";
+import { createTestingPinia } from "@pinia/testing";
+import { usePlaybackStore } from "@/stores/playback";
+import type { Track } from "~/types";
+
+beforeEach(() => {
+  localStorage.clear();
+  setActivePinia(createTestingPinia({ stubActions: false, createSpy: vi.fn }));
+});
+
+vi.mock("@/entities/tracks", () => ({
+  fetchTracksAPI: vi.fn(async () => ({
+    ok: true,
+    data: { data: [], meta: { page: 1, totalPages: 1 } },
+    error: null,
+    res: null,
+  })),
+}));
+
+vi.mock("@/composables/useTracksToasts", () => ({
+  useTracksToasts: () => ({ addErrorToast: vi.fn() }),
+}));
+
+describe("playback queue", () => {
+  test("when tracks are empty there is no playback queue", async () => {
+    const playback = usePlaybackStore();
+
+    expect(playback.queue.length).toBe(0);
+    expect(playback.hasNextTrack).toBe(false);
+    expect(playback.hasPrevTrack).toBe(false);
+  });
+
+  test("if track is play to the end, next track will turn automatically", async () => {
+    const tracks = useTracksStore();
+    const playback = usePlaybackStore();
+
+    tracks.createTrack({
+      title: `title1`,
+      album: "asd",
+      artist: "qwe",
+      genres: ["Hip-Hop"],
+      id: "1",
+      audioFile: "/test-audio-file.mp3",
+    } as Track);
+
+    tracks.createTrack({
+      title: `title2`,
+      album: "asd",
+      artist: "qwe",
+      genres: ["Hip-Hop"],
+      id: "2",
+      audioFile: "/test-audio-file.mp3",
+    } as Track);
+
+    await nextTick();
+
+    vi.useFakeTimers();
+
+    expect(playback.playingTrackId).toBe(null);
+    expect(playback.queue.length).toBe(2);
+    expect(playback.hasNextTrack).toBe(false);
+    expect(playback.hasPrevTrack).toBe(false);
+
+    playback.setPlayingTrackId("1");
+    expect(playback.playingTrackId).toBe("1");
+    expect(playback.queue.length).toBe(1);
+
+    // vi.wa(20000);
+
+    expect(playback.playingTrackId).toBe("2");
+    expect(playback.queue.length).toBe(0);
+
+    // expect(playback.hasNextTrack).toBe(true);
+    // expect(playback.hasPrevTrack).toBe(false);
+  });
+});
+
+describe.skip("queue preload (no shuffle)", () => {
+  test("all track plays in existing sequence due to the current tracks list order", async () => {});
+  test("when turn track that is last in loaded queue but current page is not last next page should be loaded (with current filters)", async () => {});
+  test("when user manually landing to tracks list and load more tracks queue should automatically update", async () => {});
+  // TODO:
+  test("if tracks filters are changed current queue should not change, rather should stay with loaded data", async () => {});
+  test("if tracks filters are changed and play last track with not last page of tracks, should be loaded next page of already played tracks not current filtered", async () => {});
+  test("tracks queue should update with new filters only if user select some track with new filters then new queue will build from current tracks list", async () => {});
+  test("if queue was build from filtered tracks and its time to load next page then next page should be loaded with current filters", async () => {});
+});
+
+describe.skip("queue preload (with shuffle)", () => {
+  test(
+    "when new page is loaded this is should concat to the existing queue and also shuffle, existing queue should not shuffle again"
+  );
+});
+
+describe.skip("playback navigation with no loop enabled", () => {
+  test("if play the last tracks from queue and try to navigate forward tracks should stop play end reset current playback time to zero", async () => {});
+});
+
+describe.skip("playback navigation with loop playlist enabled (no shuffle)", () => {
+  test("when playing not last track from queue ", async () => {});
+});
+
+describe.skip("playback navigation with loop playlist enabled (with shuffle)", () => {
+  test("when playing end queue should not be regenerate", async () => {});
+});
+
+describe.skip("playback navigation with loop track enabled", () => {
+  test('press to "next track" button should set current track to the start and keep play', async () => {});
+  test('if current playback time is below 3s press to the "back track" button should set current track to the start and keep play', async () => {});
+  test('if current playback time is under 3s press to "back track" button should change loop mode to the "loop playlist" and turn prev track', async () => {});
+});
+
+describe.skip("playback shuffle", () => {
+  test(
+    "if toggle shuffle mode current track should not be changed and all other tracks should be shuffled and insert after current track"
+  );
+});

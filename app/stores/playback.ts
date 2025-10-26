@@ -41,9 +41,6 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
         (t) => !globalQueue.find((i) => i.id === t.id)
       );
       const next = shuffleArray(cloneDeep(loadedTracks) as Track[]);
-      // console.log(tracksWithAudioFiles);
-      // console.log(loadedTracks);
-      // console.log(next);
       if (loadedTracks.length) {
         updatedQueue = [...globalQueue, ...next];
       } else {
@@ -95,7 +92,9 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   );
 
   const hasNextTrack = computed(
-    () => !!globalQueue.value[globalPlayingTrackIndex.value + 1]
+    () =>
+      globalPlayingTrackIndex.value !== -1 &&
+      !!globalQueue.value[globalPlayingTrackIndex.value + 1]
   );
 
   const hasPrevTrack = computed(() => {
@@ -109,12 +108,11 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     return globalPlayingTrackIndex.value > 0;
   });
 
-  const currentQueue = computed<Track[]>(() =>
-    globalQueue.value.slice(
-      globalPlayingTrackIndex.value,
-      globalQueue.value.length
-    )
-  );
+  const currentQueue = computed<Track[]>(() => {
+    const startIndex =
+      globalPlayingTrackIndex.value === -1 ? 0 : globalPlayingTrackIndex.value;
+    return globalQueue.value.slice(startIndex, globalQueue.value.length);
+  });
 
   const setPlayingTrackId = (id: string) => {
     playingTrackId.value = id;
