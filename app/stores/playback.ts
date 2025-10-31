@@ -123,7 +123,8 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   const clearPlayingTrackId = () => (playingTrackId.value = null);
 
   const nextTrack = () => {
-    console.log("nextTrack");
+    if (globalPlayingTrackIndex.value === -1) return;
+
     if (loopingMode.value === "loopTrack") {
       currentPlaybackTime.value = 0;
       isPlaying.value = false;
@@ -150,7 +151,8 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   };
 
   const prevTrack = () => {
-    console.log("prevTrack");
+    if (globalPlayingTrackIndex.value === -1) return;
+
     if (loopingMode.value === "loopTrack") {
       if (currentPlaybackTime.value < 3) {
         loopingMode.value = "loopPlaylist";
