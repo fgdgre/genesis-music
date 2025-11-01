@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { Track, TracksFilters, TracksMeta, TracksResponse } from "@/types";
+import type { Track, TracksMeta, TracksResponse } from "@/types";
 import { ref, type DeepReadonly } from "vue";
 import { readonly } from "vue";
 import { fetchTracksAPI } from "@/entities/tracks";

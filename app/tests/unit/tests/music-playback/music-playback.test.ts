@@ -1,17 +1,23 @@
 import { setActivePinia } from "pinia";
 import { test, beforeEach, describe, vi, expect } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
-import { usePlaybackStore } from "@/stores/playback";
 import type { Track, TracksResponse } from "~/types";
-import { fetchTracksAPI } from "@/entities/tracks";
 import type { Result } from "~/shared/api";
+
+vi.mock("@/entities/tracks", () => ({
+  fetchTracksAPI: vi.fn(),
+}));
+import * as tracksApi from "@/entities/tracks";
+const apiMock = vi.mocked(tracksApi);
+
+import { useTracksStore } from "@/stores/tracks";
+import { usePlaybackStore } from "@/stores/playback";
 
 beforeEach(() => {
   localStorage.clear();
   setActivePinia(createTestingPinia({ stubActions: false, createSpy: vi.fn }));
+  vi.resetAllMocks();
 });
-
-vi.mock("@/entities/tracks");
 
 const getMockedResponseObject = ({
   tracksLimit,
@@ -85,17 +91,7 @@ describe("playback queue", () => {
     const tracks = useTracksStore();
     const playback = usePlaybackStore();
 
-    vi.spyOn(useTracksStore(), "fetchTracks").mockResolvedValue(
-      getMockedResponseObject({
-        totalPages: 1,
-        tracksLimit: 10,
-        totalTracks: 2,
-        tracksCount: 2,
-        currentPage: 1,
-      })
-    );
-
-    vi.mocked(fetchTracksAPI).mockResolvedValueOnce(
+    apiMock.fetchTracksAPI.mockResolvedValueOnce(
       getMockedResponseObject({
         totalPages: 1,
         tracksLimit: 10,
