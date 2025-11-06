@@ -5,7 +5,7 @@ import type { Track } from "~/types";
 
 export const usePlaybackStore = defineStore("playbackStore", () => {
   const tracksStore = useTracksStore();
-  const { tracks, tracksMeta, hasNextPage, isLoading } =
+  const { tracks, tracksMeta, hasNextPage, isLoading, isLoadingNextPage } =
     storeToRefs(tracksStore);
   const queueListVisible = useLocalStorage("queueListVisible", false);
   const isShuffle = useLocalStorage("isShuffle", false);
@@ -209,16 +209,22 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     isPlaying.value = !isPlaying.value;
   };
 
-  watchEffect(() => {
-    if (
-      !isLoading.value &&
-      ((globalPlayingTrackIndex.value === -1 && playingTrackId.value != null) ||
-        (!hasNextTrack.value && hasNextPage.value))
-    ) {
-      console.log("fetch next trackkkkkkkssssss");
-      tracksStore.fetchNextPage();
-    }
-  });
+  watch(
+    [isLoading, isLoadingNextPage, playingTrackId, hasNextPage, hasNextTrack],
+    async () => {
+      if (
+        !isLoading.value &&
+        !isLoadingNextPage.value &&
+        playingTrackId.value &&
+        !hasNextTrack.value &&
+        hasNextPage.value
+      ) {
+        console.log("fetch next trackkkkkkkssssss");
+        await tracksStore.fetchNextPage();
+      }
+    },
+    { flush: "post" }
+  );
 
   return {
     playingTrackId: readonly(playingTrackId),
@@ -230,6 +236,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     currentTrackSourceUrl: readonly(currentTrackSourceUrl),
     currentTrackInfo: readonly(currentTrackInfo),
     queueListVisible: readonly(queueListVisible),
+    globalQueue: readonly(globalQueue),
     toggleQueueListVisibility,
     togglePlayTrack,
     hasNextPage,

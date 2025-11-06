@@ -16,12 +16,15 @@ export const useTracksStore = defineStore("tracksStore", () => {
   const tracks = ref<Track[]>([]);
   const tracksMeta = ref<TracksMeta | null>(null);
   const isLoading = ref(false);
+  const isLoadingNextPage = ref(false);
   const isError = ref(false);
   const errorMessage = ref("");
 
   const hasNextPage = computed(
     () =>
-      tracksMeta.value && tracksMeta.value.page < tracksMeta.value.totalPages
+      !!(
+        tracksMeta.value && tracksMeta.value.page < tracksMeta.value.totalPages
+      )
   );
 
   const clearErrors = () => {
@@ -92,12 +95,13 @@ export const useTracksStore = defineStore("tracksStore", () => {
     }
   };
 
-  const fetchNextPage = () => {
+  const fetchNextPage = async () => {
     if (!tracksMeta.value) return;
-    if (tracksMeta.value.page === tracksMeta.value.totalPages) return;
-    if (tracksMeta.value.page > tracksMeta.value.totalPages) return;
+    if (tracksMeta.value.page >= tracksMeta.value.totalPages) return;
 
-    fetchTracks({
+    isLoadingNextPage.value = true;
+
+    await fetchTracks({
       page: tracksMeta.value.page + 1,
       search: search.value,
       order: order.value,
@@ -105,6 +109,8 @@ export const useTracksStore = defineStore("tracksStore", () => {
       genre: genre.value,
       sort: sort.value,
     });
+
+    isLoadingNextPage.value = false;
   };
 
   const createTrack = (trackData: DeepReadonly<Track>) => {
@@ -126,6 +132,7 @@ export const useTracksStore = defineStore("tracksStore", () => {
     tracksMeta: readonly(tracksMeta),
     initialized: readonly(initialized),
     isLoading: readonly(isLoading),
+    isLoadingNextPage: readonly(isLoadingNextPage),
     isError: readonly(isError),
     errorMessage: readonly(errorMessage),
     hasNextPage,

@@ -1,22 +1,55 @@
-import { setActivePinia } from "pinia";
-import { test, beforeEach, describe, vi, expect } from "vitest";
-import { createTestingPinia } from "@pinia/testing";
-import type { Track, TracksResponse } from "~/types";
-import type { Result } from "~/shared/api";
-
 vi.mock("@/entities/tracks", () => ({
   fetchTracksAPI: vi.fn(),
 }));
+
+vi.mock("@vueuse/core", async () => {
+  const actual = await vi.importActual<any>("@vueuse/core");
+  return {
+    ...actual,
+    useLocalStorage: <T>(_: string, initial: T) =>
+      ref(structuredClone(initial)) as any,
+  };
+});
+
+import { createPinia, setActivePinia } from "pinia";
+import { test, beforeEach, afterEach, describe, vi, expect } from "vitest";
+import type { Track, TracksFilters, TracksResponse } from "~/types";
+import type { Result } from "~/shared/api";
+
 import * as tracksApi from "@/entities/tracks";
 const apiMock = vi.mocked(tracksApi);
 
 import { useTracksStore } from "@/stores/tracks";
 import { usePlaybackStore } from "@/stores/playback";
+import { useFiltersStore } from "@/stores/filters";
 
 beforeEach(() => {
+  setActivePinia(createPinia());
+
   localStorage.clear();
-  setActivePinia(createTestingPinia({ stubActions: false, createSpy: vi.fn }));
-  vi.resetAllMocks();
+
+  vi.restoreAllMocks();
+  vi.clearAllMocks();
+  vi.resetModules();
+
+  apiMock.fetchTracksAPI.mockResolvedValue(
+    getMockedResponseObject({
+      totalPages: 1,
+      tracksLimit: 10,
+      totalTracks: 10,
+      tracksCount: 10,
+      currentPage: 1,
+    })
+  );
+});
+
+afterEach(() => {
+  try {
+    const { usePlaybackStore } = require("@/stores/playback");
+    const { useTracksStore } = require("@/stores/tracks");
+    usePlaybackStore().$dispose?.();
+    useTracksStore().$dispose?.();
+  } catch {}
 });
 
 const getMockedResponseObject = ({
@@ -26,6 +59,8 @@ const getMockedResponseObject = ({
   tracksCount,
   totalTracks,
   currentPage = 1,
+  withoutAudioFiles,
+  startFrom, // NEW
 }: {
   error?: any;
   tracksCount: number;
@@ -33,49 +68,39 @@ const getMockedResponseObject = ({
   totalPages: number;
   totalTracks: number;
   currentPage: number;
+  withoutAudioFiles?: boolean;
+  startFrom?: number; // NEW
 }): Result<TracksResponse> => {
+  const totalTracksCount = tracksCount; // don't cap if you want custom page sizes
+  const pageStartFrom =
+    typeof startFrom === "number" ? startFrom : (currentPage - 1) * tracksLimit;
+
   return {
     ok: !!!error,
-    error: error,
+    error,
     data: !!error
       ? null
       : {
           data: Array.from(
-            { length: tracksCount > tracksLimit ? tracksLimit : tracksCount },
-            (v, k) =>
+            { length: totalTracksCount },
+            (_, k) =>
               ({
-                title: `title${k}`,
+                title: `title${pageStartFrom + (k + 1)}`,
                 album: "album",
                 artist: "artist",
                 genres: ["Hip-Hop"],
-                id: `${k}`,
-                audioFile: "/test-audio-file.mp3",
+                id: `${pageStartFrom + (k + 1)}`,
+                audioFile: withoutAudioFiles ? "" : "/test-audio-file.mp3",
               } as Track)
           ),
           meta: {
             page: currentPage,
-            totalPages: totalPages,
+            totalPages,
             total: totalTracks,
             limit: tracksLimit,
           },
         },
   };
-};
-
-const fillTracksToStore = (
-  length: number,
-  callback: (track: Track) => void
-) => {
-  for (let i = length; i >= 1; i--) {
-    callback({
-      title: `title${i}`,
-      album: "asd",
-      artist: "qwe",
-      genres: ["Hip-Hop"],
-      id: `${i}`,
-      audioFile: "/test-audio-file.mp3",
-    } as Track);
-  }
 };
 
 describe("playback queue", () => {
@@ -91,22 +116,12 @@ describe("playback queue", () => {
     const tracks = useTracksStore();
     const playback = usePlaybackStore();
 
-    apiMock.fetchTracksAPI.mockResolvedValueOnce(
-      getMockedResponseObject({
-        totalPages: 1,
-        tracksLimit: 10,
-        totalTracks: 2,
-        tracksCount: 2,
-        currentPage: 1,
-      })
-    );
-
     await tracks.fetchTracks({ page: 1 });
 
     await nextTick();
 
     expect(playback.playingTrackId).toBe(null);
-    expect(playback.queue.length).toBe(2);
+    expect(playback.queue.length).toBe(10);
     expect(playback.hasNextTrack).toBe(false);
     expect(playback.hasPrevTrack).toBe(false);
   });
@@ -114,7 +129,7 @@ describe("playback queue", () => {
     const tracks = useTracksStore();
     const playback = usePlaybackStore();
 
-    fillTracksToStore(2, tracks.createTrack);
+    await tracks.fetchTracks({ page: 1 });
 
     await nextTick();
 
@@ -127,7 +142,7 @@ describe("playback queue", () => {
     const tracks = useTracksStore();
     const playback = usePlaybackStore();
 
-    fillTracksToStore(2, tracks.createTrack);
+    await tracks.fetchTracks({ page: 1 });
 
     await nextTick();
 
@@ -140,7 +155,7 @@ describe("playback queue", () => {
     const tracks = useTracksStore();
     const playback = usePlaybackStore();
 
-    fillTracksToStore(2, tracks.createTrack);
+    await tracks.fetchTracks({ page: 1 });
 
     await nextTick();
 
@@ -153,7 +168,7 @@ describe("playback queue", () => {
     const tracks = useTracksStore();
     const playback = usePlaybackStore();
 
-    fillTracksToStore(2, tracks.createTrack);
+    await tracks.fetchTracks({ page: 1 });
 
     await nextTick();
 
@@ -172,7 +187,7 @@ describe("playback queue", () => {
     const tracks = useTracksStore();
     const playback = usePlaybackStore();
 
-    fillTracksToStore(2, tracks.createTrack);
+    await tracks.fetchTracks({ page: 1 });
 
     await nextTick();
 
@@ -191,7 +206,7 @@ describe("playback queue", () => {
     const tracks = useTracksStore();
     const playback = usePlaybackStore();
 
-    fillTracksToStore(2, tracks.createTrack);
+    await tracks.fetchTracks({ page: 1 });
 
     await nextTick();
 
@@ -216,10 +231,185 @@ describe("playback queue", () => {
   });
 });
 
-describe.skip("queue preload (no shuffle)", () => {
+describe("queue preload (no shuffle)", () => {
+  test("if no current track selected fetch next page should not be triggered initially", async () => {
+    const tracks = useTracksStore();
+    const playback = usePlaybackStore();
+
+    apiMock.fetchTracksAPI.mockReset();
+
+    apiMock.fetchTracksAPI.mockResolvedValueOnce(
+      getMockedResponseObject({
+        totalPages: 2,
+        tracksLimit: 6,
+        totalTracks: 30,
+        tracksCount: 2,
+        currentPage: 1,
+      })
+    );
+
+    await tracks.fetchTracks({ page: 1 });
+
+    await nextTick();
+
+    expect(playback.queue.length).toBe(2);
+
+    expect(apiMock.fetchTracksAPI).toHaveBeenCalledTimes(1);
+
+    playback.nextTrack(); // should not work
+
+    await nextTick();
+
+    expect(apiMock.fetchTracksAPI).toHaveBeenCalledTimes(1);
+  });
+
   test("all track plays in existing sequence due to the current tracks list order", async () => {});
-  test("when turn track that is last in loaded queue but current page is not last next page should be loaded (with current filters)", async () => {});
-  test("when user manually landing to tracks list and load more tracks queue should automatically update", async () => {});
+
+  // TODO
+  test("when turn track that is last in loaded queue but current page is not last next page should be loaded (with current filters)", async () => {
+    const tracks = useTracksStore();
+    const playback = usePlaybackStore();
+    const filters = useFiltersStore();
+
+    const notDefaultFilters: Omit<TracksFilters, "page"> = {
+      artist: "testArtistValue",
+      genre: "testGenreValue",
+      search: "testSearchValue",
+      order: "desc",
+      sort: "artist",
+    };
+
+    filters.artist = notDefaultFilters.artist!;
+    filters.genre = notDefaultFilters.genre!;
+    filters.search = notDefaultFilters.search!;
+    filters.order = notDefaultFilters.order!;
+    filters.sort = notDefaultFilters.sort!;
+
+    vi.resetAllMocks();
+    apiMock.fetchTracksAPI.mockReset();
+
+    apiMock.fetchTracksAPI
+      .mockResolvedValueOnce(
+        getMockedResponseObject({
+          totalPages: 2,
+          tracksLimit: 2,
+          totalTracks: 4,
+          tracksCount: 2,
+          currentPage: 1,
+        })
+      )
+      .mockResolvedValueOnce(
+        getMockedResponseObject({
+          totalPages: 2,
+          tracksLimit: 2,
+          totalTracks: 4,
+          tracksCount: 2,
+          currentPage: 2,
+        })
+      );
+
+    await tracks.fetchTracks({ page: 1 });
+
+    expect(apiMock.fetchTracksAPI).toHaveBeenCalledWith({ page: 1 });
+
+    expect(playback.queue.length).toBe(2);
+
+    playback.setPlayingTrackId("1");
+    expect(playback.hasNextTrack).toBe(true);
+    expect(playback.hasPrevTrack).toBe(false);
+
+    playback.nextTrack();
+
+    await nextTick();
+
+    expect(apiMock.fetchTracksAPI).toHaveBeenCalledTimes(2);
+    expect(apiMock.fetchTracksAPI).toHaveBeenNthCalledWith(2, {
+      ...notDefaultFilters,
+      page: 2,
+    });
+
+    playback.nextTrack(); // 3
+    playback.nextTrack(); // 4 (last track should not fetch again)
+
+    await nextTick();
+    expect(apiMock.fetchTracksAPI).toHaveBeenCalledTimes(2);
+  });
+
+  test("auto-preload when playing through pages (user lands and plays; watcher fetches more)", async () => {
+    const tracks = useTracksStore();
+    const playback = usePlaybackStore();
+
+    vi.resetAllMocks();
+    apiMock.fetchTracksAPI.mockReset();
+
+    const first = 2;
+    const second = 3;
+    const third = 1;
+
+    apiMock.fetchTracksAPI
+      .mockResolvedValueOnce(
+        getMockedResponseObject({
+          totalPages: 3,
+          tracksLimit: 3,
+          totalTracks: 6,
+          tracksCount: first,
+          currentPage: 1,
+          startFrom: 0,
+        })
+      )
+      .mockResolvedValueOnce(
+        getMockedResponseObject({
+          totalPages: 3,
+          tracksLimit: 3,
+          totalTracks: 6,
+          tracksCount: second,
+          currentPage: 2,
+          startFrom: first,
+        })
+      )
+      .mockResolvedValueOnce(
+        getMockedResponseObject({
+          totalPages: 3,
+          tracksLimit: 3,
+          totalTracks: 6,
+          tracksCount: third,
+          currentPage: 3,
+          startFrom: first + second,
+        })
+      )
+      .mockResolvedValue(
+        getMockedResponseObject({
+          totalPages: 3,
+          tracksLimit: 3,
+          totalTracks: 6,
+          tracksCount: 0,
+          currentPage: 3,
+          startFrom: first + second,
+        })
+      );
+
+    await tracks.fetchTracks({ page: 1 });
+
+    expect(playback.globalQueue.length).toBe(first);
+
+    playback.setPlayingTrackId("1");
+    playback.nextTrack(); // now at "2" (end of page 1) → triggers watcher
+
+    await vi.waitUntil(() => playback.globalQueue.length === first + second);
+
+    expect(playback.globalQueue.length).toBe(first + second);
+
+    playback.nextTrack(); // 3
+    playback.nextTrack(); // 4
+    playback.nextTrack(); // 5
+
+    await vi.waitUntil(
+      () => playback.globalQueue.length === first + second + third
+    );
+
+    expect(playback.globalQueue.length).toBe(first + second + third);
+  });
+
   // TODO:
   test("if tracks filters are changed current queue should not change, rather should stay with loaded data", async () => {});
   test("if tracks filters are changed and play last track with not last page of tracks, should be loaded next page of already played tracks not current filtered", async () => {});
@@ -238,21 +428,21 @@ describe("playback navigation with no loop enabled", () => {
     const tracks = useTracksStore();
     const playback = usePlaybackStore();
 
-    fillTracksToStore(2, tracks.createTrack);
+    await tracks.fetchTracks({ page: 1 });
 
     await nextTick();
 
     expect(playback.isShuffle).toBe(false);
 
-    playback.setPlayingTrackId("2");
+    playback.setPlayingTrackId("10");
 
-    expect(playback.playingTrackId).toBe("2");
+    expect(playback.playingTrackId).toBe("10");
     expect(playback.isPlaying).toBe(true);
     expect(playback.hasNextTrack).toBe(false);
 
     playback.nextTrack();
 
-    expect(playback.playingTrackId).toBe("2");
+    expect(playback.playingTrackId).toBe("10");
     expect(playback.isPlaying).toBe(false);
     // expect(playback.currentPlaybackTime).toBe(0);
   });
@@ -263,18 +453,17 @@ describe("playback navigation with loop playlist enabled (no shuffle)", () => {
     const tracks = useTracksStore();
     const playback = usePlaybackStore();
 
-    fillTracksToStore(2, tracks.createTrack);
+    await tracks.fetchTracks({ page: 1 });
 
     await nextTick();
 
     expect(playback.isShuffle).toBe(false);
 
-    playback.setPlayingTrackId("2");
+    playback.setPlayingTrackId("10");
     playback.changeLoopMode();
-
     expect(playback.loopingMode).toBe("loopPlaylist");
 
-    expect(playback.playingTrackId).toBe("2");
+    expect(playback.playingTrackId).toBe("10");
     expect(playback.isPlaying).toBe(true);
     expect(playback.hasNextTrack).toBe(false);
 
@@ -290,7 +479,7 @@ describe("playback navigation with loop playlist enabled (with shuffle)", () => 
     const tracks = useTracksStore();
     const playback = usePlaybackStore();
 
-    fillTracksToStore(10, tracks.createTrack);
+    await tracks.fetchTracks({ page: 1 });
 
     await nextTick();
 
