@@ -15,6 +15,7 @@ const {
   loopingMode,
   isShuffle,
   queueListVisible,
+  usedNavigationDirection,
 } = storeToRefs(playbackStore);
 
 const isInteractive = (el: Element | null) => {
@@ -64,42 +65,141 @@ onUnmounted(() => {
     capture: true,
   });
 });
+
+const currentTrackModalShow = ref(false);
+const { width } = useWindowSize();
+const isMobileScreen = computed(() => width.value < 600);
+
+const handleOpenTrackModal = () => {
+  if (!isMobileScreen.value || currentTrackModalShow.value) return;
+  currentTrackModalShow.value = true;
+};
+
+const handleCloseTrackModal = () => {
+  if (!isMobileScreen.value || !currentTrackModalShow.value) return;
+  currentTrackModalShow.value = false;
+};
+
+watch(isMobileScreen, () => {
+  if (!isMobileScreen.value) currentTrackModalShow.value = false;
+});
+
+const animationEnterTransitionValue = computed(() =>
+  usedNavigationDirection.value === "forward" ? "150%" : "-150%"
+);
+const animationLeaveTransitionValue = computed(() =>
+  usedNavigationDirection.value === "forward" ? "-150%" : "150%"
+);
 </script>
 
 <template>
   <div
     v-if="initialized && tracks.length && !isError && playingTrackId"
-    class="w-full grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] max-md:gap-x-2 gap-x-4 p-1 items-center select-none bg-transparent max-sm:gap-y-1 h-min relative max-md:pb-1.5"
+    class="w-full items-center select-none h-full overflow-y-auto overflow-x-hidden"
+    :class="[
+      currentTrackModalShow
+        ? 'fixed bottom-0 left-0 flex flex-col h-full bg-neutral-300 p-2 flex-1'
+        : 'grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] max-md:gap-x-2 gap-x-4 h-min relative max-sm:gap-y-1 max-md:pb-1.5 bg-transparent p-1',
+    ]"
+    @click="handleOpenTrackModal"
   >
-    <div class="flex gap-1">
-      <img
-        :src="currentTrackInfo?.coverImage || DEFAULT_TRACK_COVER"
-        class="size-12 object-cover rounded-md relative select-none"
-      />
+    <div
+      v-if="currentTrackModalShow"
+      class="flex gap-4 justify-between w-full items-center"
+    >
+      <BaseButton square transparent @click.stop="handleCloseTrackModal">
+        <Icon name="heroicons:chevron-down" class="size-5" />
+      </BaseButton>
+      <p>Current playing</p>
+      <NuxtLink
+        class="size-9 flex items-center justify-center"
+        :to="`/${currentTrackInfo?.slug}`"
+      >
+        <Icon name="material-symbols:more-horiz" class="size-5" />
+      </NuxtLink>
+    </div>
 
-      <div class="flex gap-4 items-center col-start-2">
+    <div
+      class="flex gap-1 flex-1"
+      :class="[
+        currentTrackModalShow
+          ? 'flex-col items-center w-full pt-5 flex-1 max-w-[400px] relative'
+          : 'overflow-hidden',
+      ]"
+    >
+      <!-- <Transition name="cover-image-animation"> -->
+      <!-- <div class="flex w-full" :key="currentTrackSourceUrl"> -->
+      <div
+        :class="[
+          currentTrackModalShow
+            ? 'min-h-[300px] h-full flex-1 w-full flex items-center relative'
+            : 'overflow-hidden',
+        ]"
+      >
+        <Transition name="cover-image-animation">
+          <img
+            :key="currentTrackSourceUrl"
+            :src="currentTrackInfo?.coverImage || DEFAULT_TRACK_COVER"
+            class="object-cover rounded-md relative select-none aspect-square max-h-full"
+            :class="[currentTrackModalShow ? 'min-w-full' : 'size-12']"
+          />
+        </Transition>
+      </div>
+
+      <div
+        :class="[
+          currentTrackModalShow ? 'w-full pt-5' : 'flex gap-4 items-center',
+        ]"
+      >
         <div class="flex gap-4">
           <div class="flex flex-col">
-            <p class="font-medium text-xs">
+            <p
+              :class="[
+                currentTrackModalShow
+                  ? 'font-medium text-xl'
+                  : 'font-medium text-xs',
+              ]"
+            >
               {{ currentTrackInfo?.title }}
             </p>
-            <p class="text-placeholder text-[12px]">
+            <p
+              class="text-placeholder"
+              :class="[
+                currentTrackModalShow ? 'font-medium text-sm' : 'text-[12px]',
+              ]"
+            >
               {{ currentTrackInfo?.artist }}
             </p>
           </div>
         </div>
       </div>
+      <!-- </div> -->
+      <!-- </Transition> -->
     </div>
-
-    <div class="flex flex-col max-xs:items-end max-xs:pr-4 items-center">
-      <div class="flex items-center max-md:gap-1">
+    <div
+      class="flex flex-col items-center"
+      :class="[
+        currentTrackModalShow
+          ? 'gap-8 w-full justify-center pt-5 max-w-[300px]'
+          : 'max-xs:pr-4 max-xs:items-end',
+      ]"
+    >
+      <div
+        class="flex items-center"
+        :class="[currentTrackModalShow ? 'order-[10] gap-5' : 'max-md:gap-1']"
+      >
         <BaseButton
           class="max-md:p-1 h-min"
           transparent
           square
           @click.stop="playbackStore.prevTrack"
         >
-          <Icon name="mage:previous-fill" class="max-md:size-3.5 size-4" />
+          <Icon
+            name="mage:previous-fill"
+            :class="[
+              currentTrackModalShow ? 'size-7' : 'max-md:size-3.5 size-4',
+            ]"
+          />
         </BaseButton>
         <BaseButton
           class="max-md:p-1 h-min"
@@ -110,9 +210,17 @@ onUnmounted(() => {
           <Icon
             v-if="isPlaying"
             name="mage:pause"
-            class="max-md:size-3.5 size-4"
+            :class="[
+              currentTrackModalShow ? 'size-7' : 'max-md:size-3.5 size-4',
+            ]"
           />
-          <Icon v-else name="mage:play" class="max-md:size-3.5 size-4" />
+          <Icon
+            v-else
+            name="mage:play"
+            :class="[
+              currentTrackModalShow ? 'size-7' : 'max-md:size-3.5 size-4',
+            ]"
+          />
         </BaseButton>
         <BaseButton
           class="max-md:p-1 h-min"
@@ -120,12 +228,21 @@ onUnmounted(() => {
           square
           @click.stop="playbackStore.nextTrack"
         >
-          <Icon name="mage:next-fill" class="max-md:size-3.5 size-4" />
+          <Icon
+            name="mage:next-fill"
+            :class="[
+              currentTrackModalShow ? 'size-7' : 'max-md:size-3.5 size-4',
+            ]"
+          />
         </BaseButton>
       </div>
 
       <BaseAudioPlay
-        class="max-md:absolute max-md:bottom-0 max-md:left-0"
+        :class="[
+          currentTrackModalShow
+            ? ''
+            : 'max-md:absolute max-md:bottom-0 max-md:left-0',
+        ]"
         :key="currentTrackSourceUrl"
         :track-source="currentTrackSourceUrl"
         :playing-track-id
@@ -137,7 +254,12 @@ onUnmounted(() => {
       />
     </div>
 
-    <div class="col-start-3 row-start-1 flex justify-end max-xs:hidden">
+    <div
+      class="flex w-full justify-end items-end"
+      :class="[
+        currentTrackModalShow ? '' : 'col-start-3 row-start-1 max-xs:hidden',
+      ]"
+    >
       <BaseButton @click.stop="playbackStore.changeLoopMode" transparent square>
         <div class="relative">
           <Icon
@@ -174,3 +296,21 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.cover-image-animation-enter-active {
+  transition: all 0.3s ease-out;
+}
+.cover-image-animation-leave-active {
+  transition: all 0.3s ease-out;
+  position: absolute;
+}
+
+.cover-image-animation-enter-from {
+  transform: translateX(v-bind(animationEnterTransitionValue));
+}
+
+.cover-image-animation-leave-to {
+  transform: translateX(v-bind(animationLeaveTransitionValue));
+}
+</style>

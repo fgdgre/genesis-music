@@ -26,6 +26,8 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     queueListVisible.value = !queueListVisible.value;
   };
 
+  const usedNavigationDirection = ref<"forward" | "backward" | null>(null);
+
   const globalQueue = ref<Track[]>([]);
 
   const updateQueueList = (
@@ -36,24 +38,16 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     let updatedQueue = [];
 
     if (!isShuffle) {
-      console.log(1);
       updatedQueue = cloneDeep(tracksWithAudioFiles) as Track[];
     } else {
-      console.log(2);
       const loadedTracks = tracksWithAudioFiles.filter(
         (t) => !globalQueue.find((i) => i.id === t.id)
       );
-      console.log(loadedTracks);
       const next = shuffleArray(cloneDeep(loadedTracks) as Track[]);
-      console.log(next);
       if (loadedTracks.length) {
         updatedQueue = [...globalQueue, ...next];
-        console.log(3);
-        console.log(updatedQueue);
       } else {
         updatedQueue = shuffleArray(cloneDeep(tracksWithAudioFiles) as Track[]);
-        console.log(4);
-        console.log(updatedQueue);
       }
     }
 
@@ -135,6 +129,8 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   const nextTrack = () => {
     if (globalPlayingTrackIndex.value === -1) return;
 
+    usedNavigationDirection.value = "forward";
+
     if (loopingMode.value === "loopTrack") {
       currentPlaybackTime.value = 0;
       isPlaying.value = false;
@@ -162,6 +158,8 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
 
   const prevTrack = () => {
     if (globalPlayingTrackIndex.value === -1) return;
+
+    usedNavigationDirection.value = "backward";
 
     if (loopingMode.value === "loopTrack") {
       if (currentPlaybackTime.value < 3) {
@@ -247,6 +245,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     currentTrackInfo: readonly(currentTrackInfo),
     queueListVisible: readonly(queueListVisible),
     globalQueue: readonly(globalQueue),
+    usedNavigationDirection: readonly(usedNavigationDirection),
     toggleQueueListVisibility,
     togglePlayTrack,
     hasNextPage,

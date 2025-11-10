@@ -19,8 +19,6 @@ const { search, order, artist, genre, sort, filtersEmpty } =
 
 const playbackStore = usePlaybackStore();
 
-const { playingTrackId, queueListVisible } = storeToRefs(playbackStore);
-
 const isCreateTrackModalOpen = ref(false);
 
 const fetchTracks = () => {
