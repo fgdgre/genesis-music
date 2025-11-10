@@ -11,9 +11,9 @@ vi.mock("@vueuse/core", async () => {
   };
 });
 
-vi.mock("@/utils/shuffleArray.ts");
-import shuffleArray from "@/utils/shuffleArray";
-const shuffleArrayMock = vi.mocked(shuffleArray);
+// vi.mock("@/utils/shuffleArray.ts");
+// import shuffleArray from "@/utils/shuffleArray";
+// const shuffleArrayMock = vi.mocked(shuffleArray);
 
 import { createPinia, setActivePinia } from "pinia";
 import { test, beforeEach, afterEach, describe, vi, expect } from "vitest";
@@ -26,7 +26,7 @@ const apiMock = vi.mocked(tracksApi);
 import { useTracksStore } from "@/stores/tracks";
 import { usePlaybackStore } from "@/stores/playback";
 import { useFiltersStore } from "@/stores/filters";
-import { cloneDeep } from "lodash";
+// import { cloneDeep } from "lodash";
 
 beforeEach(() => {
   setActivePinia(createPinia());
@@ -514,227 +514,227 @@ describe.skip("playback navigation with loop track enabled", () => {
   test('if current playback time is under 3s press to "back track" button should change loop mode to the "loop playlist" and turn prev track', async () => {});
 });
 
-describe.skip("playback shuffle", () => {
-  test("if toggle shuffle mode current track should not be changed and all other tracks should be shuffled and insert after current track", async () => {
-    const tracks = useTracksStore();
-    const playback = usePlaybackStore();
+// describe.skip("playback shuffle", () => {
+//   test("if toggle shuffle mode current track should not be changed and all other tracks should be shuffled and insert after current track", async () => {
+//     const tracks = useTracksStore();
+//     const playback = usePlaybackStore();
 
-    await tracks.fetchTracks({ page: 1 });
-    await nextTick();
+//     await tracks.fetchTracks({ page: 1 });
+//     await nextTick();
 
-    expect(playback.isShuffle).toBe(false);
-    expect(playback.queue).toHaveLength(10);
+//     expect(playback.isShuffle).toBe(false);
+//     expect(playback.queue).toHaveLength(10);
 
-    playback.setPlayingTrackId("1");
+//     playback.setPlayingTrackId("1");
 
-    shuffleArrayMock
-      .mockResolvedValueOnce([
-        {
-          title: "title10",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "10",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title1",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "1",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title2",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "2",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title3",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "3",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title4",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "4",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title5",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "5",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title6",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "6",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title7",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "7",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title8",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "8",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title9",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "9",
-          audioFile: "/test-audio-file.mp3",
-        },
-      ] as Track[])
-      .mockResolvedValueOnce([
-        {
-          title: "title1",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "1",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title2",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "2",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title3",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "3",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title4",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "4",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title5",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "5",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title6",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "6",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title7",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "7",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title8",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "8",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title9",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "9",
-          audioFile: "/test-audio-file.mp3",
-        },
-        {
-          title: "title10",
-          album: "album",
-          artist: "artist",
-          genres: ["Hip-Hop"],
-          id: "10",
-          audioFile: "/test-audio-file.mp3",
-        },
-      ] as Track[]);
+//     shuffleArrayMock
+//       .mockResolvedValueOnce([
+//         {
+//           title: "title10",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "10",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title1",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "1",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title2",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "2",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title3",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "3",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title4",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "4",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title5",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "5",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title6",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "6",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title7",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "7",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title8",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "8",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title9",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "9",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//       ] as Track[])
+//       .mockResolvedValueOnce([
+//         {
+//           title: "title1",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "1",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title2",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "2",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title3",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "3",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title4",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "4",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title5",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "5",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title6",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "6",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title7",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "7",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title8",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "8",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title9",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "9",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//         {
+//           title: "title10",
+//           album: "album",
+//           artist: "artist",
+//           genres: ["Hip-Hop"],
+//           id: "10",
+//           audioFile: "/test-audio-file.mp3",
+//         },
+//       ] as Track[]);
 
-    playback.toggleShuffle();
-    expect(playback.queue.map((i) => i.id)).toMatchInlineSnapshot();
-    const initialShuffle = playback.queue.map((i) => i.id);
+//     playback.toggleShuffle();
+//     expect(playback.queue.map((i) => i.id)).toMatchInlineSnapshot();
+//     const initialShuffle = playback.queue.map((i) => i.id);
 
-    playback.toggleShuffle(); // sequentonal order again
-    playback.toggleShuffle(); // shuffle again
+//     playback.toggleShuffle(); // sequentonal order again
+//     playback.toggleShuffle(); // shuffle again
 
-    expect(playback.queue.map((i) => i.id)).toMatchInlineSnapshot();
+//     expect(playback.queue.map((i) => i.id)).toMatchInlineSnapshot();
 
-    expect(playback.queue[0]?.id).toBe("1");
-    expect(playback.queue.map((i) => i.id)).not.toEqual(initialShuffle);
+//     expect(playback.queue[0]?.id).toBe("1");
+//     expect(playback.queue.map((i) => i.id)).not.toEqual(initialShuffle);
 
-    // playback.toggleShuffle(); // sequentonal order again
-    // playback.toggleShuffle(); // shuffle again
+//     // playback.toggleShuffle(); // sequentonal order again
+//     // playback.toggleShuffle(); // shuffle again
 
-    // expect(playback.queue[0]?.id).toBe("1");
-    // expect(playback.queue.map((i) => i.id)).not.toBe(initialShuffle);
-  });
+//     // expect(playback.queue[0]?.id).toBe("1");
+//     // expect(playback.queue.map((i) => i.id)).not.toBe(initialShuffle);
+//   });
 
-  test("if no current track toggle shuffle mode current track should not be changed and all other tracks should not preserve first track", async () => {
-    const tracks = useTracksStore();
-    const playback = usePlaybackStore();
+//   test("if no current track toggle shuffle mode current track should not be changed and all other tracks should not preserve first track", async () => {
+//     const tracks = useTracksStore();
+//     const playback = usePlaybackStore();
 
-    await tracks.fetchTracks({ page: 1 });
-    await nextTick();
+//     await tracks.fetchTracks({ page: 1 });
+//     await nextTick();
 
-    expect(playback.isShuffle).toBe(false);
-    expect(playback.queue).toHaveLength(10);
+//     expect(playback.isShuffle).toBe(false);
+//     expect(playback.queue).toHaveLength(10);
 
-    playback.toggleShuffle();
-    const initialShuffle = playback.queue.map((i) => i.id);
+//     playback.toggleShuffle();
+//     const initialShuffle = playback.queue.map((i) => i.id);
 
-    playback.toggleShuffle(); // sequentonal order again
-    playback.toggleShuffle(); // shuffle again
+//     playback.toggleShuffle(); // sequentonal order again
+//     playback.toggleShuffle(); // shuffle again
 
-    expect(playback.queue[0]?.id).not.toBe(initialShuffle[0]);
-    expect(playback.queue.map((i) => i.id)).not.toBe(initialShuffle);
+//     expect(playback.queue[0]?.id).not.toBe(initialShuffle[0]);
+//     expect(playback.queue.map((i) => i.id)).not.toBe(initialShuffle);
 
-    playback.toggleShuffle(); // sequentonal order again
-    playback.toggleShuffle(); // shuffle again
+//     playback.toggleShuffle(); // sequentonal order again
+//     playback.toggleShuffle(); // shuffle again
 
-    expect(playback.queue[0]?.id).not.toBe(initialShuffle[0]);
-    expect(playback.queue.map((i) => i.id)).not.toBe(initialShuffle);
-  });
-});
+//     expect(playback.queue[0]?.id).not.toBe(initialShuffle[0]);
+//     expect(playback.queue.map((i) => i.id)).not.toBe(initialShuffle);
+//   });
+// });
