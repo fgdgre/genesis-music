@@ -34,17 +34,26 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     tracksWithAudioFiles: Track[] | DeepReadonly<Track[]>
   ): Track[] => {
     let updatedQueue = [];
+
     if (!isShuffle) {
+      console.log(1);
       updatedQueue = cloneDeep(tracksWithAudioFiles) as Track[];
     } else {
+      console.log(2);
       const loadedTracks = tracksWithAudioFiles.filter(
         (t) => !globalQueue.find((i) => i.id === t.id)
       );
+      console.log(loadedTracks);
       const next = shuffleArray(cloneDeep(loadedTracks) as Track[]);
+      console.log(next);
       if (loadedTracks.length) {
         updatedQueue = [...globalQueue, ...next];
+        console.log(3);
+        console.log(updatedQueue);
       } else {
         updatedQueue = shuffleArray(cloneDeep(tracksWithAudioFiles) as Track[]);
+        console.log(4);
+        console.log(updatedQueue);
       }
     }
 
@@ -75,9 +84,10 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     }
   });
 
-  const globalPlayingTrackIndex = computed(() =>
-    globalQueue.value.findIndex((t) => t.id === playingTrackId.value)
-  );
+  const globalPlayingTrackIndex = computed(() => {
+    console.log(globalQueue.value);
+    return globalQueue.value?.findIndex((t) => t.id === playingTrackId.value);
+  });
 
   const currentTrackInfo = computed(
     () => globalQueue.value[globalPlayingTrackIndex.value]
