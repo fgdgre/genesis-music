@@ -24,20 +24,6 @@ const handleTogglePlay = (trackId: string) => {
 
 const { width } = useWindowSize();
 const isMobileScreen = computed(() => width.value < DESKTOP_LAYOUT_PIXELS);
-
-const animationEnterTransitionValue = computed(() =>
-  queueListVisible.value ? "100%" : "0"
-);
-const animationLeaveTransitionValue = computed(() =>
-  queueListVisible.value ? "0" : "100%"
-);
-
-const opacityAnimationEnterTransitionValue = computed(() =>
-  queueListVisible.value ? "1" : "0"
-);
-const opacityAnimationLeaveTransitionValue = computed(() =>
-  queueListVisible.value ? "0" : "1"
-);
 </script>
 
 <template>

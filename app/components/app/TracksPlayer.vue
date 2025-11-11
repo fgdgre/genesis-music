@@ -127,8 +127,6 @@ const animationLeaveTransitionValue = computed(() =>
           : 'overflow-hidden',
       ]"
     >
-      <!-- <Transition name="cover-image-animation"> -->
-      <!-- <div class="flex w-full" :key="currentTrackSourceUrl"> -->
       <div
         :class="[
           currentTrackModalShow
@@ -177,8 +175,6 @@ const animationLeaveTransitionValue = computed(() =>
           </div>
         </div>
       </div>
-      <!-- </div> -->
-      <!-- </Transition> -->
     </div>
     <div
       class="flex flex-col items-center"
