@@ -98,7 +98,7 @@ const animationLeaveTransitionValue = computed(() =>
     class="w-full items-center select-none h-full"
     :class="[
       currentTrackModalShow
-        ? 'fixed bottom-0 left-0 flex flex-col h-full bg-neutral-300 p-1 pb-1.5 flex-1 overflow-y-auto overflow-x-hidden'
+        ? 'fixed bottom-0 left-0 flex flex-col h-full bg-neutral-300 p-1 pb-1.5 flex-1 max-h-[100svh]'
         : 'grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] max-md:gap-x-2 gap-x-4 h-min relative max-sm:gap-y-1 max-md:pb-1.5 bg-transparent p-1',
     ]"
     @click="handleOpenTrackModal"
@@ -132,7 +132,7 @@ const animationLeaveTransitionValue = computed(() =>
       <div
         :class="[
           currentTrackModalShow
-            ? 'min-h-[300px] h-full flex-1 w-full flex items-center relative'
+            ? 'h-full flex-1 w-full flex items-center justify-center relative'
             : 'overflow-hidden',
         ]"
       >
@@ -140,8 +140,12 @@ const animationLeaveTransitionValue = computed(() =>
           <img
             :key="currentTrackSourceUrl"
             :src="currentTrackInfo?.coverImage || DEFAULT_TRACK_COVER"
-            class="object-cover rounded-md relative select-none aspect-square max-h-full"
-            :class="[currentTrackModalShow ? 'min-w-full' : 'size-12']"
+            class="object-contain rounded-md relative select-none aspect-square"
+            :class="[
+              currentTrackModalShow
+                ? 'max-w-full max-h-full h-min w-full'
+                : 'size-12',
+            ]"
           />
         </Transition>
       </div>

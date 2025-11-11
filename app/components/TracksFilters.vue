@@ -26,14 +26,14 @@ const orderSelectItems = [
 
 <template>
   <div class="flex gap-4 max-w-full w-full overflow-hidden">
-    <div class="flex gap-4 items-end w-full overflow-auto pb-2">
+    <div class="flex gap-4 items-end overflow-auto pb-2">
       <BaseInput
         with-debounce
         label="Search"
         placeholder="Title, Artist, Album, Date"
         v-model.trim="search"
         data-testid="search-input"
-        class="min-w-max"
+        class="w-max"
       />
 
       <GenresSelect
