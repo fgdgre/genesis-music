@@ -123,7 +123,7 @@ const animationLeaveTransitionValue = computed(() =>
       class="flex gap-1 flex-1"
       :class="[
         currentTrackModalShow
-          ? 'flex-col items-center w-full pt-5 flex-1 max-w-[400px] relative'
+          ? 'flex-col items-center w-full pt-5 flex-1 max-w-[400px] relative overflow-hidden'
           : 'overflow-hidden',
       ]"
     >
@@ -132,8 +132,8 @@ const animationLeaveTransitionValue = computed(() =>
       <div
         :class="[
           currentTrackModalShow
-            ? 'h-full flex-1 w-full flex items-center justify-center relative'
-            : 'overflow-hidden',
+            ? 'h-full flex-1 w-full flex items-center justify-center relative overflow-hidden'
+            : 'overflow-hidden relative',
         ]"
       >
         <Transition name="cover-image-animation">
@@ -291,10 +291,13 @@ const animationLeaveTransitionValue = computed(() =>
           @click.stop="playbackStore.toggleShuffle"
         />
       </BaseButton>
-      <BaseButton transparent square @click="">
+      <BaseButton
+        transparent
+        square
+        @click.stop="playbackStore.toggleQueueListVisibility"
+      >
         <Icon
           name="material-symbols-light:queue-music-rounded"
-          @click.stop="playbackStore.toggleQueueListVisibility"
           class="size-5"
           :class="[queueListVisible ? 'text-orange-400' : 'text-black']"
         />
