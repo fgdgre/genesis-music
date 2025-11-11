@@ -90,6 +90,11 @@ const animationEnterTransitionValue = computed(() =>
 const animationLeaveTransitionValue = computed(() =>
   usedNavigationDirection.value === "forward" ? "-150%" : "150%"
 );
+
+const handleNavigate = () => {
+  handleCloseTrackModal();
+  navigateTo(`/${currentTrackInfo.value?.slug}`);
+};
 </script>
 
 <template>
@@ -111,12 +116,9 @@ const animationLeaveTransitionValue = computed(() =>
         <Icon name="heroicons:chevron-down" class="size-5" />
       </BaseButton>
       <p>Current playing</p>
-      <NuxtLink
-        class="size-9 flex items-center justify-center"
-        :to="`/${currentTrackInfo?.slug}`"
-      >
+      <BaseButton @click.stop="handleNavigate" transparent>
         <Icon name="material-symbols:more-horiz" class="size-5" />
-      </NuxtLink>
+      </BaseButton>
     </div>
 
     <div
@@ -254,6 +256,7 @@ const animationLeaveTransitionValue = computed(() =>
       />
     </div>
 
+    <!-- PlaybackActions -->
     <div
       class="flex w-full justify-end"
       :class="[

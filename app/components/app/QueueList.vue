@@ -10,9 +10,15 @@ defineOptions({
 const playbackStore = usePlaybackStore();
 const tracksStore = useTracksStore();
 
-const { queueListVisible, queue, playingTrackId, isPlaying } =
-  storeToRefs(playbackStore);
-const { tracks, initialized, isError } = storeToRefs(tracksStore);
+const {
+  queueListVisible,
+  queue,
+  playingTrackId,
+  isPlaying,
+  isShuffle,
+  loopingMode,
+} = storeToRefs(playbackStore);
+const { initialized, isError } = storeToRefs(tracksStore);
 
 const handleTogglePlay = (trackId: string) => {
   if (trackId === playingTrackId.value) {
@@ -147,6 +153,40 @@ const isMobileScreen = computed(() => width.value < DESKTOP_LAYOUT_PIXELS);
             </div>
           </li>
         </TransitionGroup>
+        <!-- PlaybackActions -->
+        <div v-if="isMobileScreen" class="flex w-full">
+          <BaseButton
+            @click.stop="playbackStore.changeLoopMode"
+            transparent
+            square
+            class="w-full"
+          >
+            <div class="relative">
+              <Icon
+                name="heroicons:arrow-path-rounded-square"
+                class="fill-black size-5"
+                :class="[
+                  (loopingMode === 'loopPlaylist' ||
+                    loopingMode === 'loopTrack') &&
+                    'text-orange-400',
+                ]"
+              />
+              <div
+                v-if="loopingMode === 'loopTrack'"
+                class="absolute top-0 right-0 translate-x-[50%] -translate-y-[50%] text-orange-400"
+              >
+                1
+              </div>
+            </div>
+          </BaseButton>
+          <BaseButton transparent square class="w-full">
+            <Icon
+              name="heroicons:arrows-right-left-solid"
+              :class="[isShuffle ? 'text-orange-400' : 'text-black']"
+              @click.stop="playbackStore.toggleShuffle"
+            />
+          </BaseButton>
+        </div>
       </div>
     </Teleport>
   </Transition>
@@ -171,7 +211,7 @@ const isMobileScreen = computed(() => width.value < DESKTOP_LAYOUT_PIXELS);
 /* slide-up */
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .slide-up-enter-from,

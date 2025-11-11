@@ -78,10 +78,9 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     }
   });
 
-  const globalPlayingTrackIndex = computed(() => {
-    console.log(globalQueue.value);
-    return globalQueue.value?.findIndex((t) => t.id === playingTrackId.value);
-  });
+  const globalPlayingTrackIndex = computed(() =>
+    globalQueue.value?.findIndex((t) => t.id === playingTrackId.value)
+  );
 
   const currentTrackInfo = computed(
     () => globalQueue.value[globalPlayingTrackIndex.value]
