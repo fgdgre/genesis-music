@@ -98,8 +98,8 @@ const animationLeaveTransitionValue = computed(() =>
     class="w-full items-center select-none h-full"
     :class="[
       currentTrackModalShow
-        ? 'fixed bottom-0 left-0 flex flex-col h-full bg-neutral-300 p-1 pb-1.5 flex-1 max-h-[100svh]'
-        : 'grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] max-md:gap-x-2 gap-x-4 h-min relative max-sm:gap-y-1 max-md:pb-1.5 bg-transparent p-1',
+        ? 'fixed bottom-0 left-0 flex flex-col h-full bg-neutral-300 p-1 pb-1.5 flex-1 max-h-[100svh] animation-slide-up'
+        : 'grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] max-md:gap-x-2 gap-x-4 h-min relative max-sm:gap-y-1 max-md:pb-1.5 bg-transparent p-1 animation-slide-down',
     ]"
     @click="handleOpenTrackModal"
   >
@@ -321,5 +321,33 @@ const animationLeaveTransitionValue = computed(() =>
 
 .cover-image-animation-leave-to {
   transform: translateX(v-bind(animationLeaveTransitionValue));
+}
+
+.animation-slide-up {
+  animation-name: slide-up;
+  animation-duration: 0.3s;
+}
+
+.animation-slide-down {
+  animation-name: slide-down;
+  animation-duration: 0.2s;
+}
+
+@keyframes slide-up {
+  from {
+    height: 58px;
+  }
+  to {
+    height: 100svh;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    height: 100svh;
+  }
+  to {
+    height: 58px;
+  }
 }
 </style>
