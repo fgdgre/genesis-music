@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DEFAULT_TRACK_COVER } from "~/consts";
+import { DEFAULT_TRACK_COVER, DESKTOP_LAYOUT_PIXELS } from "~/consts";
 
 const tracksStore = useTracksStore();
 const { initialized, tracks, isError } = storeToRefs(tracksStore);
@@ -68,7 +68,7 @@ onUnmounted(() => {
 
 const currentTrackModalShow = ref(false);
 const { width } = useWindowSize();
-const isMobileScreen = computed(() => width.value < 600);
+const isMobileScreen = computed(() => width.value < DESKTOP_LAYOUT_PIXELS);
 
 const handleOpenTrackModal = () => {
   if (!isMobileScreen.value || currentTrackModalShow.value) return;
@@ -95,10 +95,10 @@ const animationLeaveTransitionValue = computed(() =>
 <template>
   <div
     v-if="initialized && tracks.length && !isError && playingTrackId"
-    class="w-full items-center select-none h-full overflow-y-auto overflow-x-hidden"
+    class="w-full items-center select-none h-full"
     :class="[
       currentTrackModalShow
-        ? 'fixed bottom-0 left-0 flex flex-col h-full bg-neutral-300 p-2 flex-1'
+        ? 'fixed bottom-0 left-0 flex flex-col h-full bg-neutral-300 p-1 pb-1.5 flex-1 overflow-y-auto overflow-x-hidden'
         : 'grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] max-md:gap-x-2 gap-x-4 h-min relative max-sm:gap-y-1 max-md:pb-1.5 bg-transparent p-1',
     ]"
     @click="handleOpenTrackModal"
@@ -255,9 +255,11 @@ const animationLeaveTransitionValue = computed(() =>
     </div>
 
     <div
-      class="flex w-full justify-end items-end"
+      class="flex w-full justify-end"
       :class="[
-        currentTrackModalShow ? '' : 'col-start-3 row-start-1 max-xs:hidden',
+        currentTrackModalShow
+          ? 'min-h-[48px] items-center'
+          : 'col-start-3 row-start-1 max-xs:hidden items-end',
       ]"
     >
       <BaseButton @click.stop="playbackStore.changeLoopMode" transparent square>

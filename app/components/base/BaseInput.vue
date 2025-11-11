@@ -73,7 +73,7 @@ onMounted(() => {
       :aria-describedby="errorMessage"
       data-control
       v-bind="$attrs"
-      class="px-3 py-1 bg-transparent rounded-md border text-base md:text-sm font-normal w-full h-9 input-shadow focus-visible:outline-none focus-visible:ring"
+      class="px-3 py-1 bg-transparent rounded-md border text-sm font-normal w-full h-9 input-shadow focus-visible:outline-none focus-visible:ring"
       :class="[
         (disabled || isLoading) && 'cursor-not-allowed select-none',
         Boolean(errorMessage)

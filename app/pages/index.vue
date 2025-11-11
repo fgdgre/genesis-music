@@ -57,6 +57,15 @@ watch(
 
 <template>
   <main v-if="initialized" class="flex flex-col w-full overflow-hidden">
+    <Teleport defer to="#header-action">
+      <BaseButton
+        @click="isCreateTrackModalOpen = true"
+        data-testid="create-track-button"
+      >
+        Add track
+      </BaseButton>
+    </Teleport>
+
     <AppErrorPage
       v-if="initializedWithEmptyTracks && isError"
       :error-message="errorMessage"
@@ -74,17 +83,10 @@ watch(
       class="flex flex-1 max-h-full translate-all w-full overflow-hidden gap-2"
     >
       <div
-        class="flex flex-col gap-4 flex-1 max-h-full bg-neutral-200 rounded-md"
+        class="flex flex-col gap-4 flex-1 max-h-full bg-neutral-200 rounded-md overflow-hidden"
       >
-        <div class="flex gap-4 justify-between items-end px-4 pt-4">
+        <div class="flex items-end px-4 pt-4 w-full overflow-hidden">
           <TracksFilters />
-
-          <BaseButton
-            @click="isCreateTrackModalOpen = true"
-            data-testid="create-track-button"
-          >
-            Add track
-          </BaseButton>
         </div>
         <div
           v-if="

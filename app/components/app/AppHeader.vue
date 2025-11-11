@@ -6,5 +6,9 @@ const { isLoading } = storeToRefs(tracksStore);
 </script>
 
 <template>
-  <PureAppHeader :title="(route.meta.title as string)" :is-loading />
+  <PureAppHeader :title="(route.meta.title as string)" :is-loading>
+    <template #action>
+      <div id="header-action"></div>
+    </template>
+  </PureAppHeader>
 </template>

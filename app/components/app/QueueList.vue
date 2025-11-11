@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DEFAULT_TRACK_COVER } from "~/consts";
+import { DEFAULT_TRACK_COVER, DESKTOP_LAYOUT_PIXELS } from "~/consts";
 import BaseButton from "../base/BaseButton.vue";
 import { TransitionGroup } from "vue";
 
@@ -23,7 +23,7 @@ const handleTogglePlay = (trackId: string) => {
 };
 
 const { width } = useWindowSize();
-const isMobileScreen = computed(() => width.value < 600);
+const isMobileScreen = computed(() => width.value < DESKTOP_LAYOUT_PIXELS);
 </script>
 
 <template>
@@ -44,7 +44,7 @@ const isMobileScreen = computed(() => width.value < 600);
         isMobileScreen ? 'fixed left-0 bottom-0 w-full h-[75%] m-0! z-40' : '',
       ]"
     >
-      <div class="flex justify-between gap-4 px-2 pt-1">
+      <div class="flex justify-between gap-4 px-2 pt-2">
         <p class="text-xl">Queue</p>
 
         <BaseButton

@@ -3,6 +3,7 @@ import type { Track } from "@/types";
 import { DEFAULT_TRACK_COVER } from "@/consts";
 import { storeToRefs } from "pinia";
 import type { DeepReadonly } from "vue";
+import TracksFilters from "./TracksFilters.vue";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -136,30 +137,41 @@ const actionsMenuRef = useTemplateRef("actionsMenuRef");
       />
     </div>
 
-    <div class="flex gap-4 items-center col-start-2 row-start-1">
-      <div class="flex gap-4 w-full items-start">
-        <div class="flex flex-col">
-          <p
-            class="font-medium text-sm"
-            :data-testid="`track-item-${track.id}-title`"
-            :class="[playingTrackId === track.id && 'text-primary']"
+    <div class="flex items-center col-start-2 row-start-1 overflow-hidden">
+      <div class="flex gap-4 w-full items-start overflow-hidden">
+        <div class="flex flex-col overflow-hidden">
+          <NuxtLink
+            class="flex gap-2 overflow-hidden"
+            :to="track.slug"
+            @click.stop
           >
-            {{ track.title }}
-          </p>
-          <p class="text-placeholder text-[12px]">
+            <p
+              class="font-medium text-sm hover:underline text-nowrap"
+              :data-testid="`track-item-${track.id}-title`"
+              :class="[playingTrackId === track.id && 'text-primary']"
+            >
+              {{ track.title }}
+            </p>
+            <div
+              class="max-w-full overflow-hidden text-xs pt-1 hover:underline text-nowrap w-full truncate"
+            >
+              Genres:
+              <span class="truncate" v-for="(genre, index) in track.genres">
+                {{ `${genre}${index !== track.genres.length - 1 ? ", " : ""}` }}
+              </span>
+            </div>
+          </NuxtLink>
+          <NuxtLink
+            class="text-placeholder text-[12px] hover:underline text-nowrap w-full truncate"
+            :to="track.slug"
+            @click.stop
+          >
             <span :data-testid="`track-item-${track.id}-artist`">
               {{ track.artist }}
             </span>
             -
             <span class="text-[12px]">{{ track.album }}</span>
-          </p>
-        </div>
-
-        <div class="max-w-full overflow-hidden text-xs pt-1">
-          Genres:
-          <span class="truncate" v-for="(genre, index) in track.genres">
-            {{ `${genre}${index !== track.genres.length - 1 ? ", " : ""}` }}
-          </span>
+          </NuxtLink>
         </div>
       </div>
 

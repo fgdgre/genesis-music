@@ -9,8 +9,11 @@ defineProps<{
 
 <template>
   <div class="min-h-15 p-4 relative">
-    <h1 class="text-xl" data-testid="tracks-header">{{ title }}</h1>
+    <div class="flex items-center justify-between">
+      <h1 class="text-xl" data-testid="tracks-header">{{ title }}</h1>
 
+      <slot name="action" />
+    </div>
     <BaseProgress
       v-if="isLoading"
       infinite
