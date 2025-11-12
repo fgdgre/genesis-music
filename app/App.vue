@@ -28,7 +28,10 @@ const isTracksPlayerShow = computed(
     <div class="flex flex-col flex-1 overflow-hidden">
       <AppHeader />
 
-      <div class="grid grid-cols-[1fr_auto] w-full overflow-hidden flex-1 p-2">
+      <div
+        class="grid grid-cols-[1fr_auto] w-full overflow-hidden flex-1 p-2"
+        :class="[isTracksPlayerShow && 'pb-[66px]']"
+      >
         <NuxtPage />
 
         <QueueList class="ml-2" />

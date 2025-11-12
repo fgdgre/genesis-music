@@ -67,6 +67,8 @@ onUnmounted(() => {
 });
 
 const currentTrackModalShow = ref(false);
+const isAnimationEnd = ref(false);
+
 const { width } = useWindowSize();
 const isMobileScreen = computed(() => width.value < DESKTOP_LAYOUT_PIXELS);
 
@@ -107,16 +109,32 @@ const handleNavigate = () => {
   handleCloseTrackModal();
   navigateTo(`/${currentTrackInfo.value?.slug}`);
 };
+
+onMounted(() => {
+  const playerWrapper = document.querySelector("#player-wrapper");
+
+  if (!playerWrapper) return;
+
+  playerWrapper.addEventListener("animationstart", () => {
+    isAnimationEnd.value = false;
+  });
+  playerWrapper.addEventListener("animationend", () => {
+    isAnimationEnd.value = true;
+  });
+});
 </script>
 
 <template>
+  <!-- grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] -->
   <div
-    class="w-full items-center select-none h-full"
+    class="fixed bottom-0 left-0 flex w-full items-center select-none p-1 max-md:pb-1.5"
     :class="[
-      currentTrackModalShow
-        ? 'fixed bottom-0 left-0 flex flex-col h-full bg-neutral-300 p-1 pb-1.5 flex-1 max-h-[100svh] animation-slide-up'
-        : 'grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] max-md:gap-x-2 gap-x-4 h-min relative max-sm:gap-y-1 max-md:pb-1.5 bg-transparent p-1 animation-slide-down',
+      currentTrackModalShow ? 'animation-slide-up' : ' animation-slide-down',
+      currentTrackModalShow || (!isAnimationEnd && !currentTrackModalShow)
+        ? 'flex-col h-full bg-neutral-300'
+        : 'max-md:gap-x-2 gap-x-4 max-sm:gap-y-1 h-[58px]',
     ]"
+    id="player-wrapper"
     @click="handleOpenTrackModal"
   >
     <div
@@ -135,14 +153,14 @@ const handleNavigate = () => {
     <div
       class="flex gap-1 flex-1"
       :class="[
-        currentTrackModalShow
+        currentTrackModalShow || (!currentTrackModalShow && !isAnimationEnd)
           ? 'flex-col items-center w-full pt-5 flex-1 max-w-[400px] relative overflow-hidden'
           : 'overflow-hidden',
       ]"
     >
       <div
         :class="[
-          currentTrackModalShow
+          currentTrackModalShow || (!currentTrackModalShow && !isAnimationEnd)
             ? 'h-full flex-1 w-full flex items-center justify-center relative overflow-hidden'
             : 'overflow-hidden relative',
         ]"
@@ -153,7 +171,8 @@ const handleNavigate = () => {
             :src="currentTrackInfo?.coverImage || DEFAULT_TRACK_COVER"
             class="object-contain rounded-md relative select-none aspect-square"
             :class="[
-              currentTrackModalShow
+              currentTrackModalShow ||
+              (!currentTrackModalShow && !isAnimationEnd)
                 ? 'max-w-full max-h-full h-min w-full'
                 : 'size-12',
             ]"
@@ -163,14 +182,17 @@ const handleNavigate = () => {
 
       <div
         :class="[
-          currentTrackModalShow ? 'w-full pt-5' : 'flex gap-4 items-center',
+          currentTrackModalShow || (!currentTrackModalShow && !isAnimationEnd)
+            ? 'w-full pt-5'
+            : 'flex gap-4 items-center',
         ]"
       >
         <div class="flex gap-4">
           <div class="flex flex-col">
             <p
               :class="[
-                currentTrackModalShow
+                currentTrackModalShow ||
+                (!currentTrackModalShow && !isAnimationEnd)
                   ? 'font-medium text-xl'
                   : 'font-medium text-xs',
               ]"
@@ -180,7 +202,10 @@ const handleNavigate = () => {
             <p
               class="text-placeholder"
               :class="[
-                currentTrackModalShow ? 'font-medium text-sm' : 'text-[12px]',
+                currentTrackModalShow ||
+                (!currentTrackModalShow && !isAnimationEnd)
+                  ? 'font-medium text-sm'
+                  : 'text-[12px]',
               ]"
             >
               {{ currentTrackInfo?.artist }}
@@ -192,14 +217,18 @@ const handleNavigate = () => {
     <div
       class="flex flex-col items-center"
       :class="[
-        currentTrackModalShow
+        currentTrackModalShow || (!currentTrackModalShow && !isAnimationEnd)
           ? 'gap-8 w-full justify-center pt-5 max-w-[300px]'
           : 'max-xs:pr-4 max-xs:items-end',
       ]"
     >
       <div
         class="flex items-center"
-        :class="[currentTrackModalShow ? 'order-[10] gap-5' : 'max-md:gap-1']"
+        :class="[
+          currentTrackModalShow || (!currentTrackModalShow && !isAnimationEnd)
+            ? 'order-[10] gap-5'
+            : 'max-md:gap-1',
+        ]"
       >
         <BaseButton
           class="max-md:p-1 h-min"
@@ -210,7 +239,10 @@ const handleNavigate = () => {
           <Icon
             name="mage:previous-fill"
             :class="[
-              currentTrackModalShow ? 'size-7' : 'max-md:size-3.5 size-4',
+              currentTrackModalShow ||
+              (!currentTrackModalShow && !isAnimationEnd)
+                ? 'size-7'
+                : 'max-md:size-3.5 size-4',
             ]"
           />
         </BaseButton>
@@ -224,14 +256,20 @@ const handleNavigate = () => {
             v-if="isPlaying"
             name="mage:pause"
             :class="[
-              currentTrackModalShow ? 'size-7' : 'max-md:size-3.5 size-4',
+              currentTrackModalShow ||
+              (!currentTrackModalShow && !isAnimationEnd)
+                ? 'size-7'
+                : 'max-md:size-3.5 size-4',
             ]"
           />
           <Icon
             v-else
             name="mage:play"
             :class="[
-              currentTrackModalShow ? 'size-7' : 'max-md:size-3.5 size-4',
+              currentTrackModalShow ||
+              (!currentTrackModalShow && !isAnimationEnd)
+                ? 'size-7'
+                : 'max-md:size-3.5 size-4',
             ]"
           />
         </BaseButton>
@@ -244,7 +282,10 @@ const handleNavigate = () => {
           <Icon
             name="mage:next-fill"
             :class="[
-              currentTrackModalShow ? 'size-7' : 'max-md:size-3.5 size-4',
+              currentTrackModalShow ||
+              (!currentTrackModalShow && !isAnimationEnd)
+                ? 'size-7'
+                : 'max-md:size-3.5 size-4',
             ]"
           />
         </BaseButton>
@@ -252,7 +293,7 @@ const handleNavigate = () => {
 
       <BaseAudioPlay
         :class="[
-          currentTrackModalShow
+          currentTrackModalShow || (!currentTrackModalShow && !isAnimationEnd)
             ? ''
             : 'max-md:absolute max-md:bottom-0 max-md:left-0',
         ]"
@@ -269,10 +310,10 @@ const handleNavigate = () => {
 
     <!-- PlaybackActions -->
     <div
-      class="flex w-full justify-end"
+      class="flex justify-end"
       :class="[
-        currentTrackModalShow
-          ? 'min-h-[48px] items-center'
+        currentTrackModalShow || (!currentTrackModalShow && !isAnimationEnd)
+          ? 'min-h-[48px] items-center w-full'
           : 'col-start-3 row-start-1 max-xs:hidden items-end',
       ]"
     >
@@ -340,24 +381,24 @@ const handleNavigate = () => {
 
 .animation-slide-down {
   animation-name: slide-down;
-  animation-duration: 0.2s;
+  animation-duration: 0.3s;
 }
 
 @keyframes slide-up {
   from {
-    height: 58px;
+    transform: translateY(calc(100% - 58px));
   }
   to {
-    height: 100svh;
+    transform: translateY(0%);
   }
 }
 
 @keyframes slide-down {
   from {
-    height: 100svh;
+    transform: translateY(0%);
   }
   to {
-    height: 58px;
+    transform: translateY(calc(100% - 58px));
   }
 }
 </style>
