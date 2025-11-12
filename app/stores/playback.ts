@@ -123,7 +123,6 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     isPlaying.value = true;
 
     if (usedNavigationDirection.value == null) {
-      s;
       usedNavigationDirection.value = "forward";
     }
   };
