@@ -199,6 +199,8 @@ onMounted(() => {
         :current-playback-time
         :is-playing
         @time-change="playbackStore.changePlaybackTime"
+        @time-start-change="playbackStore.startDrug"
+        @time-end-change="playbackStore.endDrug"
         v-model="isChangingTimeManually"
       />
     </div>
@@ -324,6 +326,7 @@ onMounted(() => {
               :is-playing
               @time-change="playbackStore.changePlaybackTime"
               @time-starts-change="playbackStore.startDrug"
+              @time-end-change="playbackStore.endDrug"
               v-model="isChangingTimeManually"
             />
           </div>

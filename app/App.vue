@@ -37,8 +37,8 @@ const isTracksPlayerShow = computed(
     <BaseToastsGroup :toasts @close-toast="(id) => store.removeToast(id)" />
 
     <BaseAudioPlay
-      class="max-md:absolute max-md:bottom-0 max-md:left-0"
-      :key="currentTrackSourceUrl"
+      class="opacity-0 fixed size-0"
+      :key="`${isChangingTimeManually}`"
       :playing-track-id
       :current-playback-time
       :is-playing
