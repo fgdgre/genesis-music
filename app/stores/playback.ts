@@ -227,7 +227,9 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   };
 
   const changePlaybackTime = (time: number) => {
-    currentPlaybackTime.value = time;
+    if (!isChangingTimeManually.value) {
+      currentPlaybackTime.value = time;
+    }
   };
 
   const togglePlayTrack = () => {

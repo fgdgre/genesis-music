@@ -10,16 +10,11 @@ const { initialized, tracks, isError } = storeToRefs(tracksStore);
 
 const playbackStore = usePlaybackStore();
 const {
-  currentTrackInfo,
   currentTrackSourceUrl,
   playingTrackId,
   isPlaying,
   currentPlaybackTime,
   isChangingTimeManually,
-  loopingMode,
-  isShuffle,
-  queueListVisible,
-  usedNavigationDirection,
 } = storeToRefs(playbackStore);
 
 const isTracksPlayerShow = computed(
@@ -38,7 +33,7 @@ const isTracksPlayerShow = computed(
 
     <BaseAudioPlay
       class="opacity-0 fixed size-0"
-      :key="`${isChangingTimeManually}`"
+      :key="`${currentTrackSourceUrl}${isChangingTimeManually}`"
       :playing-track-id
       :current-playback-time
       :is-playing
@@ -46,7 +41,6 @@ const isTracksPlayerShow = computed(
       @time-change="playbackStore.changePlaybackTime"
       @track-end="playbackStore.nextTrack"
       @duration-load="playbackStore.updateCurrentTrackDuration"
-      v-model="isChangingTimeManually"
     />
 
     <div class="flex flex-col flex-1 overflow-hidden">
