@@ -67,16 +67,6 @@ watchPostEffect(() => {
   }
 });
 
-watch(
-  () => props.isChangingTimeManually,
-  () => {
-    if (!audioPlyerRef.value) return;
-
-    audioPlyerRef.value.currentTime = props.currentPlaybackTime;
-  },
-  { flush: "post" }
-);
-
 onMounted(() => {
   if (audioPlyerRef.value) {
     audioPlyerRef.value.currentTime = props.currentPlaybackTime;
