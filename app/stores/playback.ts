@@ -15,8 +15,22 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   );
   const isPlaying = ref(false);
   const currentPlaybackTime = useLocalStorage("currentPlaybackTime", 0);
-
+  const isChangingTimeManually = ref(false);
   const playingTrackId = useLocalStorage<string | null>("playingTrackId", null);
+  const currentTrackDuration = ref(0);
+
+  const updateCurrentTrackDuration = (newDuration: number) => {
+    currentTrackDuration.value = newDuration;
+  };
+
+  const startDrug = () => {
+    isChangingTimeManually.value = true;
+  };
+
+  const endDrug = (newDuration: number) => {
+    isChangingTimeManually.value = false;
+    currentPlaybackTime.value = newDuration;
+  };
 
   const tracksWithAudioFiles = computed(() =>
     tracks.value?.filter((t) => t.audioFile)
@@ -249,6 +263,11 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     queueListVisible: readonly(queueListVisible),
     globalQueue: readonly(globalQueue),
     usedNavigationDirection: readonly(usedNavigationDirection),
+    currentTrackDuration: readonly(currentTrackDuration),
+    startDrug,
+    endDrug,
+    updateCurrentTrackDuration,
+    isChangingTimeManually,
     toggleQueueListVisibility,
     togglePlayTrack,
     hasNextPage,
