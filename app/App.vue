@@ -4,6 +4,20 @@ import { useToast } from "./stores/toast";
 
 const store = useToast();
 const { toasts } = storeToRefs(store);
+
+const tracksStore = useTracksStore();
+const { initialized, tracks, isError } = storeToRefs(tracksStore);
+
+const playbackStore = usePlaybackStore();
+const { playingTrackId } = storeToRefs(playbackStore);
+
+const isTracksPlayerShow = computed(
+  () =>
+    initialized.value &&
+    tracks.value.length &&
+    !isError.value &&
+    playingTrackId.value
+);
 </script>
 
 <template>
@@ -14,17 +28,13 @@ const { toasts } = storeToRefs(store);
     <div class="flex flex-col flex-1 overflow-hidden">
       <AppHeader />
 
-      <div
-        class="grid grid-cols-[1fr_auto] grid-rows-[1fr_auto] w-full overflow-hidden flex-1"
-      >
-        <div class="p-2 grid grid-cols-subgrid grid-rows-subgrid col-span-2">
-          <NuxtPage />
+      <div class="grid grid-cols-[1fr_auto] w-full overflow-hidden flex-1 p-2">
+        <NuxtPage />
 
-          <QueueList class="ml-2" />
-        </div>
-
-        <TracksPlayer class="row-start-2 col-span-full" />
+        <QueueList class="ml-2" />
       </div>
+
+      <TracksPlayer v-if="isTracksPlayerShow" />
     </div>
   </div>
 </template>

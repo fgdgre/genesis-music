@@ -84,12 +84,24 @@ watch(isMobileScreen, () => {
   if (!isMobileScreen.value) currentTrackModalShow.value = false;
 });
 
-const animationEnterTransitionValue = computed(() =>
-  usedNavigationDirection.value === "forward" ? "150%" : "-150%"
-);
-const animationLeaveTransitionValue = computed(() =>
-  usedNavigationDirection.value === "forward" ? "-150%" : "150%"
-);
+const animationEnterTransitionValue = computed(() => {
+  if (usedNavigationDirection.value === "forward") {
+    return "150%";
+  }
+  if (usedNavigationDirection.value === "backward") {
+    return "-150%";
+  }
+  return "0%";
+});
+const animationLeaveTransitionValue = computed(() => {
+  if (usedNavigationDirection.value === "forward") {
+    return "-150%";
+  }
+  if (usedNavigationDirection.value === "backward") {
+    return "150%";
+  }
+  return "0%";
+});
 
 const handleNavigate = () => {
   handleCloseTrackModal();
@@ -99,7 +111,6 @@ const handleNavigate = () => {
 
 <template>
   <div
-    v-if="initialized && tracks.length && !isError && playingTrackId"
     class="w-full items-center select-none h-full"
     :class="[
       currentTrackModalShow

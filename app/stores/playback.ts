@@ -121,6 +121,11 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     playingTrackId.value = id;
     currentPlaybackTime.value = 0;
     isPlaying.value = true;
+
+    if (usedNavigationDirection.value == null) {
+      s;
+      usedNavigationDirection.value = "forward";
+    }
   };
 
   const clearPlayingTrackId = () => (playingTrackId.value = null);
