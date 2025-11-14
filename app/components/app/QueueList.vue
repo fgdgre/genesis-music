@@ -49,6 +49,22 @@ watch(
       handle: ".drag-handle",
       ghostClass: "sortable-ghost",
       chosenClass: "sortable-chosen",
+      filter: ".current-playing",
+      preventOnFilter: false,
+      onMove(evt: UseSortableOptions) {
+        // DOM element we are hovering over
+        const related = evt.related as HTMLElement | null;
+        if (!related) return;
+
+        // All <li> elements inside this <ul>
+        const children = Array.from(evt.from.children) as HTMLElement[];
+        const relatedIndex = children.indexOf(related);
+
+        // If we're trying to insert BEFORE the first item, block it
+        if (relatedIndex === 0 && !evt.willInsertAfter) {
+          return false; // cancel this move
+        }
+      },
       onUpdate: (options: UseSortableOptions) => {
         playbackStore.moveTrackInQueue(options.oldIndex, options.newIndex);
       },
@@ -111,7 +127,9 @@ watch(
             v-for="(track, index) in queue"
             :key="track.id"
             class="w-full break-all px-2 flex justify-between"
-            :class="index === 0 && 'sticky top-0 z-10 bg-neutral-300'"
+            :class="
+              index === 0 && 'sticky top-0 z-10 bg-neutral-300 current-playing'
+            "
           >
             <div
               class="grid grid-cols-[auto_1fr_auto] gap-1 p-1 select-none rounded-md hover:bg-foreground/10 transition-colors cursor-pointer w-full"
@@ -180,7 +198,12 @@ watch(
                 </div>
               </div>
 
-              <BaseButton @click.stop transparent class="col-start-3 h-full">
+              <BaseButton
+                v-if="index > 0"
+                @click.stop
+                transparent
+                class="col-start-3 h-full"
+              >
                 <Icon name="heroicons:bars-2" class="drag-handle shrink-0" />
               </BaseButton>
             </div>
