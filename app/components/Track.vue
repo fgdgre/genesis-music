@@ -75,6 +75,11 @@ const handleTrackAction = (action: string) => {
       isUploadTrackFileModalOpen.value = true;
       break;
     }
+    case "addToQueue": {
+      // TODO
+      // isUploadTrackFileModalOpen.value = true;
+      break;
+    }
   }
 };
 

@@ -40,7 +40,7 @@ defineExpose({
       <DropdownMenuContent
         :align="menuAlign"
         :side-offset="5"
-        class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 w-[var(--radix-dropdown-menu-trigger-width)] min-w-max max-h-[150px] overflow-auto"
+        class="flex flex-col bg-modal shadow-sm text-foreground border border-border rounded-md select-none p-1 z-40 w-[var(--radix-dropdown-menu-trigger-width)] min-w-max max-h-[200px] overflow-auto"
         data-control
       >
         <DropdownMenuItem
