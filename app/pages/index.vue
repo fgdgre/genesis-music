@@ -104,7 +104,7 @@ watch(
 
         <ul
           v-else-if="tracks.length"
-          class="flex-1 flex flex-col overflow-auto pl-4 pb-2 pr-2"
+          class="flex-1 flex flex-col overflow-auto scrollbar-thin scrollbar-muted pl-4 pb-2 pr-2"
           data-testid="tracks-list"
           ref="tracksList"
         >

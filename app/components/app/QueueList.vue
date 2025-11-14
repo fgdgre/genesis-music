@@ -78,7 +78,7 @@ const isMobileScreen = computed(() => width.value < DESKTOP_LAYOUT_PIXELS);
           v-else
           tag="ul"
           name="list-animation"
-          class="flex flex-col flex-1 overflow-y-auto w-full pb-2 relative"
+          class="flex flex-col flex-1 overflow-y-auto scrollbar-thin scrollbar-muted w-full pb-2 relative"
         >
           <li
             v-for="(track, index) in queue"

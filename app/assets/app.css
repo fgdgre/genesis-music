@@ -30,6 +30,15 @@ html {
   --color-muted: var(--muted);
 }
 
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-muted {
+    scrollbar-color: gray transparent;
+  }
+}
+
 html,
 body,
 #app {

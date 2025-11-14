@@ -26,7 +26,9 @@ const orderSelectItems = [
 
 <template>
   <div class="flex gap-4 max-w-full w-full overflow-hidden">
-    <div class="flex gap-4 items-end overflow-auto pb-2">
+    <div
+      class="flex gap-4 items-end overflow-auto scrollbar-thin scrollbar-muted pb-2"
+    >
       <BaseInput
         with-debounce
         label="Search"

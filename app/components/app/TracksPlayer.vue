@@ -132,7 +132,7 @@ onMounted(() => {
 <template>
   <!--  -->
   <div
-    class="fixed bottom-0 left-0 grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] w-full items-center select-none p-1 max-md:pb-1.5 max-md:gap-x-2 gap-x-4 max-sm:gap-y-1 h-[58px]"
+    class="fixed bottom-0 left-0 grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] w-full items-center select-none p-1 max-md:pb-1.5 max-md:gap-x-2 gap-x-4 max-sm:gap-y-1 h-[58px] bg-white"
     @click="handleOpenTrackModal"
   >
     <div class="flex gap-1 flex-1 overflow-hidden">
@@ -159,7 +159,9 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <div class="flex flex-col items-center max-xs:pr-4 max-xs:items-end">
+    <div
+      class="flex flex-col items-center max-xs:pr-4 max-xs:items-end self-center"
+    >
       <div class="flex items-center max-md:gap-1">
         <BaseButton
           class="max-md:p-1 h-min"
