@@ -2,6 +2,12 @@
 import { DEFAULT_TRACK_COVER, DESKTOP_LAYOUT_PIXELS } from "~/consts";
 import BaseButton from "../base/BaseButton.vue";
 import { TransitionGroup } from "vue";
+import {
+  useSortable,
+  type UseSortableOptions,
+} from "@vueuse/integrations/useSortable";
+import { cloneDeep } from "lodash";
+import type { Track } from "~/types";
 
 defineOptions({
   inheritAttrs: false,
@@ -17,6 +23,7 @@ const {
   isPlaying,
   isShuffle,
   loopingMode,
+  globalQueue,
 } = storeToRefs(playbackStore);
 const { initialized, isError } = storeToRefs(tracksStore);
 
@@ -30,6 +37,25 @@ const handleTogglePlay = (trackId: string) => {
 
 const { width } = useWindowSize();
 const isMobileScreen = computed(() => width.value < DESKTOP_LAYOUT_PIXELS);
+
+const queueListRef = useTemplateRef("queueListRef");
+
+watch(
+  queueListRef,
+  (el) => {
+    if (!el) return;
+    useSortable(el, globalQueue, {
+      animation: 175,
+      handle: ".drag-handle",
+      ghostClass: "sortable-ghost",
+      chosenClass: "sortable-chosen",
+      onUpdate: (options: UseSortableOptions) => {
+        playbackStore.moveTrackInQueue(options.oldIndex, options.newIndex);
+      },
+    });
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -79,21 +105,22 @@ const isMobileScreen = computed(() => width.value < DESKTOP_LAYOUT_PIXELS);
           tag="ul"
           name="list-animation"
           class="flex flex-col flex-1 overflow-y-auto scrollbar-thin scrollbar-muted w-full pb-2 relative"
+          ref="queueListRef"
         >
           <li
             v-for="(track, index) in queue"
             :key="track.id"
-            class="w-full break-all px-2"
+            class="w-full break-all px-2 flex justify-between"
             :class="index === 0 && 'sticky top-0 z-10 bg-neutral-300'"
           >
             <div
-              class="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] gap-1 p-1 select-none rounded-md hover:bg-foreground/10 transition-colors cursor-pointer"
+              class="grid grid-cols-[auto_1fr_auto] gap-1 p-1 select-none rounded-md hover:bg-foreground/10 transition-colors cursor-pointer w-full"
               @click="() => handleTogglePlay(track.id)"
               :data-track-id="track.id"
               :data-testid="`track-item-${track.id}`"
             >
               <div
-                class="size-10 shrink-0 rounded-md col-start-1 row-span-2 relative select-none"
+                class="size-10 shrink-0 rounded-md col-start-1 relative select-none"
               >
                 <div
                   v-if="track.audioFile"
@@ -134,7 +161,7 @@ const isMobileScreen = computed(() => width.value < DESKTOP_LAYOUT_PIXELS);
                 />
               </div>
 
-              <div class="flex gap-4 items-center col-start-2 row-start-1">
+              <div class="flex gap-4 items-center col-start-2">
                 <div class="flex gap-4 w-full">
                   <div class="flex flex-col">
                     <p
@@ -152,6 +179,10 @@ const isMobileScreen = computed(() => width.value < DESKTOP_LAYOUT_PIXELS);
                   </div>
                 </div>
               </div>
+
+              <BaseButton @click.stop transparent class="col-start-3 h-full">
+                <Icon name="heroicons:bars-2" class="drag-handle shrink-0" />
+              </BaseButton>
             </div>
           </li>
         </TransitionGroup>
@@ -237,5 +268,24 @@ const isMobileScreen = computed(() => width.value < DESKTOP_LAYOUT_PIXELS);
 .backdrop-enter-to,
 .backdrop-leave-from {
   opacity: 1;
+}
+
+.sortable-chosen {
+  background-color: gray;
+}
+
+.sortable-ghost {
+  opacity: 0;
+}
+
+html.dragging,
+html.dragging * {
+  cursor: grabbing !important;
+}
+
+.sortable-chosen,
+.sortable-ghost,
+.drag-handle {
+  will-change: transform;
 }
 </style>

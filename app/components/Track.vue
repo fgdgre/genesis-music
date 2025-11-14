@@ -23,6 +23,11 @@ const actionsItems = computed(() => {
     { label: "Edit", value: "edit", icon: "heroicons:pencil-square" },
     { label: "Delete", value: "delete", icon: "heroicons:trash" },
     {
+      label: "Add to queue",
+      value: "addToQueue",
+      icon: "material-symbols:queue-music-rounded",
+    },
+    {
       label: "Detailed info",
       value: "detailedInfo",
       icon: "material-symbols:more-horiz",

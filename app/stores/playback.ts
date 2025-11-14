@@ -24,12 +24,10 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   };
 
   const startDrug = () => {
-    console.log("startDrug");
     isChangingTimeManually.value = true;
   };
 
   const endDrug = (newDuration: number) => {
-    console.log("endDrug");
     isChangingTimeManually.value = false;
     currentPlaybackTime.value = newDuration;
   };
@@ -45,6 +43,25 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   const usedNavigationDirection = ref<"forward" | "backward" | null>(null);
 
   const globalQueue = ref<Track[]>([]);
+
+  const moveTrackInQueue = (fromInQueue: number, toInQueue: number) => {
+    const base =
+      globalPlayingTrackIndex.value === -1 ? 0 : globalPlayingTrackIndex.value;
+
+    const from = base + fromInQueue;
+    const to = base + toInQueue;
+
+    if (from === to) return;
+
+    const arr = [...globalQueue.value];
+
+    const [moved] = arr.splice(from, 1);
+    if (!moved) return;
+
+    arr.splice(to, 0, moved);
+
+    globalQueue.value = arr;
+  };
 
   const updateQueueList = (
     isShuffle: boolean,
@@ -130,6 +147,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   const currentQueue = computed<Track[]>(() => {
     const startIndex =
       globalPlayingTrackIndex.value === -1 ? 0 : globalPlayingTrackIndex.value;
+    console.log(startIndex);
     return globalQueue.value.slice(startIndex, globalQueue.value.length);
   });
 
@@ -255,6 +273,11 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     { flush: "post" }
   );
 
+  watchEffect(() => {
+    console.log(globalQueue.value);
+    console.log(currentQueue.value);
+  });
+
   return {
     playingTrackId: readonly(playingTrackId),
     queue: readonly(currentQueue),
@@ -268,6 +291,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     globalQueue: readonly(globalQueue),
     usedNavigationDirection: readonly(usedNavigationDirection),
     currentTrackDuration: readonly(currentTrackDuration),
+    moveTrackInQueue,
     startDrug,
     endDrug,
     updateCurrentTrackDuration,
