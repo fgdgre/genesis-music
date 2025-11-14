@@ -193,6 +193,7 @@ onMounted(() => {
       </div>
 
       <BaseAudioPlayRemote
+        class="max-md:absolute max-md:bottom-0 max-md:left-0"
         :trackDuration="currentTrackDuration"
         :current-time="currentPlaybackTime"
         @time-starts-change="playbackStore.startDrug"
@@ -201,7 +202,9 @@ onMounted(() => {
     </div>
 
     <!-- PlaybackActions -->
-    <div class="flex justify-end min-h-[48px] items-center w-full">
+    <div
+      class="flex justify-end col-start-3 row-start-1 max-xs:hidden items-end"
+    >
       <BaseButton @click.stop="playbackStore.changeLoopMode" transparent square>
         <div class="relative">
           <Icon
@@ -284,7 +287,7 @@ onMounted(() => {
             </div>
           </div>
           <div
-            class="flex flex-col items-center gap-8 w-full justify-center pt-5 max-w-[300px]"
+            class="flex flex-col items-center gap-8 w-full justify-center pt-5 max-w-[400px]"
           >
             <div class="flex items-center order-[10] gap-5">
               <BaseButton

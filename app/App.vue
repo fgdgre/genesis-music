@@ -32,9 +32,7 @@ const isTracksPlayerShow = computed(
     <!-- TODO: maybe also refactor to pure component and smart wrapper for make app.vue as simple as possible -->
     <BaseToastsGroup :toasts @close-toast="(id) => store.removeToast(id)" />
 
-    <!-- :key="`${currentTrackSourceUrl}${isChangingTimeManually}`" -->
     <BaseAudioPlay
-      class="opacity-0 fixed size-0"
       :trackDuration="currentTrackDuration"
       :playing-track-id
       :current-playback-time

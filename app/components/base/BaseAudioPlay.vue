@@ -7,69 +7,49 @@ const props = defineProps<{
   currentTrackSourceUrl?: string;
   muted?: boolean;
   isChangingTimeManually?: boolean;
+  controls?: boolean;
 }>();
 
 const emit = defineEmits<{
   trackEnd: [];
   timeChange: [number];
   durationLoad: [number];
-  timeStartsChange: [Event];
+  timeStartsChange: [number];
   timeEndChange: [number];
 }>();
 
 const audioPlyerRef = useTemplateRef("audioPlyerRef");
 
-// const currentTime = ref(props.currentPlaybackTime || 0);
-// const trackDuration = ref(0);
-
 const handlePlay = (e: any) => {
   if (!props.isChangingTimeManually) {
     emit("timeChange", e.target.currentTime);
-    // currentTime.value = e.target.currentTime;
   }
 };
 
-const onSliderInput = (e: Event) => {
-  const value = parseFloat((e.target as HTMLInputElement).value);
-  // currentTime.value = value; // keep the thumb under the finger
-  // if (!props.currentTrackSourceUrl) {
-  //   emit("timeChange", value); // optional live update in mask mode
-  // }
-};
+const canPlay = ref(false);
 
-const onSliderChange = (e: Event) => {
-  const value = parseFloat((e.target as HTMLInputElement).value);
-
-  // real audio element present?
-  if (audioPlyerRef.value) {
-    audioPlyerRef.value.currentTime = value;
-  } else {
-    // mask mode -> push to store
-    emit("timeChange", value);
-  }
-};
-
-const isPlaying = ref(false);
-
-watchPostEffect(() => {
+watch([() => props.isPlaying, canPlay, audioPlyerRef], () => {
   if (!audioPlyerRef.value) return;
 
   if (props.isPlaying) {
-    isPlaying.value ? null : audioPlyerRef.value?.play();
+    canPlay.value ? audioPlyerRef.value?.play() : null;
   } else {
-    isPlaying.value ? audioPlyerRef.value?.pause() : null;
+    audioPlyerRef.value?.pause();
   }
 });
 
-watch(
-  () => props.isChangingTimeManually,
-  () => {
-    if (props.isChangingTimeManually) return;
-    if (!audioPlyerRef.value) return;
+watch([() => props.isChangingTimeManually, () => props.isPlaying], () => {
+  if (props.isChangingTimeManually) return;
+  if (!audioPlyerRef.value) return;
 
-    audioPlyerRef.value.currentTime = props.currentPlaybackTime;
-  }
-);
+  audioPlyerRef.value.currentTime = props.currentPlaybackTime;
+});
+
+onMounted(() => {
+  if (!audioPlyerRef.value) return;
+
+  audioPlyerRef.value.currentTime = props.currentPlaybackTime;
+});
 
 const handleDurationLoad = (e: any) => {
   const audioElementDuration = e.target?.duration;
@@ -78,6 +58,8 @@ const handleDurationLoad = (e: any) => {
 };
 
 const handleStartPLaying = () => {
+  canPlay.value = true;
+
   if (props.isPlaying) {
     audioPlyerRef.value?.play();
   }
@@ -85,35 +67,28 @@ const handleStartPLaying = () => {
 
 const handleEndPlay = () => {
   emit("trackEnd");
-  isPlaying.value = false;
+  audioPlyerRef.value?.pause();
+  canPlay.value = false;
 };
 </script>
 
 <template>
-  <div class="w-full flex h-1">
+  <div :class="[controls ? 'w-full flex h-1' : 'hidden']">
     <audio
       ref="audioPlyerRef"
       :src="currentTrackSourceUrl"
-      @playing="isPlaying = true"
       @canplay="handleStartPLaying"
       @timeupdate="handlePlay"
       @loadeddata="handleDurationLoad"
       @ended="handleEndPlay"
-      @pause="isPlaying = false"
     ></audio>
 
-    <BaseAudioPlayRemote :trackDuration :currentTime="currentPlaybackTime" />
-    <!-- <input
-      type="range"
-      class="flex-1 [&::-webkit-slider-thumb]:scale-0"
-      tabindex="-1"
-      :max="trackDuration"
-      :value="currentTime"
-      @input="onSliderInput"
-      @change="onSliderChange"
-      @pointerdown="(e) => $emit('timeStartsChange', e)"
-      @pointerup="(e) => $emit('timeEndChange', parseFloat(e.target!.value))"
-      @click.stop
-    /> -->
+    <BaseAudioPlayRemote
+      v-if="controls"
+      :trackDuration
+      :current-time="currentPlaybackTime"
+      @time-starts-change="(e) => $emit('timeStartsChange', e)"
+      @time-end-change="(e) => $emit('timeEndChange', e)"
+    />
   </div>
 </template>

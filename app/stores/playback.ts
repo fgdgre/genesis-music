@@ -168,7 +168,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     const id = globalQueue.value[globalPlayingTrackIndex.value + 1]?.id;
 
     currentPlaybackTime.value = 0;
-    isPlaying.value = false;
+    // isPlaying.value = false;
 
     if (!id) return;
 
@@ -197,7 +197,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
 
     const id = globalQueue.value[globalPlayingTrackIndex.value - 1]?.id;
 
-    isPlaying.value = false;
+    // isPlaying.value = false;
     currentPlaybackTime.value = 0;
 
     if (!id) return;
