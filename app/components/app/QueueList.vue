@@ -33,10 +33,12 @@ const isMobileScreen = computed(() => width.value < DESKTOP_LAYOUT_PIXELS);
 </script>
 
 <template>
+  <!-- TODO: Make all animations with single Transition element -->
   <Transition name="backdrop">
     <div
       v-if="initialized && !isError && queueListVisible && isMobileScreen"
       class="fixed top-0 left-0 w-full h-full bg-black/50 z-30"
+      @click="playbackStore.toggleQueueListVisibility"
     ></div>
   </Transition>
 
