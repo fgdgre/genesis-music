@@ -24,10 +24,12 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   };
 
   const startDrug = () => {
+    console.log("startDrug");
     isChangingTimeManually.value = true;
   };
 
   const endDrug = (newDuration: number) => {
+    console.log("endDrug");
     isChangingTimeManually.value = false;
     currentPlaybackTime.value = newDuration;
   };

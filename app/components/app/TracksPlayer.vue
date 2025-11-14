@@ -192,13 +192,9 @@ onMounted(() => {
         </BaseButton>
       </div>
 
-      <BaseAudioPlay
-        class="max-md:absolute max-md:bottom-0 max-md:left-0"
-        :duration="currentTrackDuration"
-        :playing-track-id
-        :current-playback-time
-        :is-playing
-        @time-change="playbackStore.changePlaybackTime"
+      <BaseAudioPlayRemote
+        :trackDuration="currentTrackDuration"
+        :current-time="currentPlaybackTime"
         @time-starts-change="playbackStore.startDrug"
         @time-end-change="playbackStore.endDrug"
       />
@@ -318,12 +314,9 @@ onMounted(() => {
               </BaseButton>
             </div>
 
-            <BaseAudioPlay
-              :duration="currentTrackDuration"
-              :playing-track-id
-              :current-playback-time
-              :is-playing
-              @time-change="playbackStore.changePlaybackTime"
+            <BaseAudioPlayRemote
+              :trackDuration="currentTrackDuration"
+              :current-time="currentPlaybackTime"
               @time-starts-change="playbackStore.startDrug"
               @time-end-change="playbackStore.endDrug"
             />
