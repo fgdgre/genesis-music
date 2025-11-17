@@ -114,23 +114,9 @@ const handleNavigate = () => {
   handleCloseTrackModal();
   navigateTo(`/${currentTrackInfo.value?.slug}`);
 };
-
-onMounted(() => {
-  const playerWrapper = document.querySelector("#player-wrapper");
-
-  if (!playerWrapper) return;
-
-  playerWrapper.addEventListener("animationstart", () => {
-    isAnimationEnd.value = false;
-  });
-  playerWrapper.addEventListener("animationend", () => {
-    isAnimationEnd.value = true;
-  });
-});
 </script>
 
 <template>
-  <!--  -->
   <div
     class="fixed bottom-0 left-0 grid max-xs:grid-cols-[1fr_auto] min-xs:grid-cols-[35%_1fr_35%] w-full items-center select-none p-1 max-md:pb-1.5 max-md:gap-x-2 gap-x-4 max-sm:gap-y-1 h-[58px] bg-white"
     @click="handleOpenTrackModal"

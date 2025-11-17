@@ -170,27 +170,24 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
       updateCurrentTrackPosition();
     }
 
-    if (usedNavigationDirection.value == null) {
-      usedNavigationDirection.value = "forward";
-    }
+    usedNavigationDirection.value = "forward";
   };
 
-  const setPlayingTrackIdFromQueue = (id: string) => {
+  const setPlayingTrackIdFromQueue = (
+    id: string,
+    navigationDirection?: "forward" | "backward"
+  ) => {
     playingTrackId.value = id;
     currentPlaybackTime.value = 0;
     isPlaying.value = true;
 
-    if (usedNavigationDirection.value == null) {
-      usedNavigationDirection.value = "forward";
-    }
+    usedNavigationDirection.value = navigationDirection || "forward";
   };
 
   const clearPlayingTrackId = () => (playingTrackId.value = null);
 
   const nextTrack = () => {
     if (globalPlayingTrackIndex.value === -1) return;
-
-    usedNavigationDirection.value = "forward";
 
     if (loopingMode.value === "loopTrack") {
       currentPlaybackTime.value = 0;
@@ -203,7 +200,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
       !hasNextPage.value &&
       loopingMode.value === "loopPlaylist"
     ) {
-      setPlayingTrackIdFromQueue(globalQueue.value[0]!.id);
+      setPlayingTrackIdFromQueue(globalQueue.value[0]!.id, "forward");
       return;
     }
 
@@ -214,13 +211,11 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
 
     if (!id) return;
 
-    setPlayingTrackIdFromQueue(id);
+    setPlayingTrackIdFromQueue(id, "forward");
   };
 
   const prevTrack = () => {
     if (globalPlayingTrackIndex.value === -1) return;
-
-    usedNavigationDirection.value = "backward";
 
     if (loopingMode.value === "loopTrack") {
       if (currentPlaybackTime.value < 3) {
@@ -243,7 +238,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     currentPlaybackTime.value = 0;
 
     if (!id) return;
-    setPlayingTrackIdFromQueue(id);
+    setPlayingTrackIdFromQueue(id, "backward");
   };
 
   const toggleShuffle = () => {
