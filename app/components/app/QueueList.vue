@@ -31,7 +31,7 @@ const handleTogglePlay = (trackId: string) => {
   if (trackId === playingTrackId.value) {
     playbackStore.togglePlayTrack();
   } else {
-    playbackStore.setPlayingTrackId(trackId);
+    playbackStore.setPlayingTrackIdFromQueue(trackId);
   }
 };
 

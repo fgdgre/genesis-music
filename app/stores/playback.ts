@@ -1,4 +1,4 @@
-import { cloneDeep } from "lodash";
+import { cloneDeep, isEqual } from "lodash";
 import { defineStore } from "pinia";
 import type { DeepReadonly } from "vue";
 import type { Track } from "~/types";
@@ -147,11 +147,35 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   const currentQueue = computed<Track[]>(() => {
     const startIndex =
       globalPlayingTrackIndex.value === -1 ? 0 : globalPlayingTrackIndex.value;
-    console.log(startIndex);
+
     return globalQueue.value.slice(startIndex, globalQueue.value.length);
   });
 
   const setPlayingTrackId = (id: string) => {
+    // if(!isEqual(tracksMeta.value, oldQueueFilters)) {
+    // globalQueue.value = TODO: update existing order to new filters after change filters and set tracks within new filters
+    // }
+
+    playingTrackId.value = id;
+    currentPlaybackTime.value = 0;
+    isPlaying.value = true;
+
+    globalQueue.value = updateQueueList(
+      isShuffle.value,
+      globalQueue.value,
+      tracksWithAudioFiles.value
+    );
+
+    if (isShuffle.value) {
+      updateCurrentTrackPosition();
+    }
+
+    if (usedNavigationDirection.value == null) {
+      usedNavigationDirection.value = "forward";
+    }
+  };
+
+  const setPlayingTrackIdFromQueue = (id: string) => {
     playingTrackId.value = id;
     currentPlaybackTime.value = 0;
     isPlaying.value = true;
@@ -179,7 +203,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
       !hasNextPage.value &&
       loopingMode.value === "loopPlaylist"
     ) {
-      setPlayingTrackId(globalQueue.value[0]!.id);
+      setPlayingTrackIdFromQueue(globalQueue.value[0]!.id);
       return;
     }
 
@@ -190,7 +214,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
 
     if (!id) return;
 
-    setPlayingTrackId(id);
+    setPlayingTrackIdFromQueue(id);
   };
 
   const prevTrack = () => {
@@ -219,7 +243,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     currentPlaybackTime.value = 0;
 
     if (!id) return;
-    setPlayingTrackId(id);
+    setPlayingTrackIdFromQueue(id);
   };
 
   const toggleShuffle = () => {
@@ -273,11 +297,6 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     { flush: "post" }
   );
 
-  watchEffect(() => {
-    console.log(globalQueue.value);
-    console.log(currentQueue.value);
-  });
-
   return {
     playingTrackId: readonly(playingTrackId),
     queue: readonly(currentQueue),
@@ -301,6 +320,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     hasNextPage,
     changePlaybackTime,
     setPlayingTrackId,
+    setPlayingTrackIdFromQueue,
     clearPlayingTrackId,
     hasNextTrack,
     hasPrevTrack,
