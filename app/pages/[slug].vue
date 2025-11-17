@@ -4,6 +4,7 @@ import { fetchTrackAPI } from "~/entities/track";
 
 definePageMeta({
   title: "Track info",
+  back: "/",
 });
 
 const { slug } = useRoute().params;

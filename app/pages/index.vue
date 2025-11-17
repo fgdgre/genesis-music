@@ -62,6 +62,7 @@ watch(
         @click="isCreateTrackModalOpen = true"
         data-testid="create-track-button"
       >
+        <!-- class="py-1! h-full text-xs" -->
         Add track
       </BaseButton>
     </Teleport>
