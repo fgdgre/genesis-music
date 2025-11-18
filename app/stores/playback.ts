@@ -1,12 +1,15 @@
 import { cloneDeep, isEqual } from "lodash";
 import { defineStore } from "pinia";
 import type { DeepReadonly } from "vue";
-import type { Track } from "~/types";
+import type { Track, TracksFilters } from "~/types";
 
 export const usePlaybackStore = defineStore("playbackStore", () => {
   const tracksStore = useTracksStore();
   const { tracks, tracksMeta, hasNextPage, isLoading, isLoadingNextPage } =
     storeToRefs(tracksStore);
+
+  const filtersStore = useFiltersStore();
+  const { artist, genre, order, search, sort } = storeToRefs(filtersStore);
   const queueListVisible = useLocalStorage("queueListVisible", false);
   const isShuffle = useLocalStorage("isShuffle", false);
   const loopingMode = useLocalStorage<"noLoop" | "loopPlaylist" | "loopTrack">(
@@ -32,9 +35,59 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     currentPlaybackTime.value = newDuration;
   };
 
-  const tracksWithAudioFiles = computed(() =>
-    tracks.value?.filter((t) => t.audioFile)
-  );
+  const tracksWithAudioFiles = ref();
+  const currentQueueFilters = ref<Omit<TracksFilters, "page">>({
+    artist: artist.value,
+    genre: genre.value,
+    order: order.value,
+    search: search.value,
+    sort: sort.value,
+  });
+  const currentQueuePage = ref(0);
+
+  const setQueueTracksAndFilters = ({
+    tracks,
+    filters,
+    page,
+  }: {
+    tracks?: Track[] | DeepReadonly<Track[]>;
+    filters: Omit<TracksFilters, "page">;
+    page?: number;
+  }) => {
+    tracksWithAudioFiles.value = tracks?.filter((t) => t.audioFile);
+
+    currentQueueFilters.value = filters;
+
+    if (page) {
+      currentQueuePage.value = page;
+    }
+  };
+
+  watch([tracks, artist, genre, order, search, sort], () => {
+    if (
+      isEqual(currentQueueFilters.value, {
+        artist: artist.value,
+        genre: genre.value,
+        order: order.value,
+        search: search.value,
+        sort: sort.value,
+      }) &&
+      tracksMeta.value &&
+      tracksMeta.value.page > currentQueuePage.value
+    ) {
+      setQueueTracksAndFilters({
+        tracks: tracks.value,
+        filters: {
+          artist: artist.value,
+          genre: genre.value,
+          order: order.value,
+          search: search.value,
+          sort: sort.value,
+        },
+        page: tracksMeta.value.page,
+      });
+    }
+  });
 
   const toggleQueueListVisibility = () => {
     queueListVisible.value = !queueListVisible.value;
@@ -152,9 +205,27 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   });
 
   const setPlayingTrackId = (id: string) => {
-    // if(!isEqual(tracksMeta.value, oldQueueFilters)) {
-    // globalQueue.value = TODO: update existing order to new filters after change filters and set tracks within new filters
-    // }
+    if (
+      !isEqual(currentQueueFilters.value, {
+        artist: artist.value,
+        genre: genre.value,
+        order: order.value,
+        search: search.value,
+        sort: sort.value,
+      })
+    ) {
+      setQueueTracksAndFilters({
+        tracks: tracks.value,
+        filters: {
+          artist: artist.value,
+          genre: genre.value,
+          order: order.value,
+          search: search.value,
+          sort: sort.value,
+        },
+        page: tracksMeta.value?.page,
+      });
+    }
 
     playingTrackId.value = id;
     currentPlaybackTime.value = 0;

@@ -17,13 +17,13 @@ const filtersStore = useFiltersStore();
 const { search, order, artist, genre, sort, filtersEmpty } =
   storeToRefs(filtersStore);
 
-const playbackStore = usePlaybackStore();
-
 const isCreateTrackModalOpen = ref(false);
+
+const page = ref(1);
 
 const fetchTracks = () => {
   tracksStore.fetchTracks({
-    page: filtersEmpty.value ? tracksMeta.value?.page || 1 : 1,
+    page: page.value,
     search: search.value,
     order: order.value,
     artist: artist.value,
@@ -41,6 +41,12 @@ const initializedWithEmptyTracks = computed(
 
 const tracksListRef = useTemplateRef("tracksList");
 
+watch(tracksMeta, () => {
+  if (!tracksMeta.value) return;
+
+  page.value = tracksMeta.value.page;
+});
+
 watch(
   [search, order, artist, genre, sort],
   () => {
@@ -48,6 +54,8 @@ watch(
       behavior: "instant",
       top: 0,
     });
+
+    page.value = 1;
 
     fetchTracks();
   },
@@ -62,7 +70,6 @@ watch(
         @click="isCreateTrackModalOpen = true"
         data-testid="create-track-button"
       >
-        <!-- class="py-1! h-full text-xs" -->
         Add track
       </BaseButton>
     </Teleport>
@@ -111,6 +118,7 @@ watch(
         >
           <li
             v-for="(track, index) in tracks"
+            :key="track.id"
             class="flex w-full gap-1 items-center"
           >
             <span class="min-w-[26.5px] text-xs text-placeholder text-center"
