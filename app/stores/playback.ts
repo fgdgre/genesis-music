@@ -191,7 +191,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
       globalPlayingTrackIndex.value === 0 &&
       loopingMode.value === "loopPlaylist"
     ) {
-      return false; // TODO
+      return false; // TODO:
     }
 
     return globalPlayingTrackIndex.value > 0;
@@ -300,7 +300,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
 
     if (!hasPrevTrack.value && loopingMode.value === "loopPlaylist") {
       // setPlayingTrackId(globalQueue.value[globalQueue.value.length - 1]!.id);
-      return; // TODO
+      return; // TODO:
     }
 
     const id = globalQueue.value[globalPlayingTrackIndex.value - 1]?.id;
