@@ -36,11 +36,11 @@ const actionsItems = computed(() => {
           value: "deleteAudioFile",
           icon: "streamline:file-delete-alternate",
         },
-        {
-          label: "Add to queue",
-          value: "addToQueue",
-          icon: "material-symbols:queue-music-rounded",
-        },
+        // {
+        //   label: "Add to queue",
+        //   value: "addToQueue",
+        //   icon: "material-symbols:queue-music-rounded",
+        // },
       ]
     : [
         ...initialActions,

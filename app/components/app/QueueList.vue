@@ -171,7 +171,7 @@ watch(
             >
               <QueueListTrack
                 :track
-                :draggable="index > 0"
+                draggable
                 :is-playing
                 :playing-track-id
                 @click="handleTogglePlay(track.id)"

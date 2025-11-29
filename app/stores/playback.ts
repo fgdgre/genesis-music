@@ -207,7 +207,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     const startIndex =
       globalPlayingTrackIndex.value === -1 ? 0 : globalPlayingTrackIndex.value;
 
-    return globalQueue.value.slice(startIndex, globalQueue.value.length);
+    return globalQueue.value.slice(startIndex);
   });
 
   const setPlayingTrackId = (id: string) => {
