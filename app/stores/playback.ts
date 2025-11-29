@@ -26,6 +26,12 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     currentTrackDuration.value = newDuration;
   };
 
+  const userQueue = ref<(Track | DeepReadonly<Track>)[]>([]);
+
+  const addToUserQueue = (track: Track | DeepReadonly<Track>) => {
+    userQueue.value.push(track);
+  };
+
   const startDrug = () => {
     isChangingTimeManually.value = true;
   };
@@ -266,6 +272,11 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
       return;
     }
 
+    if (userQueue.value.length) {
+      setPlayingTrackIdFromQueue(userQueue.value.shift()!.id, "forward");
+      return;
+    }
+
     if (
       !hasNextTrack.value &&
       !hasNextPage.value &&
@@ -376,6 +387,7 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     globalQueue: readonly(globalQueue),
     usedNavigationDirection: readonly(usedNavigationDirection),
     currentTrackDuration: readonly(currentTrackDuration),
+    userQueue: readonly(userQueue),
     moveTrackInQueue,
     startDrug,
     endDrug,
@@ -394,5 +406,6 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
     prevTrack,
     toggleShuffle,
     changeLoopMode,
+    addToUserQueue,
   };
 });

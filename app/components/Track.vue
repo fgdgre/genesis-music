@@ -3,7 +3,6 @@ import type { Track } from "@/types";
 import { DEFAULT_TRACK_COVER } from "@/consts";
 import { storeToRefs } from "pinia";
 import type { DeepReadonly } from "vue";
-import TracksFilters from "./TracksFilters.vue";
 
 const props = defineProps<{
   track: DeepReadonly<Track>;
@@ -23,11 +22,6 @@ const actionsItems = computed(() => {
     { label: "Edit", value: "edit", icon: "heroicons:pencil-square" },
     { label: "Delete", value: "delete", icon: "heroicons:trash" },
     {
-      label: "Add to queue",
-      value: "addToQueue",
-      icon: "material-symbols:queue-music-rounded",
-    },
-    {
       label: "Detailed info",
       value: "detailedInfo",
       icon: "material-symbols:more-horiz",
@@ -41,6 +35,11 @@ const actionsItems = computed(() => {
           label: "Delete Audio File",
           value: "deleteAudioFile",
           icon: "streamline:file-delete-alternate",
+        },
+        {
+          label: "Add to queue",
+          value: "addToQueue",
+          icon: "material-symbols:queue-music-rounded",
         },
       ]
     : [
@@ -77,7 +76,7 @@ const handleTrackAction = (action: string) => {
     }
     case "addToQueue": {
       // TODO:
-      // isUploadTrackFileModalOpen.value = true;
+      playbackStore.addToUserQueue(props.track);
       break;
     }
   }
