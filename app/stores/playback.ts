@@ -10,6 +10,8 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
 
   const filtersStore = useFiltersStore();
   const { artist, genre, order, search, sort } = storeToRefs(filtersStore);
+
+  const globalQueue = ref<Track[]>([]);
   const queueListVisible = useLocalStorage("queueListVisible", false);
   const isShuffle = useLocalStorage("isShuffle", false);
   const loopingMode = useLocalStorage<"noLoop" | "loopPlaylist" | "loopTrack">(
@@ -21,6 +23,8 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   const isChangingTimeManually = ref(false);
   const playingTrackId = useLocalStorage<string | null>("playingTrackId", null);
   const currentTrackDuration = ref(0);
+
+  const usedNavigationDirection = ref<"forward" | "backward" | null>(null);
 
   const updateCurrentTrackDuration = (newDuration: number) => {
     currentTrackDuration.value = newDuration;
@@ -98,10 +102,6 @@ export const usePlaybackStore = defineStore("playbackStore", () => {
   const toggleQueueListVisibility = () => {
     queueListVisible.value = !queueListVisible.value;
   };
-
-  const usedNavigationDirection = ref<"forward" | "backward" | null>(null);
-
-  const globalQueue = ref<Track[]>([]);
 
   const moveTrackInQueue = (fromInQueue: number, toInQueue: number) => {
     const base =
